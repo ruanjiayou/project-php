@@ -3,17 +3,37 @@ use think\Request;
 use think\Response;
 
 return [
+  /**
+   * @api {get} /test 1.测试返回字符串
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * 'Hello World!'
+   */
   'get /test' => function($req, $res) {
+    // dump(input('get.'));
+    // dump(input('put.'));
+    // dump(input('post.'));
+    // dump(input('delete.'));
     return 'Hello World!';
   },
+  /**
+   * @api {get} /test1 2.测试返回对象
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   name: 'test'
+   * }
+   */
   'get /test1' => function($req, $res) {
-    return json(['name'=>'test']);
+    return ['name'=>'test'];
   },
   /**
-   * @api {get} /test/req
-   * @apiName test
+   * @api {get} /test/req/paging 3.测试处理查询参数
    * @apiGroup test
-   * @apiDescription 访问地址/test/req?page=1&limit=2&order=id-DESC&search=搜索,返回paging()处理后的json
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -28,17 +48,99 @@ return [
     $result = $req->paging();
     $res->return($req->paging());
   },
+  /**
+   * @api {get} /test/res/return 4.测试return()响应方法
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * ['test']
+   */
   'get /test/res/return' => function($req, $res) {
     $res->return(['test']);
   },
+  /**
+   * @api {get} /test/res/success 5.测试success()响应方法
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   status: 'success'
+   * }
+   */
   'get /test/res/success' => function($req, $res) {
     $res->success();
   },
+  /**
+   * @api {get} /test/res/fail 6.测试fail()响应方法
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   status: 'fail'
+   * }
+   */
   'get /test/res/fail' => function($req, $res) {
     $res->fail();
   },
+  /**
+   * @api {get} /test/res/paging 7.测试paging()响应方法
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK 分页
+   * {
+   *   status: 'success',
+   *   result: [],
+   *   paging: {
+   *     page: 1,
+   *     pages: 1,
+   *     count: 1,
+   *     total: 1,
+   *     limit: 1
+   *   }
+   * }
+   * HTTP/1.1 200 OK 全部
+   * {
+   *   status: 'success',
+   *   result: [],
+   *   paging: {
+   *     page: 1,
+   *     pages: 1,
+   *     count: 1,
+   *     total: 1,
+   *     limit: 1
+   *   }
+   * }
+   */
   'get /test/res/paging' => function($req, $res) {
     $res->paging(['test']);
   },
+  /**
+   * @api {get} /test/req/hinter 8.测试自定义错误类
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   status: 'fail',
+   *   data: null,
+   *   error: '',
+   *   stack: []
+   * }
+   */
+  'get /test/hinter' => function($req, $res) {
+    try {
+      throw (new Hinter())->setHinter(['message'=>'test']);
+      //throw new Exception('??');
+    } catch(Hinter $h) {
+      return $h->info;
+    } catch(Exception $e) {
+      dump($e);
+      exit;
+    }
+  }
 ]
 ?>
