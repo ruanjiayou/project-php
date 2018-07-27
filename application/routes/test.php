@@ -119,7 +119,7 @@ return [
     $res->paging(['test']);
   },
   /**
-   * @api {get} /test/req/hinter 8.测试自定义错误类
+   * @api {get} /test/hinter 8.测试自定义错误类
    * @apiGroup test
    * 
    * @apiSuccessExample Success-Response:
@@ -135,6 +135,34 @@ return [
     try {
       throw (new Hinter())->setHinter(['message'=>'test']);
       //throw new Exception('??');
+    } catch(Hinter $h) {
+      return $h->info;
+    } catch(Exception $e) {
+      dump($e);
+      exit;
+    }
+  },
+  /**
+   * @api {post} /test/validater 9.测试自定义验证器
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {}
+   */
+  'post /test/validater' => function($req, $res) {
+    try {
+      $validation = new Validater([
+        'name' => 'required|string|minlength:6|maxlength:18',
+        'age' => 'required|int|min:0|max:100',
+        'price' => 'required|float:10,2|min:10|max:50',
+        'status' => 'nullable|string|enum:pending,success,fail|default:"pending"',
+        'dpt' => 'empty|text|default:""|alias:member_%',
+        'images' => 'required|array|minlength:1|maxlength:9|default:(toString)',
+        'createdAt' => 'int|default:timestamp'
+      ]);
+      $input = $validation->validate(input('post.'));
+      return $input;
     } catch(Hinter $h) {
       return $h->info;
     } catch(Exception $e) {
