@@ -1,7 +1,13 @@
 <?php
   include_once __DIR__.'/Validater.php';
   error_reporting(E_ALL^E_NOTICE);
-
+  /**
+   * php版参数校验类
+   * 作者: 阮家友
+   * 时间: 2018-7-10 01:28:10
+   * 联系: 1439120442@qq.com
+   *  git: https://github.com/ruanjiayou
+   */
   // 修改默认的异常处理器
   //set_exception_handler("Hinter");
 
