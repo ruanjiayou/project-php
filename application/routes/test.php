@@ -1,4 +1,5 @@
 <?php
+use app\model;
 use think\Request;
 use think\Response;
 
@@ -148,7 +149,12 @@ return [
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
-   * {}
+   * {
+   *   status: 'fail',
+   *   data: null,
+   *   error: '',
+   *   stack: []
+   * }
    */
   'post /test/validater' => function($req, $res) {
     try {
@@ -165,6 +171,28 @@ return [
       return $input;
     } catch(Hinter $h) {
       return $h->info;
+    } catch(Exception $e) {
+      dump($e);
+      exit;
+    }
+  },
+  /**
+   * @api {get} /test/model 10.测试model
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   id: 8,
+   *   url: 'abc',
+   *   sort: 1
+   * }
+   */
+  'get /test/model' => function($req, $res) {
+    try {
+      $bannerModel = model('banner');
+      $result = $bannerModel->add(['url'=>'test']);
+      return $result;
     } catch(Exception $e) {
       dump($e);
       exit;
