@@ -19,6 +19,9 @@ use think\response\Xml as XmlResponse;
 
 class Response
 {
+    // Hook扩展方法
+    protected static $hook = [];
+
     // 原始数据
     protected $data;
 
@@ -37,6 +40,32 @@ class Response
     protected $header = [];
 
     protected $content = null;
+
+    public function __call($method, $args)
+    {
+        if (array_key_exists($method, self::$hook)) {
+            array_unshift($args, $this);
+            return call_user_func_array(self::$hook[$method], $args);
+        } else {
+            throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
+        }
+    }
+
+    /**
+     * Hook 方法注入
+     * @access public
+     * @param string|array  $method 方法名
+     * @param mixed         $callback callable
+     * @return void
+     */
+    public static function hook($method, $callback = null)
+    {
+        if (is_array($method)) {
+            self::$hook = array_merge(self::$hook, $method);
+        } else {
+            self::$hook[$method] = $callback;
+        }
+    }
 
     /**
      * 构造函数
