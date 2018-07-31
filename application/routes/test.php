@@ -214,6 +214,20 @@ return [
     } catch(Hinter $h) {
       return $h->info;
     }
+  },
+  /**
+   * @api {get} /test/auth 12.测试 鉴权
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   state: 'fail'
+   * }
+   */
+  'get /test/auth' => function($req, $res) {
+    $req->auth('user');
+    return 'auth';
   }
 ]
 ?>

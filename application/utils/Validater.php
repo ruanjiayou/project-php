@@ -176,6 +176,11 @@
             case 'false': $rule['default']['value'] = false;break;
             case 'null': $rule['default']['value'] = null;break;
             case 'timestamp': $rule['default']['value'] = time();break;
+            case 'timestamps':
+              list($t1, $t2) = explode(' ', microtime());
+              $rule['default']['value'] = floor((floatval($t1)+floatval($t2))*1000);
+              break;
+            case 'date': $rule['default']['value'] = date('Y-m-d H:i:s');break;
             //case 'datetime': break;
             default:
               preg_match('/^([\'\"\(])(.*)(\1|\))$/',$v, $match);
@@ -249,7 +254,7 @@
             $err['rule'] = 'int';
             $this->error($err, $data);
           }
-          $v = intval($v);
+          $v = floatval($v);
         }
         if(isset($rule['float']) && $rule['float']) {
           $regstr = '/^([0-9]+)(.([0-9]+))?$/';

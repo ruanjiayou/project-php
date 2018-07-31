@@ -26,14 +26,16 @@ function loadErrors($dir) {
   return $returns;
 }
 
-$errors = loadErrors(__DIR__.'/../errors/');
+class hinterErrors {
+  static $errors = [];
+}
+hinterErrors::$errors = loadErrors(__DIR__.'/../errors/');
 
-function thrower($module, $type, $lang = 'zh-ch') {
-  global $errors;
+function thrower($module, $type, $lang = 'zh-cn') {
   $hinter = new Hinter();
-  $found = isset($errors[$lang]) && isset($errors[$lang][$module]) && isset($errors[$lang][$module][$type]);
-  $message = $found ? $errors[$lang][$module][$type]['message'] : '自定义错误数据没找到!';
-  $code = $found ? $errors[$module][$type]['code'] : 0;
+  $found = isset(hinterErrors::$errors[$lang]) && isset(hinterErrors::$errors[$lang][$module]) && isset(hinterErrors::$errors[$lang][$module][$type]);
+  $message = $found ? hinterErrors::$errors[$lang][$module][$type]['message'] : '自定义错误数据没找到!';
+  $code = $found ? hinterErrors::$errors[$lang][$module][$type]['code'] : 0;
   $hinter->info = [
     R_STATUS => R_FAIL,
     R_DATA => null,

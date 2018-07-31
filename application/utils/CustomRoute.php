@@ -2,6 +2,24 @@
 use think\Route;
 use think\Request;
 use think\Response;
+use \Firebase\JWT\JWT;
+
+Request::hook('auth', function($req){
+  $token = $req->header('token');
+  if($token === null) {
+    thrower('token', 'tokenNotFound');
+  }
+  try {
+    $token = (array)JWT::decode($token, C_AUTH_KEY, array('HS256'));
+  } catch(Exception $e) {
+    if($e->getMessage()==='Expired token') {
+      thrower('token', 'tokenExpired');
+    } else {
+      thrower('token', 'tokenFormatError');
+    }
+  }
+  return $token;
+});
 
 Request::hook('paging', function(Request $req, $cb = null){
   $query = $req->get();
@@ -26,7 +44,7 @@ Request::hook('paging', function(Request $req, $cb = null){
 
 Response::hook('return', function(Response $res, $result) {
   $res->data([
-    R_STATUS => empty($result) ? R_SUCCESS : R_FAIL,
+    R_STATUS => empty($result) ? R_FAIL : R_SUCCESS,
     R_DATA => $result,
     R_CODE => 0,
     R_ERROR => '',
@@ -66,10 +84,7 @@ Response::hook('error', function(Response $res, $e){
     R_STATUS => R_FAIL,
     R_ERROR => $e->getMessage(),
     R_STACK => [
-      'file' => $e['file'],
-      'line' => $e['line'],
-      'message' => $e['message'],
-      'trace' => $e['trace'],
+      'message' => $e->getMessage()
     ]
   ];
   $res->data($return);
@@ -139,24 +154,36 @@ class CustomRoute {
       if('pattern' == $method) {
         Route::pattern($route,$v);
       } else if(in_array($method, ['post', 'delete', 'put', 'get'])) {
-        Route::rule($route, function(Request $req, Response $res) use($v){
+        Route::rule($route.'$', function(Request $req, Response $res) use($v){
+          $result = '';
           try {
             $result = $v($req, $res);
             if(empty($result)) {
               $result = $res->getData();
             }
-            if(is_string($result)) {
-              return $result;
-            } else {
-              return json($result);
+            if(!is_string($result)) {
+              $result = json($result);
             }
           } catch(Hinter $h) {
-            return $h->info;
+            $result = json($h->info);
           } catch(Exception $e) {
-            $res->error($e);
+            $result = json([
+              R_STATUS => R_FAIL,
+              R_ERROR => $e->getMessage(),
+              R_STACK => [
+                'message' => $e->getMessage()
+              ]
+            ]);
           } catch(HttpException $he) {
-            $res->error($he);
+            $result = json([
+              R_STATUS => R_FAIL,
+              R_ERROR => $he->getMessage(),
+              R_STACK => [
+                'message' => $he->getMessage()
+              ]
+            ]);
           }
+          return $result;
         }, $method);
       }
     }

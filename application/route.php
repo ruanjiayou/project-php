@@ -16,10 +16,22 @@ define('R_PAGENATOR_TOTAL', 'total');
 define('R_ORDER', 'order');
 define('R_SEARCH', 'search');
 
-include_once __DIR__.'/utils/CustomRoute.php';
-include_once __DIR__.'/utils/Hinter.php';
-include_once __DIR__.'/utils/thrower.php';
-include_once __DIR__.'/utils/Validater.php';
+define('C_AUTH_KEY', 'ssasbbs');
+define('C_AUTH_EXPIRED', 60*60*24*7);
+
+function autoLoad($dir) {
+  $dh = opendir($dir);
+  while(($file=readdir($dh))!==false) {
+    $fullpath = $dir.$file;
+    if($file!=='.' && $file!=='..' && is_file($fullpath)) {
+      include_once $fullpath;
+    }
+  }
+  closedir($dh);
+}
+
+autoLoad(__DIR__.'/utils/');
+autoLoad(__DIR__.'/service/');
 
 // 加载所有route
 CustomRoute::loadAll(['dir'=>__DIR__.'/routes']);
