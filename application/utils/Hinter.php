@@ -10,10 +10,11 @@
     public $info;
     public function setHinter($o, $data) {
       $this->info = array(
-        'status' => 'success',
-        'data' => $data,
-        'error' => $o['message'],
-        'stack' => $o
+        R_STATUS => R_FAIL,
+        R_DATA => $data,
+        R_CODE => 1,
+        R_ERROR => $o['message'],
+        R_STACK => $o
       );
       return $this;
     }

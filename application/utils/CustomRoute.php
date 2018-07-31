@@ -6,17 +6,17 @@ use think\Response;
 Request::hook('paging', function(Request $req, $cb = null){
   $query = $req->get();
   $condition = [];
-  if(isset($query['page']) && is_numeric($query['page'])) {
-    $condition['page'] = intval($query['page']);
+  if(isset($query[R_PAGENATOR_PAGE]) && is_numeric($query[R_PAGENATOR_PAGE])) {
+    $condition[R_PAGENATOR_PAGE] = intval($query[R_PAGENATOR_PAGE]);
   }
-  if(isset($query['limit']) && is_numeric($query['limit'])) {
-    $condition['limit'] = intval($query['limit']);
+  if(isset($query[R_PAGENATOR_LIMIT]) && is_numeric($query[R_PAGENATOR_LIMIT])) {
+    $condition[R_PAGENATOR_LIMIT] = intval($query[R_PAGENATOR_LIMIT]);
   }
-  if(!empty($query['order'])) {
-    $condition['order'] = str_replace('-', ' ', $query['order']);
+  if(!empty($query[R_ORDER])) {
+    $condition[R_ORDER] = str_replace('-', ' ', $query[R_ORDER]);
   }
-  if(!empty($query['search'])) {
-    $condition['search'] = $query['search'];
+  if(!empty($query[R_SEARCH])) {
+    $condition[R_SEARCH] = $query[R_SEARCH];
   }
   if(!empty($cb)) {
     $condition = $cb($condition, $query);
@@ -25,33 +25,76 @@ Request::hook('paging', function(Request $req, $cb = null){
 });
 
 Response::hook('return', function(Response $res, $result) {
-  $res->data(['status'=> empty($result) ?'success':'fail','data'=>$result]);
+  $res->data([
+    R_STATUS => empty($result) ? R_SUCCESS : R_FAIL,
+    R_DATA => $result,
+    R_CODE => 0,
+    R_ERROR => '',
+    R_STACK => ''
+  ]);
 });
 
 Response::hook('success', function(Response $res){
-  $res->data(['status'=>'success']);
+  $res->data([
+    R_STATUS => R_SUCCESS,
+    R_DATA => null,
+    R_CODE => 0,
+    R_ERROR => '',
+    R_STACK => ''
+  ]);
 });
 
-Response::hook('fail', function(Response $res){
-  $res->data(['status'=>'fail']);
+Response::hook('fail', function(Response $res, $message='', $stack=[]){
+  $return = [
+    R_STATUS => R_FAIL,
+    R_DATA => null,
+    R_CODE => 0,
+    R_ERROR => '',
+    R_STACK => ''
+  ];
+  if($message !== '') {
+    $return[R_ERROR] = $message;
+  }
+  if(!empty($stack)) {
+    $return[R_STACK] = $stack;
+  }
+  $res->data($return);
+});
+
+Response::hook('error', function(Response $res, $e){
+  $return = [
+    R_STATUS => R_FAIL,
+    R_ERROR => $e->getMessage(),
+    R_STACK => [
+      'file' => $e['file'],
+      'line' => $e['line'],
+      'message' => $e['message'],
+      'trace' => $e['trace'],
+    ]
+  ];
+  $res->data($return);
 });
 
 Response::hook('paging', function(Response $res, $result) {
   $content = [
-    'status' => 'success',
-    'result' => [],
+    R_STATUS => R_SUCCESS,
+    R_DATA => null,
+    R_CODE => 0,
+    R_ERROR => '',
+    R_STACK => ''
   ];
+  //TODO: limit为0,没有分页
   if($result!==null && isset($result['listRows'])) {
-    $content['result'] = $result->listRows();
-    $content['pagination'] = [
-        'page'=>$result->currentPage(),
-        'pages'=>$result->lastPage(),
-        'limit'=>$result->listRows(),
-        'count'=>$result->count(),
-        'total'=>$result->total(),
-      ];
+    $content[R_DATA] = $result->listRows();
+    $content[R_PAGENATOR] = [
+      R_PAGENATOR_PAGE =>$result->currentPage(),
+      R_PAGENATOR_PAGES =>$result->lastPage(),
+      R_PAGENATOR_LIMIT =>$result->listRows(),
+      R_PAGENATOR_COUNT =>$result->count(),
+      R_PAGENATOR_TOTAL=>$result->total(),
+    ];
   } else {
-    $content['result'] = $result;
+    $content[R_DATA] = $result;
   }
   $res->data($content);
 });
@@ -77,7 +120,8 @@ class CustomRoute {
             $opt2 = [
               'dir'=>$fullpath,
               'recusive' => $opt['recusive'],
-              'callback' => function_exists($opt['callback']) ? $opt['callback'] : null];
+              'callback' => isset($opt['callback']) ? $opt['callback'] : null
+            ];
             self::scanner($opt2);
           }
         }
@@ -96,14 +140,22 @@ class CustomRoute {
         Route::pattern($route,$v);
       } else if(in_array($method, ['post', 'delete', 'put', 'get'])) {
         Route::rule($route, function(Request $req, Response $res) use($v){
-          $result = $v($req, $res);
-          if(empty($result)) {
-            $result = $res->getData();
-          }
-          if(is_string($result)) {
-            return $result;
-          } else {
-            return json($result);
+          try {
+            $result = $v($req, $res);
+            if(empty($result)) {
+              $result = $res->getData();
+            }
+            if(is_string($result)) {
+              return $result;
+            } else {
+              return json($result);
+            }
+          } catch(Hinter $h) {
+            return $h->info;
+          } catch(Exception $e) {
+            $res->error($e);
+          } catch(HttpException $he) {
+            $res->error($he);
           }
         }, $method);
       }

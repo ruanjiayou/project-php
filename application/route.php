@@ -1,35 +1,26 @@
 <?php
+
+define('R_STATUS', 'state');
+define('R_SUCCESS', 'success');
+define('R_FAIL', 'fail');
+define('R_DATA', 'rdata');
+define('R_CODE', 'ecode');
+define('R_ERROR', 'error');
+define('R_STACK', 'stack');
+define('R_PAGENATOR', 'pagination');
+define('R_PAGENATOR_PAGE', 'page');
+define('R_PAGENATOR_PAGES', 'pages');
+define('R_PAGENATOR_LIMIT', 'limit');
+define('R_PAGENATOR_COUNT', 'count');
+define('R_PAGENATOR_TOTAL', 'total');
+define('R_ORDER', 'order');
+define('R_SEARCH', 'search');
+
 include_once __DIR__.'/utils/CustomRoute.php';
 include_once __DIR__.'/utils/Hinter.php';
+include_once __DIR__.'/utils/thrower.php';
 include_once __DIR__.'/utils/Validater.php';
 
-// function loadClass($opt = array()) {
-//   if(!isset($opt['recusive'])) {
-//     $opt['recusive'] = false;
-//   }
-//   if(isset($opt['dir']) && is_dir($opt['dir'])) {
-//     $dh = opendir($opt['dir']);
-//     while(($file=readdir($dh))!==false) {
-//       if($file !='.'&&$file!='..') {
-//         $fullpath = $opt['dir'].'/'.$file;
-//         if(is_file($fullpath)) {
-//           include_once($fullpath);
-//         }
-//         if($opt === 'true' && is_dir($fullpath)) {
-//           $opt2 = [
-//             'dir'=>$fullpath,
-//             'recusive' => $opt['recusive'],
-//             'callback' => function_exists($opt['callback']) ? $opt['callback'] : null];
-//           loadClass($opt2);
-//         }
-//       }
-//     }
-//     closedir($dh);
-//   }
-// }
-// // 加载所有model
-// // CustomRoute::scanner(['dir'=>__DIR__.'/models']);
-// loadClass(['dir'=>__DIR__.'/models']);
 // 加载所有route
 CustomRoute::loadAll(['dir'=>__DIR__.'/routes']);
 ?>

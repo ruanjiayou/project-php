@@ -134,7 +134,7 @@ return [
    */
   'get /test/hinter' => function($req, $res) {
     try {
-      throw (new Hinter())->setHinter(['message'=>'test']);
+      throw (new Hinter())->setHinter(['message'=>'test'], null);
       //throw new Exception('??');
     } catch(Hinter $h) {
       return $h->info;
@@ -196,6 +196,23 @@ return [
     } catch(Exception $e) {
       dump($e);
       exit;
+    }
+  },
+  /**
+   * @api {get} /test/model 11.测试thrower
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   state: 'fail'
+   * }
+   */
+  'get /test/thrower' => function($req, $res) {
+    try {
+      thrower('common', 'unknown');
+    } catch(Hinter $h) {
+      return $h->info;
     }
   }
 ]
