@@ -17,7 +17,8 @@ class ModelBase extends Model {
     }
 
     public function edit($condition, $data) {
-        return db($this->name)->where($condition)->update($data);
+        db($this->name)->where($condition)->update($data);
+        return $this->getInfo($condition);
     }
 
     public function getInfo($condition) {

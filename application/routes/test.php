@@ -219,6 +219,8 @@ return [
    * @api {get} /test/auth 12.测试 鉴权
    * @apiGroup test
    * 
+   * @apiHeader {string} token 令牌
+   * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
@@ -228,6 +230,33 @@ return [
   'get /test/auth' => function($req, $res) {
     $req->auth('user');
     return 'auth';
+  },
+  /**
+   * @api {get} /test/_ 13.仿lodash函数工具库
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   state: 'success'
+   * }
+   */
+  'get /test/_' => function($req, $res) {
+    _::log('true', _::type(true));
+    _::log('[]', _::type([]));
+    _::log('new stdClass()', _::type(new stdClass()));
+    _::log('function(){}', _::type(function(){}));
+    _::log('["test"=>"test"]', _::type(['test'=>'test']));
+    _::log('123', _::type(123));
+    _::log('123.456', _::type(123.456));
+    _::log('string', _::type('string'));
+    _::log('null', _::type(null));
+
+    _::log('null', _::isEmptyObject(null));
+    _::log('[]', _::isEmptyObject([]));
+    _::log('["abc"]', _::isEmptyObject(['abc']));
+    dump(strtotime('2018-08-01 17:19:07'));
+    return 'end';
   }
 ]
 ?>
