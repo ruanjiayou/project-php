@@ -10,13 +10,19 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string} trueName 真实姓名
-   * @apiParam {string} nickName 昵称
-   * @apiParam {int} age 密码
-   * @apiParam {int} height 验证码
-   * @apiParam {int} weight 验证码
-   * @apiParam {string} city 所在城市
-   * @apiParam {string} identity 身份证
+   * @apiParam {string} [trueName] 真实姓名
+   * @apiParam {string} [nickName] 昵称
+   * @apiParam {string} [avatar] 头像
+   * @apiParam {int} [age] 年龄
+   * @apiParam {int} [height] 身高
+   * @apiParam {int} [weight] 体重
+   * @apiParam {float} [x] 经度
+   * @apiParam {float} [y] 纬度
+   * @apiParam {string} [address] 籍贯
+   * @apiParam {string} [city] 所在城市
+   * @apiParam {string} [identity] 身份证
+   * @apiParam {string} [introduce] 简介
+   * @apiParam {array} [tags] 个性标签
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -24,12 +30,33 @@ return [
    *   status: 'success',
    *   result: {
    *     id: 1,
+   *     phone: '18888888888',
+   *     identity: '421224199311111111',
+   *     rccode: '123456',
+   *     trueName: '阮家友',
+   *     nickName: 'max',
+   *     avatar: 'https://images.baidu.com',
+   *     introduce: '简介',
+   *     tags: '',
+   *     height: 160,
+   *     weight: 100,
+   *     score: 4.9,
+   *     x: "0.0000",
+   *     y: "0.0000",
+   *     images: 6,
+   *     popular: 10086,
+   *     money: 888,
+   *     address: "",
+   *     city: '武汉',
+   *     type: "servant",
+   *     createdAt: "2018-07-31 17:43:48"
    *   }
    * }
    */
   'put /v1/user/self' => function($req, $res) {
-    //TODO:
-    return 'user-self';
+    $user = UserBLL::auth($req);
+    $result = UserBLL::update(input('put.'), ['id'=>$user['id']]);
+    $res->return(_::filter($result, ['password', 'token', 'salt']));
   },
   /**
    * @api {put} /v1/user/password 修改密码
@@ -65,12 +92,35 @@ return [
    *   status: 'success',
    *   result: {
    *     id: 1,
+   *     phone: '18888888888',
+   *     identity: '421224199311111111',
+   *     rccode: '123456',
+   *     trueName: '阮家友',
+   *     nickName: 'max',
+   *     avatar: 'https://images.baidu.com',
+   *     introduce: '简介',
+   *     tags: '',
+   *     height: 160,
+   *     weight: 100,
+   *     score: 4.9,
+   *     x: "0.0000",
+   *     y: "0.0000",
+   *     images: 6,
+   *     popular: 10086,
+   *     money: 888,
+   *     address: "",
+   *     city: '武汉',
+   *     type: "servant",
+   *     createdAt: "2018-07-31 17:43:48"
    *   }
    * }
    */
   'get /v1/user/self' => function($req, $res) {
     $user = UserBLL::auth($req);
-    $res->return($user);
+    if($user['tags']!=='') {
+      $user['tags'] = json_decode($user['tags']);
+    }
+    $res->return(_::filter($user, ['password', 'token', 'salt']));
   }
 ];
 

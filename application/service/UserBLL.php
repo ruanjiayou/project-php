@@ -33,7 +33,7 @@ class UserBLL {
     if(!empty($result)) {
       thrower('user', 'phoneRegistered');
     }
-    if($input['type'] === 'servant') {
+    if($input['type'] !== 'agency') {
       if($rccode === null) {
         thrower('rccode', 'needRCcode');
       }
@@ -42,12 +42,15 @@ class UserBLL {
         thrower('rccode', 'RCcodeNotFound');
       } else if($result['userId']!==null) {
         thrower('rccode', 'RCcodeUsed');
+      } else if(time() > 60*10+strtotime($result['createdAt'])) {
+        // 过期时间: 10封装
+        thrower('rccode', 'RCcodeExpired');
       }
     }
-    //TODO: $code
+    //TODO: 短信验证码$code
 
     $result = model('user')->add($input);
-    model('rccode')->edit(['rccode'=>$rccode], ['userId'=>$result['id']]);
+    model('rccode')->edit(['rccode'=>$rccode], ['userId'=>$result['id'], 'userName'=>$result['nickName'], 'userAvatar'=>$result['avatar'], 'type'=>$result['type']]);
     return $result;
   }
 
@@ -81,5 +84,31 @@ class UserBLL {
     return $data;
   }
 
+  /**
+   * TODO: 同步 rccode表的 name和avatar字段
+   */
+  static public function update($data, $condition) {
+    $validation = new Validater([
+      'identity' => 'string',
+      'trueName' => 'string|maxlength:18',
+      'nickName' => 'string|minlength:3|maxlength:18',
+      'avatar' => 'string|maxlength:255',
+      'introduce' => 'string|maxlength:255',
+      'address' => 'string|maxlength:255',
+      'city' => 'string|maxlength:255',
+      'age' => 'nonzero|int|min:0|max:100',
+      'height' => 'int',
+      'weight' => 'int',
+      'x' => 'float',
+      'y' => 'float',
+      'tags' => 'object|default:(toString)'
+    ]);
+    $input = $validation->validate($data);
+    $user = model('user')->edit($condition, $input);
+    if($user['tags']!=='') {
+      $user['tags'] = json_decode($user['tags']);
+    }
+    return $user;
+  }
 }
 ?>
