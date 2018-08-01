@@ -12,8 +12,8 @@
   //set_exception_handler("Hinter");
 
   class Validater {
-    static public $types = ['required', 'nullable', 'empty', 'nozero', 'default', 'alias', 'minlength', 'maxlength', 'length', 'min', 'max', 'methods', 'array', 'char', 'string', 'text', 'enum', 'int', 'float', 'file', 'boolean', 'date', 'dateonly', 'timeonly'];
-    static public $atoms = ['methods', 'array', 'char', 'string', 'text', 'enum', 'int', 'float', 'file', 'boolean', 'date', 'dateonly', 'timeonly'];
+    static public $types = ['required', 'nullable', 'object', 'empty', 'nozero', 'default', 'alias', 'minlength', 'maxlength', 'length', 'min', 'max', 'methods', 'array', 'char', 'string', 'text', 'enum', 'int', 'float', 'file', 'boolean', 'date', 'dateonly', 'timeonly'];
+    static public $atoms = ['methods', 'array', 'object', 'char', 'string', 'text', 'enum', 'int', 'float', 'file', 'boolean', 'date', 'dateonly', 'timeonly'];
     static public $bools = [1, '1', true, 'TRUE'];
     static public $messages = array(
       'zh-cn' => array(
@@ -30,6 +30,8 @@
         'float.n'=> '{{field}} 字段的值 {{data}} 小数位数多于限定值 {{value}}!',
         'boolean'=> '{{field}} 字段的值 {{data}} 不是布尔类型!',
         'enum'=> '{{field}} 字段的值 {{data}} 不是{{rule}} 规则中 {{value}} 中的一种!',
+        'array'=> '{{field}} 字段的值 {{data}} 不是数组!',
+        'object'=> '{{field}} 字段的值 {{data}} 不是对象!',
         'min'=> '{{field}}的值最小为{{value}}!',
         'max'=> '{{field}}的值最大为{{value}}!',
         'minlength'=> '{{field}}的长度最小为{{value}}!',
@@ -175,6 +177,7 @@
             case 'true': $rule['default']['value'] = true;break;
             case 'false': $rule['default']['value'] = false;break;
             case 'null': $rule['default']['value'] = null;break;
+            case 'array': $rule['default']['value'] = [];break;
             case 'timestamp': $rule['default']['value'] = time();break;
             case 'timestamps':
               list($t1, $t2) = explode(' ', microtime());
@@ -240,7 +243,7 @@
           $this->error($err, $data);
         }
         if(null == $v || '' == $v) {
-          if($rule['required']) {
+          if(isset($rule['required']) && $rule['required']) {
             $err['rule'] = 'required';
             $err['value'] = $v;
             $this->error($err, $data);
@@ -287,6 +290,10 @@
         }
         if(isset($rule['array']) && $rule['array'] && is_array($rule['array']) && !is_array($v)) {
           $err['rule'] = 'array';
+          $this->error($err, $data);
+        }
+        if(isset($rule['object']) && !_::isObject($data)) {
+          $err['rule'] = 'object';
           $this->error($err, $data);
         }
         if(is_string($v) || is_array($v)) {

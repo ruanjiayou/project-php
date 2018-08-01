@@ -13,7 +13,17 @@ return [
   'passwordError' => [
     'code' => 10230,
     'status' => 200,
-    'message' => '密码错误!'
+    'message' => '账号或密码错误!'
+  ],
+  "approving" => [
+    "code" => 10240,
+    "status" => 403,
+    "message" => "申请中!"
+  ],
+  "unapproved" => [
+    "code" => 10250,
+    "status" => 401,
+    "message" => "申请失败!"
   ]
 ];
 ?>

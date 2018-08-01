@@ -98,9 +98,8 @@ Response::hook('paging', function(Response $res, $result) {
     R_ERROR => '',
     R_STACK => ''
   ];
-  //TODO: limit为0,没有分页
-  if($result!==null && isset($result['listRows'])) {
-    $content[R_DATA] = $result->listRows();
+  if($result!==null && 'object' === _::type($result)) {
+    $content[R_DATA] = $result->items();
     $content[R_PAGENATOR] = [
       R_PAGENATOR_PAGE =>$result->currentPage(),
       R_PAGENATOR_PAGES =>$result->lastPage(),
@@ -108,6 +107,9 @@ Response::hook('paging', function(Response $res, $result) {
       R_PAGENATOR_COUNT =>$result->count(),
       R_PAGENATOR_TOTAL=>$result->total(),
     ];
+    if($content[R_PAGENATOR][R_PAGENATOR_LIMIT]===0) {
+      unset($content[R_PAGENATOR]);
+    }
   } else {
     $content[R_DATA] = $result;
   }

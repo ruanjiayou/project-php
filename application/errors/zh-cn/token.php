@@ -14,6 +14,11 @@ return [
     'code' => 10430,
     'status' => 200,
     'message' => 'token已过期!'
-  ]
+  ],
+  "tokenFail" => [
+    "code" => 10440,
+    "status" => 200,
+    "message" => "验证失败!"
+  ],
 ];
 ?>
