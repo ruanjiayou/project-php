@@ -12,8 +12,13 @@ return [
   ],
   'RCcodeUsed' => [
     'code' => 10330,
-    'status' => 10340,
+    'status' => 200,
     'message' => '推荐码已被使用!'
+  ],
+  'RCcodeExpired' => [
+    'code' => 10340,
+    'status' => 200,
+    'message' => '推荐码已过期!'
   ]
 ];
 ?>
