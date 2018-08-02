@@ -191,8 +191,10 @@ return [
   'get /test/model' => function($req, $res) {
     try {
       $bannerModel = model('banner');
-      $result = $bannerModel->add(['url'=>'test']);
-      return $result;
+      //$result = $bannerModel->add(['url'=>'test']);
+      //return $result;
+      $result = $bannerModel->getList(['field'=>'!id']);
+      $res->paging($result);
     } catch(Exception $e) {
       dump($e);
       exit;

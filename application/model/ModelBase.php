@@ -21,24 +21,34 @@ class ModelBase extends Model {
         return $this->getInfo($condition);
     }
 
-    public function getInfo($condition) {
-        unset($condition['page']);
-        unset($condition['limit']);
-        return db($this->name)->where($condition)->find();
+    public function getInfo($condition, $opt = []) {
+        $order = isset($opt['order']) ? $opt['order'] : $this->primaryKey.' DESC';
+        $field = isset($opt['field']) ? $opt['field'] : '*';
+        $exclude = false;
+        if($field[0] === '!') {
+            $exclude = true;
+            $field = substr($field, 1);
+        }
+        return db($this->name)->where($condition)->field($field, $exclude)->order($order)->find();
     }
 
     public function getList($opts=array()) {
-        $where = $opts['where'];
+        $where = isset($opts['where']) ? $opots['where'] : [];
         $field = isset($opts['field']) ? $opts['field'] : '*';
+        $exclude = false;
+        if($field[0] === '!') {
+            $exclude = true;
+            $field = substr($field, 1);
+        }
         $order = isset($opts['order']) ? $opts['order'] : $this->primaryKey.' DESC';
         $limit = isset($where['limit']) ? $where['limit'] : 10;
         $page = isset($where['page']) ? $where['page'] : 1;
         unset($where['page']);
         unset($where['limit']);
         if($limit === 0) {
-            return db($this->name)->where($where)->field($field)->order($order)->select();
+            return db($this->name)->where($where)->field($field, $exclude)->order($order)->select();
         } else {
-            return db($this->name)->where($where)->field($field)->order($order)->paginate($limit,false,['page'=>$page]);
+            return db($this->name)->where($where)->field($field, $exclude)->order($order)->paginate($limit,false,['page'=>$page]);
         }
     }
 }
