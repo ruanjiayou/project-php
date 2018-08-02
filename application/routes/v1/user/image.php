@@ -44,7 +44,7 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {int|array} id body参数
+   * @apiParam {array} id body参数
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -58,13 +58,16 @@ return [
    */
   'delete /v1/user/images' => function($req, $res) {
     $user = UserBLL::auth($req);
-    $param = input('delete.');
-    if(_::isNumber($param) || _::isArray($param)) {
-      model('userImage')->remove(['id'=>$param]);
-      $images = $user['images'];
-      if($images > 0) {
-        $user = UserBLL::update(['images'=>--$images], ['id'=>$user['id']]);
+    $param = input('delete.')['id'];
+    if(_::isArray($param)) {
+      $condition = ['id'=>['in', $param], 'userId'=>$user['id']];
+      $imagesData = model('userImage')->getList(['where'=>$condition]);
+      $images = $user['images'] - $imagesData->count();
+      model('userImage')->remove($condition);
+      if($images < 0) {
+        $images = 0;
       }
+      $user = UserBLL::update(['images'=>$images], ['id'=>$user['id']]);
     } else {
       thrower('common', 'validation');
     }
@@ -96,11 +99,16 @@ return [
   'put /v1/user/images/:imageId' => function($req, $res) {
     $user = UserBLL::auth($req);
     $id = $req->param('imageId');
-    $images = $req->file('images');
-    $info = $images->move(ROOT_PATH.'public/images/');
-    $url = _::replace('/images/'.$info->getSaveName(), '\\', '/');
-    $result = model('userImage')->edit(['userId'=>$user['id'], 'id'=>$id], ['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
-    $res->return($result);
+    // TODO: 这样获取不了文件,改: file_get_contents('php://input', 'r'));
+    $images = $req->file();
+    if(!empty($images)) {
+      $info = $images->move(ROOT_PATH.'public/images/');
+      $url = _::replace('/images/'.$info->getSaveName(), '\\', '/');
+      $result = model('userImage')->edit(['userId'=>$user['id'], 'id'=>$id], ['url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
+      $res->return($result);
+    } else {
+      $res->fail();
+    }
   },
   /**
    * @api {get} /v1/user/images 获取所有图片
