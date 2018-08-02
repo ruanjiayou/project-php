@@ -33,7 +33,7 @@ class ModelBase extends Model {
     }
 
     public function getList($opts=array()) {
-        $where = isset($opts['where']) ? $opots['where'] : [];
+        $where = isset($opts['where']) ? $opts['where'] : [];
         $field = isset($opts['field']) ? $opts['field'] : '*';
         $exclude = false;
         if($field[0] === '!') {

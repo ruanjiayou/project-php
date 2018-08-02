@@ -150,6 +150,30 @@ class _ {
     }
     return $oo;
   }
+
+  /**
+   * 合并返回新的
+   */
+  static public assign($o, $d) {
+    $result = self::deepClone($o);
+    if(self::isObject($d)) {
+      foreach($d as $k => $v) {
+        $result[$k] = $v;
+      }
+    }
+    return $result;
+  }
+
+  /**
+   * 合并无返回
+   */
+  static public assign($o, $d) {
+    if(self::isObject($o) && self::isObject($d)) {
+      foreach($d as $k => $v) {
+        $o[$k] = $v;
+      }
+    }
+  }
   
   static public function compare() {
 
