@@ -45,6 +45,16 @@ class _ {
     
   }
   
+  static public function isInt($o) {
+    $t = _::type($o);
+    return 'integer' === $t;
+  }
+  
+  static public function isFloat($o) {
+    $t = _::type($o);
+    return 'float' === $t || 'double' === $t;
+  }
+  
   static public function isNumber($o) {
     $t = _::type($o);
     return 'integer' === $t || 'double' === $t;
@@ -178,5 +188,11 @@ class _ {
     return $res;
   }
 
+  /**
+   * 字符串替换
+   */
+  static public function replace($str, $pattern, $replace) {
+    return str_replace($pattern, $replace, $str);
+  }
 }
 ?>

@@ -238,10 +238,6 @@
         if(null == $v && $rule['nullable'] || $v == '' && $rule['empty']) {
           continue;
         }
-        if(isset($rule['nonzero']) && $rule['nonzero'] && ($v == 0 || $v == '0')) {
-          $err['rule'] = 'nonzero';
-          $this->error($err, $data);
-        }
         if(null == $v || '' == $v) {
           if(isset($rule['required']) && $rule['required']) {
             $err['rule'] = 'required';
@@ -251,6 +247,10 @@
             unset($data[$k]);
             continue;
           }
+        }
+        if(isset($rule['nonzero']) && $rule['nonzero'] && ($v == 0 || $v == '0')) {
+          $err['rule'] = 'nonzero';
+          $this->error($err, $data);
         }
         if(isset($rule['int']) && $rule['int']) {
           if(!is_numeric($v)) {
