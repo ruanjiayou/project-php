@@ -102,6 +102,8 @@ class UserBLL {
       'x' => 'float',
       'y' => 'float',
       'images' => 'int',
+      'status' => 'string|enum:approving,approved,forbidden',
+      'attr' => 'string|enum:normal,hot',
       'tags' => 'object|default:(toString)'
     ]);
     $input = $validation->validate($data);

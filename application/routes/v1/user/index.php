@@ -55,7 +55,12 @@ return [
    */
   'put /v1/user/self' => function($req, $res) {
     $user = UserBLL::auth($req);
-    $result = UserBLL::update(input('put.'), ['id'=>$user['id']]);
+    $data = input('put.');
+    unset($data['status']);
+    if($user['status'] === 'registered') {
+      $data['status'] = $user['type'] === 'servant' ? 'approving' : 'approved';
+    }
+    $result = UserBLL::update($data, ['id'=>$user['id']]);
     $res->return(_::filter($result, ['password', 'token', 'salt']));
   },
   /**
