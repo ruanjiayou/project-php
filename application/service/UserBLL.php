@@ -101,6 +101,7 @@ class UserBLL {
       'weight' => 'int',
       'x' => 'float',
       'y' => 'float',
+      'images' => 'int',
       'tags' => 'object|default:(toString)'
     ]);
     $input = $validation->validate($data);

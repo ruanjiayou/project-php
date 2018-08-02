@@ -8,7 +8,7 @@ return [
   ],
   "validation" => [
     "code" => 10120,
-    "statusCode" => 200,
+    "status" => 200,
     "message" => "validate error"
   ],
 ];
