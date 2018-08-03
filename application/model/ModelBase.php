@@ -5,34 +5,36 @@ use think\Model;
 class ModelBase extends Model {
     public $primaryKey = 'id';
 
-    public function add($data) {
+    function add($data) {
         $id = db($this->name)->insertGetId($data);
         $condition = array();
         $condition[$this->primaryKey] = $id;
         return $this->getInfo($condition);
     }
 
-    public function remove($condition) {
+    function remove($condition) {
         return db($this->name)->where($condition)->delete();
     }
 
-    public function edit($condition, $data) {
+    function edit($condition, $data) {
         db($this->name)->where($condition)->update($data);
         return $this->getInfo($condition);
     }
 
-    public function getInfo($condition, $opt = []) {
-        $order = isset($opt['order']) ? $opt['order'] : $this->primaryKey.' DESC';
+    function getInfo($condition, $opt = []) {
         $field = isset($opt['field']) ? $opt['field'] : '*';
         $exclude = false;
         if($field[0] === '!') {
             $exclude = true;
             $field = substr($field, 1);
         }
-        return db($this->name)->where($condition)->field($field, $exclude)->order($order)->find();
+        if(is_integer($condition) || is_string($condition)) {
+            $condition = [$this->primaryKey=>$condition];
+        }
+        return db($this->name)->where($condition)->field($field, $exclude)->find();
     }
 
-    public function getList($opts=array()) {
+    function getList($opts=array()) {
         $where = isset($opts['where']) ? $opts['where'] : [];
         $field = isset($opts['field']) ? $opts['field'] : '*';
         $exclude = false;
@@ -52,3 +54,5 @@ class ModelBase extends Model {
         }
     }
 }
+
+?>

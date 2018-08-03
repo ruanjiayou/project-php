@@ -19,6 +19,8 @@ define('R_SEARCH', 'search');
 define('C_AUTH_KEY', 'ssasbbs');
 define('C_AUTH_EXPIRED', 60*60*24*7);
 
+include_once __DIR__.'/service/BLL.php';
+
 function autoLoad($dir) {
   $dh = opendir($dir);
   while(($file=readdir($dh))!==false) {
