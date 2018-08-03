@@ -26,7 +26,8 @@ return [
    * }
    */
   'post /v1/auth/user/sign-up' => function($req, $res) {
-    $result = UserBLL::signUp(input('post.'));
+    $userBLL = new UserBLL();
+    $result = $userBLL->signUp(input('post.'));
     $res->return($result);
   },
   /**
@@ -46,7 +47,8 @@ return [
    * }
    */
   'post /v1/auth/user/sign-in' => function($req, $res) {
-    $result = UserBLL::signIn(input('post.'));
+    $userBLL = new UserBLL();
+    $result = $userBLL->signIn(input('post.'));
     $res->return($result);
   },
   /**

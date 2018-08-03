@@ -22,14 +22,16 @@ class ModelBase extends Model {
     }
 
     public function getInfo($condition, $opt = []) {
-        $order = isset($opt['order']) ? $opt['order'] : $this->primaryKey.' DESC';
         $field = isset($opt['field']) ? $opt['field'] : '*';
         $exclude = false;
         if($field[0] === '!') {
             $exclude = true;
             $field = substr($field, 1);
         }
-        return db($this->name)->where($condition)->field($field, $exclude)->order($order)->find();
+        if(is_integer($condition) || is_string($condition)) {
+            $condition = [$this->primaryKey=>$condition];
+        }
+        return db($this->name)->where($condition)->field($field, $exclude)->find();
     }
 
     public function getList($opts=array()) {

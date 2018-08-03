@@ -29,11 +29,14 @@ return [
    * }
    */
   'post /v1/user/rccode' => function($req, $res) {
-    $user = UserBLL::auth($req);
+    $userBLL = new UserBLL();
+    $rccodeBLL = new RccodeBLL();
+    $user = $userBLL->auth($req);
+
     if($user['type']!=='agency') {
       thrower('user', 'userNotFound');
     }
-    $result = RccodeBLL::create($user);
+    $result = $rccodeBLL->create($user);
     $res->return($result);
   },
   /**
@@ -53,7 +56,10 @@ return [
    * }
    */
   'delete /v1/user/rccode/:userId' => function($req, $res) {
-    $user = UserBLL::auth($req);
+    $userBLL = new UserBLL();
+    $rccodeBLL = new RccodeBLL();
+    $user = $userBLL->auth($req);
+
     $result = [];
     $res->fail();
   },
@@ -89,14 +95,19 @@ return [
    * }
    */
   'get /v1/user/rccode' => function($req, $res) {
-    $user = UserBLL::auth($req);
-    $hql = $req->paging();
-    if($user['type']==='agency') {
-      $hql['where']['agencyId'] = $user['id'];
-    } else {
-      $hql['where']['userId'] = $user['id'];
-    }
-    $users = model('rccode')->getList($hql);
+    $userBLL = new UserBLL();
+    $rccodeBLL = new RccodeBLL();
+    $user = $userBLL->auth($req);
+
+    $hql = $req->paging(function($h) {
+      if($user['type']==='agency') {
+        $h['where']['agencyId'] = $user['id'];
+      } else {
+        $h['where']['userId'] = $user['id'];
+      }
+      return $h;
+    });
+    $users = $rccodeBLL->getList($hql);
     $res->paging($users);
   }
 ];

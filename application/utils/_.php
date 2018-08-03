@@ -56,8 +56,7 @@ class _ {
   }
   
   static public function isNumber($o) {
-    $t = _::type($o);
-    return 'integer' === $t || 'double' === $t;
+    return preg_match("/^\d+$/",$o);
   }
   
   static public function isBoolean($o) {
@@ -154,7 +153,7 @@ class _ {
   /**
    * 合并返回新的
    */
-  static public assign($o, $d) {
+  static public function assign($o, $d) {
     $result = self::deepClone($o);
     if(self::isObject($d)) {
       foreach($d as $k => $v) {
@@ -167,7 +166,7 @@ class _ {
   /**
    * 合并无返回
    */
-  static public assign($o, $d) {
+  static public function assignIn($o, $d) {
     if(self::isObject($o) && self::isObject($d)) {
       foreach($d as $k => $v) {
         $o[$k] = $v;

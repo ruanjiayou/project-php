@@ -26,16 +26,19 @@ return [
    * }
    */
   'post /v1/user/images' => function($req, $res) {
-    $user = UserBLL::auth($req);
+    $userBLL = new UserBLL();
+    $userImageBLL = new UserImageBLL();
+    $user = $userBLL->auth($req);
+
     $images = $req->file('images');
     if($user['images'] < 9) {
-      $user = UserBLL::update(['images'=>++$user['images']], ['id'=>$user['id']]);
+      $user = $userBLL->update(['images'=>++$user['images']], ['id'=>$user['id']]);
     } else {
       thrower('image', 'overLimit');
     }
     $info = $images->move(ROOT_PATH.'public/images/');
     $url = _::replace('/images/'.$info->getSaveName(), '\\', '/');
-    $result = model('userImage')->add(['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
+    $result = $userImageBLL->create(['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
     $res->return($result);
   },
   /**
@@ -57,17 +60,20 @@ return [
    * }
    */
   'delete /v1/user/images' => function($req, $res) {
-    $user = UserBLL::auth($req);
+    $userBLL = new UserBLL();
+    $userImageBLL = new UserImageBLL();
+    $user = $userBLL->auth($req);
+
     $param = input('delete.')['id'];
     if(_::isArray($param)) {
       $condition = ['id'=>['in', $param], 'userId'=>$user['id']];
-      $imagesData = model('userImage')->getList(['where'=>$condition]);
+      $imagesData = $userImageBLL->getList(['where'=>$condition]);
       $images = $user['images'] - $imagesData->count();
-      model('userImage')->remove($condition);
+      $userImageBLL->destroy($condition);
       if($images < 0) {
         $images = 0;
       }
-      $user = UserBLL::update(['images'=>$images], ['id'=>$user['id']]);
+      $user = $userBLL->update(['images'=>$images], $user['id']);
     } else {
       thrower('common', 'validation');
     }
@@ -97,14 +103,17 @@ return [
    * }
    */
   'put /v1/user/images/:imageId' => function($req, $res) {
-    $user = UserBLL::auth($req);
+    $userBLL = new UserBLL();
+    $userImageBLL = new UserImageBLL();
+    $user = $userBLL->auth($req);
+
     $id = $req->param('imageId');
     // TODO: 这样获取不了文件,改: file_get_contents('php://input', 'r'));
     $images = $req->file();
     if(!empty($images)) {
       $info = $images->move(ROOT_PATH.'public/images/');
       $url = _::replace('/images/'.$info->getSaveName(), '\\', '/');
-      $result = model('userImage')->edit(['userId'=>$user['id'], 'id'=>$id], ['url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
+      $result = $userImageBLL->update(['userId'=>$user['id'], 'id'=>$id], ['url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
       $res->return($result);
     } else {
       $res->fail();
@@ -132,9 +141,12 @@ return [
    * }
    */
   'get /v1/user/images' => function($req, $res) {
-    $user = UserBLL::auth($req);
-    $hql = ['where'=>['userId'=>$user['id']], 'limit'=>0];
-    $result = model('userImage')->getList($hql);
+    $userBLL = new UserBLL();
+    $userImageBLL = new UserImageBLL();
+    $user = $userBLL->auth($req);
+
+    $hql = ['where'=>['userId'=>$user['id']]];
+    $result = $userImageBLL->getAll($hql);
     $res->paging($result);
   }
 ];

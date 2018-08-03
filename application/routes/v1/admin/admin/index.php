@@ -27,9 +27,11 @@ return [
    * }
    */
   'post /v1/admin/admin' => function($req, $res) {
-    $admin = AdminBLL::auth($req);
-    $nAdmin = AdminBLL::create(input('post.'));
-    $res->return(_::filter($nAdmin, ['password', 'token', 'salt']));
+    $adminBLL = new AdminBLL();
+    $admin = $adminBLL::auth($req);
+
+    $nAdmin = $adminBLL->create(input('post.'));
+    $res->return($nAdmin);
   },
   /**
    * @api {delete} /v1/admin/admin/:adminId 删除普通管理员
@@ -48,8 +50,10 @@ return [
    * }
    */
   'delete /v1/admin/admin/:adminId' => function($req, $res) {
-    $admin = AdminBLL::auth($req);
-    model('admin')->remove(['id'=>$req->param('adminId')]);
+    $adminBLL = new AdminBLL();
+    $admin = $adminBLL::auth($req);
+    
+    $adminBLL->destroy($req->param('adminId'));
     $res->success();
   },
   /**
@@ -71,8 +75,10 @@ return [
    * }
    */
   'put /v1/admin/admin/:adminId/authority' => function($req, $res) {
-    $admin = AdminBLL::auth($req);
-    AdminBLL::changeRight($req->param('adminId'), input('put.'));
+    $adminBLL = new AdminBLL();
+    $admin = $adminBLL::auth($req);
+    
+    $adminBLL::changeRight($req->param('adminId'), input('put.'));
     $res->success();
   },
   /**
@@ -110,16 +116,20 @@ return [
    * }
    */
   'get /v1/admin/admin' => function($req, $res) {
-    $admin = AdminBLL::auth($req);
-    $hql = $req->paging();
-    $hql['where']['isSA'] = 0;
-    //TODO: $hql['field] = [];
+    $adminBLL = new AdminBLL();
+    $admin = $adminBLL::auth($req);
+    
+    $hql = $req->paging(function($h){
+      $h['where'] = input('get.');
+      $h['where']['isSA'] = 0;
+      $h['field'] = '!password,token,salt';
+    });
     //TODO: 关联查询 权限表
-    $admins = model('admin')->getList($hql);
+    $admins = $adminBLL->getList($hql);
     $res->paging($admins);
   },
   /**
-   * @api {get} /v1/admin/admin 普通管理员列表
+   * @api {get} /v1/admin/admin/:adminId 普通管理员详情
    * @apiGroup admin-admin
    * 
    * @apiHeader {string} token 鉴权
@@ -145,9 +155,11 @@ return [
    * }
    */
   'get /v1/admin/admin/:adminId' => function($req, $res) {
-    $admin = AdminBLL::auth($req);
-    $nAdmin = model('admin')->getInfo(['id'=>$req->param('adminId')]);
-    $res->return(_::filter($nAdmin, ['password', 'token', 'salt']));
+    $adminBLL = new AdminBLL();
+    $admin = $adminBLL::auth($req);
+    
+    $nAdmin = $adminBLL->getInfo($req->param('adminId'));
+    $res->return($nAdmin);
   }
 ];
 ?>

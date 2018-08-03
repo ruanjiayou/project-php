@@ -2,17 +2,19 @@
 use \Firebase\JWT\JWT;
 use think\Request;
 
-class RccodeBLL {
+class RccodeBLL extends BLL {
   
-  static public function create($agency) {
+  public $table = 'rccode';
+
+  public function create($agency) {
     $found = false;
     $rccode = '';
     do {
       $rccode = _::random(6, 'imix');
-      $d = model('rccode')->getInfo(['rccode'=>$rccode]);
+      $d = model($this->table)->getInfo(['rccode'=>$rccode]);
       $found = empty($d) ? false : true;
     } while($found);
-    return model('rccode')->add(['agencyId'=>$agency['id'], 'agencyName'=>$agency['nickName'], 'agencyAvatar'=>$agency['avatar'], 'rccode'=>$rccode, 'createdAt'=>date('Y-m-d H:i:s')]);
+    return model($this->table)->add(['agencyId'=>$agency['id'], 'agencyName'=>$agency['nickName'], 'agencyAvatar'=>$agency['avatar'], 'rccode'=>$rccode, 'createdAt'=>date('Y-m-d H:i:s')]);
   }
 
 }

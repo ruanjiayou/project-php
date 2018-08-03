@@ -54,14 +54,16 @@ return [
    * }
    */
   'put /v1/user/self' => function($req, $res) {
-    $user = UserBLL::auth($req);
+    $userBLL = new UserBLL();
+    $user = $userBLL->auth($req);
+
     $data = input('put.');
     unset($data['status']);
     if($user['status'] === 'registered') {
       $data['status'] = $user['type'] === 'servant' ? 'approving' : 'approved';
     }
-    $result = UserBLL::update($data, ['id'=>$user['id']]);
-    $res->return(_::filter($result, ['password', 'token', 'salt']));
+    $result = $userBLL->update($data, $user['id']);
+    $res->return($result);
   },
   /**
    * @api {put} /v1/user/password 修改密码
@@ -121,11 +123,13 @@ return [
    * }
    */
   'get /v1/user/self' => function($req, $res) {
-    $user = UserBLL::auth($req);
+    $userBLL = new UserBLL();
+    $user = $userBLL->auth($req);
+
     if($user['tags']!=='') {
       $user['tags'] = json_decode($user['tags']);
     }
-    $res->return(_::filter($user, ['password', 'token', 'salt']));
+    $res->return($user);
   }
 ];
 

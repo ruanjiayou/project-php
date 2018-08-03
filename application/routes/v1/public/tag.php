@@ -5,7 +5,8 @@ use think\Response;
 
 return [
   'get /v1/public/tags' => function($req, $res) {
-    $res->paging(model('tag')->getList(['limit'=>0]));
+    $tagBLL = new TagBLL();
+    $res->paging($tagBLL->getAll());
   }
 ];
 ?>

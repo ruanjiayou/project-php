@@ -2,8 +2,10 @@
 use \Firebase\JWT\JWT;
 use think\Request;
 
-class AdminBLL {
+class AdminBLL extends BLL {
   
+  public $table = 'admin';
+
   static public function auth($req) {
     $tokenData = $req->auth($req);
     $admin = model('admin')->getInfo(['id'=>$tokenData['uid']]);
@@ -13,13 +15,13 @@ class AdminBLL {
     return $admin;
   }
 
-  static public function signIn($data) {
+  public function signIn($data) {
     $validation = new Validater([
       'phone' => 'required|string|minlength:7|maxlength:11',
       'password' => 'required|string|minlength:6|maxlength:18'
     ]);
     $input = $validation->validate($data);
-    $result = model('admin')->getInfo(['phone'=>$input['phone']]);
+    $result = model($this->table)->getInfo(['phone'=>$input['phone']]);
     if(empty($result)) {
       thrower('user', 'userNotFound');
     } else if($result['password']!==$input['password']) {
@@ -33,17 +35,17 @@ class AdminBLL {
       } catch(Exception $e) {
         $token = JWT::encode(['exp'=>time()+C_AUTH_EXPIRED, 'uid'=>$result['id'], 'type'=>'admin'], C_AUTH_KEY);
         $data['token'] = $token;
-        model('admin')->edit(['phone'=>$input['phone']], $data);
+        model($this->table)->edit(['phone'=>$input['phone']], $data);
       }
     } else {
       $token = JWT::encode(['exp'=>time()+C_AUTH_EXPIRED, 'uid'=>$result['id'], 'type'=>'admin'], C_AUTH_KEY);
       $data['token'] = $token;
-      model('admin')->edit(['phone'=>$input['phone']], $data);
+      model($this->table)->edit(['phone'=>$input['phone']], $data);
     }
     return $data;
   }
 
-  static public function create($data) {
+  public function create($data) {
     $validation = new Validater([
       'phone' => 'required|string|minlength:7|maxlength:11',
       'nickName' => 'required|string',
@@ -53,29 +55,32 @@ class AdminBLL {
       'createdAt' => 'string|default:date'
     ]);
     $input = $validation->validate($data);
-    $admin = model('admin')->getInfo(['phone'=>$input['phone']]);
+    $admin = model($this->table)->getInfo(['phone'=>$input['phone']]);
     if(!empty($admin)) {
       thrower('user', 'phoneRegistered');
     }
-    $admin = model('admin')->add($input);
+    $admin = model($this->table)->add($input);
     return $admin;
   }
 
-  static public function destroy($condition) {
-    return model('admin')->remove($condition);
-  }
-
-  static public function update($data, $condition) {
+  public function update($data, $condition) {
     $validation = new Validater([
       'nickName' => 'string|minlength:3|maxlength:18',
       'avatar' => 'string|maxlength:255'
     ]);
     $input = $validation->validate($data);
-    $admin = model('admin')->edit($condition, $data);
+    if(is_string($condition) || is_integer($condition)) {
+      $condition = ['id'=>$condition];
+    }
+    $admin = model($this->table)->edit($condition, $data);
     return $admin;
   }
 
-  static public function changeRight($adminId, $data) {
+  public function getInfo($condition) {
+    return model($this->table)->field('!password,token,salt')->getInfo($condition);
+  }
+
+  public function changeRight($adminId, $data) {
     $validation = new Validater([
       'rights' => 'required|array'
     ]);

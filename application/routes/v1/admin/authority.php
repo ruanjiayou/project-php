@@ -20,7 +20,8 @@ return [
    * }
    */
   'post /v1/auth/admin/sign-in' => function($req, $res) {
-    $result = AdminBLL::signIn(input('post.'));
+    $adminBLL = new AdminBLL();
+    $result = $adminBLL->signIn(input('post.'));
     $res->return($result);
   },
   /**

@@ -28,8 +28,10 @@ return [
    * }
    */
   'put /v1/admin/self' => function($req, $res) {
-    $user = AdminBLL::auth($req);
-    $result = AdminBLL::update(input('put.'), ['id'=>$user['id']]);
+    $adminBLL = new AdminBLL();
+    $admin = $adminBLL::auth($req);
+
+    $result = $adminBLL->update(input('put.'), $admin['id']);
     $res->return(_::filter($result, ['password', 'token', 'salt']));
   },
   /**
@@ -56,6 +58,9 @@ return [
    * }
    */
   'put /v1/admin/password' => function($req, $res) {
+    $adminBLL = new AdminBLL();
+    $admin = $adminBLL::auth($req);
+
     //TODO:
     return 'admin-self';
   },
@@ -80,8 +85,10 @@ return [
    * }
    */
   'get /v1/admin/self' => function($req, $res) {
-    $user = AdminBLL::auth($req);
-    $res->return(_::filter($user, ['password', 'token', 'salt']));
+    $adminBLL = new AdminBLL();
+    $admin = $adminBLL::auth($req);
+
+    $res->return(_::filter($admin, ['password', 'token', 'salt']));
   }
 ];
 

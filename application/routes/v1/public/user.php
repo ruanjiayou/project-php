@@ -5,17 +5,15 @@ use think\Response;
 
 return [
   'get /v1/public/users' => function($req, $res) {
-    $hql = $req->paging();
-    $hql['where']['type'] = 'servant';
-    $hql['where']['status'] = 'approved';
-    $hql['field'] = '!password,token,salt';
-    $query = input('get.');
-    if(isset($query['attr'])) {
-      if(in_array($query['attr'], ['hot', 'recommend'])) {
-        $hql['where']['attr'] = $query['attr'];
-      }
-    }
-    $res->paging(model('user')->getList($hql));
+    $userBLL = new UserBLL();
+
+    $hql = $req->paging(function($h) {
+      $h['where'] = input('get.');
+      $h['where']['type'] = 'servant';
+      $h['where']['status'] = 'approved';
+      return $h;
+    });
+    $res->paging($userBLL->getList($hql));
   }
 ];
 ?>
