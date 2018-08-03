@@ -2,7 +2,7 @@
 //TODO: 先列出了所有函数,待补充完整
 class _ {
 
-  static public function log() {
+  static function log() {
     $args = func_get_args();
     dump($args);
     // for($i=0;$i<count($args);$i++) {
@@ -15,7 +15,7 @@ class _ {
    * @param {object} $o 
    * integer boolean array object function null double resource
    */
-  static public function type($o) {
+  static function type($o) {
     $t = gettype($o);
     if($t === 'NULL') {
       $t = 'null';
@@ -29,59 +29,59 @@ class _ {
     return $t;
   }
   
-  static public function isFunction($o) {
+  static function isFunction($o) {
     return 'function' === _::type($o);
   }
 
-  static public function isArray($o) {
+  static function isArray($o) {
     return 'array' === _::type($o);
   }
   
-  static public function isString($o) {
+  static function isString($o) {
     return 'string' === _::type($o);
   }
   
-  static public function isDate($o) {
+  static function isDate($o) {
     
   }
   
-  static public function isInt($o) {
+  static function isInt($o) {
     $t = _::type($o);
     return 'integer' === $t;
   }
   
-  static public function isFloat($o) {
+  static function isFloat($o) {
     $t = _::type($o);
     return 'float' === $t || 'double' === $t;
   }
   
-  static public function isNumber($o) {
+  static function isNumber($o) {
     return preg_match("/^\d+$/",$o);
   }
   
-  static public function isBoolean($o) {
+  static function isBoolean($o) {
     return 'boolean' === _::type($o);
   }
   
-  static public function isRegExp($o) {
+  static function isRegExp($o) {
 
   }
   
-  static public function isObject($o) {
+  static function isObject($o) {
     return 'object' === _::type($o);
   }
   
   /**
    * 判断是否为空, 未定义 '' 0 '0' null
    */
-  static public function isEmpty($o) {
+  static function isEmpty($o) {
     return empty($o);
   }
   
   /**
    * 判断数组是否为空对象
    */
-  static public function isEmptyObject($o) {
+  static function isEmptyObject($o) {
     $res = true;
     $t = _::type($o);
     if($t === 'array' || $t === 'object') {
@@ -93,14 +93,14 @@ class _ {
     return $res;
   }
   
-  static public function isError() {
+  static function isError() {
 
   }
   
   /**
    * 返回键数组
    */
-  static public function keys($o) {
+  static function keys($o) {
     $res = [];
     if('object' === _::type($o)) {
       $res = array_keys($o);
@@ -111,7 +111,7 @@ class _ {
   /**
    * 浅克隆
    */
-  static public function deepClone($o) {
+  static function deepClone($o) {
     $res = [];
     foreach($o as $k => $v) {
       $res[$k] = $o[$k];
@@ -124,7 +124,7 @@ class _ {
    * @param {object} $o 对象
    * @param {array} $arr 字段数组
    */
-  static public function pick($o, $arr) {
+  static function pick($o, $arr) {
     $res = [];
     if(empty($o) || !is_array($arr)) {
       return $res;
@@ -140,7 +140,7 @@ class _ {
   /**
    * 过滤对象中指定的字段
    */
-  static public function filter($o, $arr) {
+  static function filter($o, $arr) {
     $oo = _::deepClone($o);
     if('array' === _::type($arr)) {
       foreach($arr as $k) {
@@ -153,7 +153,7 @@ class _ {
   /**
    * 合并返回新的
    */
-  static public function assign($o, $d) {
+  static function assign($o, $d) {
     $result = self::deepClone($o);
     if(self::isObject($d)) {
       foreach($d as $k => $v) {
@@ -166,7 +166,7 @@ class _ {
   /**
    * 合并无返回
    */
-  static public function assignIn($o, $d) {
+  static function assignIn($o, $d) {
     if(self::isObject($o) && self::isObject($d)) {
       foreach($d as $k => $v) {
         $o[$k] = $v;
@@ -174,11 +174,11 @@ class _ {
     }
   }
   
-  static public function compare() {
+  static function compare() {
 
   }
   
-  static public function sortBy($cb) {
+  static function sortBy($cb) {
 
   }
   
@@ -187,7 +187,7 @@ class _ {
    * @param {int} $len 长度,默认32,最小长度为6
    * @param {string} $type 类型,number,imix,mix,char,ichar
    */
-  static public function random($len = 32, $type = 'number') {
+  static function random($len = 32, $type = 'number') {
     $chs = '';
     $res = '';
     if($type === 'mix') {
@@ -214,7 +214,7 @@ class _ {
   /**
    * 字符串替换
    */
-  static public function replace($str, $pattern, $replace) {
+  static function replace($str, $pattern, $replace) {
     return str_replace($pattern, $replace, $str);
   }
 }
