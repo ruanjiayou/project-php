@@ -15,12 +15,17 @@ class BLL {
     return model($this->table)->add($data);
   }
 
-  public function destroy($data) {
-    $validation = new Validater([
-      'id' => 'required|array'
-    ]);
-    $input = $validation->validate($data);
-    return model($this->table)->remove(['id'=>['in', $input['id']]]);
+  public function destroy($condition) {
+    $model= model($this->table);
+    $pk = $model->primaryKey;
+    $type = _::type($condition);
+    if('string' === $condition || 'integer' === $condition) {
+      $condition = [$pk=>$conditoin];
+    }
+    if('array' === $condition) {
+      $condition = [$pk => ['in', $condition]];
+    }
+    return model($this->table)->remove($condition);
   }
 
   public function update($data, $condition) {
@@ -28,8 +33,10 @@ class BLL {
     //   'name' => 'required|string'
     // ]);
     // $data = $validation->validate($data);
-    if(_::isInt($condition) || _::isString($condition)) {
-      $condition = ['id'=>$condition];
+    $model= model($this->table);
+    $pk = $model->primaryKey;
+    if(!_::isObject($condition)) {
+      $condition = [$pk => $condition];
     }
     return model($this->table)->edit($condition, $data);
   }
