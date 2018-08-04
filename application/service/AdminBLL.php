@@ -52,7 +52,7 @@ class AdminBLL extends BLL {
       'password' => 'string|default:"123456"',
       'salt' => 'string|default:timestamps',
       'isSA' => 'boolean|default:false',
-      'createdAt' => 'string|default:date'
+      'createdAt' => 'string|default:datetime'
     ]);
     $input = $validation->validate($data);
     $admin = model($this->table)->getInfo(['phone'=>$input['phone']]);

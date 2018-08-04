@@ -23,7 +23,7 @@ class UserBLL extends BLL {
       'nickName' => 'required|string',
       'code' => 'required|string',
       'rccode' => 'string|default:null',
-      'createdAt' => 'string|default:date',
+      'createdAt' => 'string|default:datetime',
       'salt' => 'int|default:timestamps'
     ]);
     $input = $validation->validate($data);
@@ -121,9 +121,9 @@ class UserBLL extends BLL {
 
   function getList($hql) {
     $validation = new Validater([
-      'type' => 'enum:servant,buyer,agency',
-      'status' => 'enum:approved,approving,forbidden,registered',
-      'attr' => 'enum:hot,recommend,normal',
+      'type' => 'enum:servant,buyer,agency|ignore',
+      'status' => 'enum:approved,approving,forbidden,registered|ignore',
+      'attr' => 'enum:hot,recommend,normal|ignore',
       'search' => 'empty|string|default:""'
     ]);
     $hql['field'] = '!password,token,salt';
