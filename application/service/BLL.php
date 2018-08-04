@@ -19,10 +19,10 @@ class BLL {
     $model= model($this->table);
     $pk = $model->primaryKey;
     $type = _::type($condition);
-    if('string' === $condition || 'integer' === $condition) {
-      $condition = [$pk=>$conditoin];
+    if('string' === $type || 'integer' === $type) {
+      $condition = [$pk=>$condition];
     }
-    if('array' === $condition) {
+    if('array' === $type) {
       $condition = [$pk => ['in', $condition]];
     }
     return model($this->table)->remove($condition);
@@ -51,6 +51,11 @@ class BLL {
   }
 
   public function getInfo($condition) {
+    $model= model($this->table);
+    $pk = $model->primaryKey;
+    if(!_::isObject($condition)) {
+      $condition = [$pk => $condition];
+    }
     return model($this->table)->getInfo($condition);
   }
 
