@@ -1,6 +1,6 @@
 <?php
-  include_once __DIR__.'/Validater.php';
-  error_reporting(E_ALL^E_NOTICE);
+  include_once __DIR__.'/_.php';
+  //error_reporting(E_ALL^E_NOTICE);
   /**
    * php版参数校验类
    * 作者: 阮家友
@@ -12,12 +12,12 @@
   //set_exception_handler("Hinter");
 
   class Validater {
-    static public $types = ['required', 'nullable', 'object', 'empty', 'nozero', 'default', 'alias', 'minlength', 'maxlength', 'length', 'min', 'max', 'methods', 'array', 'char', 'string', 'text', 'enum', 'int', 'float', 'file', 'boolean', 'date', 'dateonly', 'timeonly'];
-    static public $atoms = ['methods', 'array', 'object', 'char', 'string', 'text', 'enum', 'int', 'float', 'file', 'boolean', 'date', 'dateonly', 'timeonly'];
+    static public $types = ['required', 'nullable', 'object', 'empty', 'nonzero', 'ignore', 'default', 'alias', 'minlength', 'maxlength', 'length', 'min', 'max', 'methods', 'array', 'char', 'string', 'text', 'enum', 'int', 'float', 'file', 'boolean', 'date', 'dateonly', 'timeonly'];
+    static public $atoms = ['array', 'object', 'char', 'string', 'text', 'enum', 'int', 'float', 'file', 'boolean', 'date', 'dateonly', 'timeonly'];
     static public $bools = [1, '1', true, 'TRUE'];
     static public $messages = array(
       'zh-cn' => array(
-        'atom'=>'验证语法中必须要有基本类型!',
+        'atom'=>'验证规则{{value}}中有且只有一种基本类型!',
         'required'=> '{{field}} 字段不能为空!',
         'date'=> '{{field}} 字段的值 {{data}} 不是有效的 日期时间 格式!',
         'dateonly'=> '{{field}} 字段的值 {{data}} 不是有效的日期格式!',
@@ -108,7 +108,7 @@
       foreach($data as $k => $v) {
         if($this->rules[$k]) {
             $rule = $this->rules[$k];
-            if(isset($rule['boolean']) && $rule['boolean'] && $rule[$k]['boolean'] == true) {
+            if($rule['boolean']) {
               $res[$k] = in_array($data[$k], self::$bools) ? true : false;
             } else {
               $res[$k] = $data[$k];
@@ -129,7 +129,15 @@
       $rule = array(
         'nullable' => false,
         'nonzero' => false,
-        'empty' => false
+        'empty' => false,
+        'ignore' => false,
+        'boolean' => false,
+        'int' => false,
+        'float' => false,
+        'date' => false,
+        'dateonly' => false,
+        'timeonly' => false,
+        'methods' => []
       );
       for($i = 0; $i < count($arr); $i++) {
         $s = $arr[$i];
@@ -138,7 +146,11 @@
         $v = $match[2][0];
         // 检查: 至少一个基本类型
         if($hasAtom == false && in_array($k, self::$atoms)) {
-          $hasAtom = true;
+          if($hasAtom === false) {
+            $hasAtom = true;
+          } else {
+            $this->error(['rule'=>'atom','value'=>$str,'message'=>'']);
+          }
         }
         if('file' == $k) {
           $rule['file'] = $this->_str2arr($v);
@@ -183,8 +195,10 @@
               list($t1, $t2) = explode(' ', microtime());
               $rule['default']['value'] = floor((floatval($t1)+floatval($t2))*1000);
               break;
-            case 'date': $rule['default']['value'] = date('Y-m-d H:i:s');break;
-            //case 'datetime': break;
+            case 'date': $rule['default']['value'] = date('Y-m-d');break;
+            case 'time': $rule['default']['value'] = date('H:i:s');break;
+            case 'datetime': $rule['default']['value'] = date('Y-m-d H:i:s');break;
+            case 'today': $rule['default']['value'] = date('Y-m-d').' 00:00:00';break;
             default:
               preg_match('/^([\'\"\(])(.*)(\1|\))$/',$v, $match);
               if(4 == count($match)) {
@@ -226,7 +240,7 @@
      */
     function check($data) {
       foreach($this->rules as $k => $rule) {
-        if(!isset($data[$k]) && isset($rule['default']) && 'value' == $rule['default']['type']) {
+        if(_::isObject($rule['default']) && 'value' == $rule['default']['type']) {
           $data[$k] = $rule['default']['value'];
         }
         if(!isset($data[$k])) {
@@ -238,8 +252,8 @@
         if(null == $v && $rule['nullable'] || $v == '' && $rule['empty']) {
           continue;
         }
-        if(null == $v || '' == $v) {
-          if(isset($rule['required']) && $rule['required']) {
+        if(_::isEmpty($v)) {
+          if($rule['required']) {
             $err['rule'] = 'required';
             $err['value'] = $v;
             $this->error($err, $data);
@@ -248,32 +262,44 @@
             continue;
           }
         }
-        if(isset($rule['nonzero']) && $rule['nonzero'] && ($v == 0 || $v == '0')) {
+        if($rule['nonzero'] && ($v === 0 || $v === '0')) {
           $err['rule'] = 'nonzero';
           $this->error($err, $data);
         }
-        if(isset($rule['int']) && $rule['int']) {
+        if($rule['int']) {
           if(!is_numeric($v)) {
+            if(!$rule['required'] && $rule['ignore']) {
+              continue;
+            }
             $err['rule'] = 'int';
             $this->error($err, $data);
           }
           $v = floatval($v);
         }
-        if(isset($rule['float']) && $rule['float']) {
+        if($rule['float']) {
           $regstr = '/^([0-9]+)(.([0-9]+))?$/';
           preg_match($regstr, $v, $mn);
           if(!is_numeric($v) || count($mn) == 0) {
+            if(!$rule['required'] && $rule['ignore']) {
+              continue;
+            }
             $err['rule'] = 'float';
             $this->error($err);
           }
           $m = strlen($mn[1]);
           $n = count($mn) == 4? strlen($mn[3]) : 0;
           if($m > $rule['float']['m']) {
+            if(!$rule['required'] && $rule['ignore']) {
+              continue;
+            }
             $err['rule'] = 'float.m';
             $err['value'] = $rule['float']['m'];
             $this->error($err);
           }
           if($n > $rule['float']['n']) {
+            if(!$rule['required'] && $rule['ignore']) {
+              continue;
+            }
             $err['rule'] = 'float.n';
             $err['value'] = $rule['float']['n'];
             $this->error($err);
@@ -281,59 +307,92 @@
           $v = floatval($v);
         }
         if(isset($rule['min']) && $v < $rule['min']){
+          if(!$rule['required'] && $rule['ignore']) {
+            continue;
+          }
           $err['rule'] = 'min';
           $this->error($err, $data);
         }
         if(isset($rule['max']) && $v > $rule['max']) {
+          if(!$rule['required'] && $rule['ignore']) {
+            continue;
+          }
           $err['rule'] = 'max';
           $this->error($err, $data);
         }
         if(isset($rule['array']) && $rule['array'] && is_array($rule['array']) && !is_array($v)) {
+          if(!$rule['required'] && $rule['ignore']) {
+            continue;
+          }
           $err['rule'] = 'array';
           $this->error($err, $data);
         }
         if(isset($rule['object']) && !_::isObject($data)) {
+          if(!$rule['required'] && $rule['ignore']) {
+            continue;
+          }
           $err['rule'] = 'object';
           $this->error($err, $data);
         }
         if(is_string($v) || is_array($v)) {
           $len = is_string($v) ? strlen($v) : count($v);
           if(isset($rule['minlength']) && $rule['minlength'] && $len < $rule['minlength']) {
+            if(!$rule['required'] && $rule['ignore']) {
+              continue;
+            }
             $err['rule'] = 'minlength';
             $err['value'] = $rule['minlength'];
             $this->error($err, $data);
           }
           if(isset($rule['maxlength']) && $rule['maxlength'] && $len > $rule['maxlength']) {
+            if(!$rule['required'] && $rule['ignore']) {
+              continue;
+            }
             $err['rule'] = 'maxlength';
             $err['value'] = $rule['maxlength'];
             $this->error($err, $data);
           }
           if(isset($rule['length']) && $rule['length'] && $len != $rule['length']) {
+            if(!$rule['required'] && $rule['ignore']) {
+              continue;
+            }
             $err['rule'] = 'length';
             $err['value'] = $rule['length'];
             $this->error($err, $data);
           }
         }
-        if(isset($rule['enum']) && $rule['enum'] && !in_array($v, $rule['enum'])) {
+        if(isset($rule['enum']) && !in_array($v, $rule['enum'])) {
+          if(!$rule['required'] && $rule['ignore']) {
+            continue;
+          }
           $err['rule'] = 'enum';
           $err['value'] = implode(',', $rule['enum']);
         }
-        if(isset($rule['boolean']) && $rule['boolean']) {
+        if($rule['boolean']) {
+          if(!$rule['required'] && $rule['ignore']) {
+            continue;
+          }
           $v = in_array($v, self::$bools) ? true : false;
         }
         //TODO: 日期验证
         //TODO: 文件
-        $data[$k] = $v;
-        if(isset($rule['methods']) && $rule['methods']) {
-          foreach($rule['methods'] as $f => $fn) {
-            $res = $fn($v);
-            if(!$res) {
-              $err['rule'] = 'methods';
-              $err['value'] = $f;
-              $this->error($err, $data);
-            }
+
+        $isError = false;
+        foreach($rule['methods'] as $f => $fn) {
+          $res = $fn($v);
+          if(!$res) {
+            $err['rule'] = 'methods';
+            $err['value'] = $f;
+            $isError = true;
           }
         }
+        if($isError) {
+          if(!$rule['required'] && $rule['ignore']) {
+            continue;
+          }
+          $this->error($err, $data);
+        }
+        $data[$k] = $v;
         if(isset($rule['default']) && 'function' == $rule['default']['type']) {
           $func = $rule['default']['value'];
           if('toString' == $func) {

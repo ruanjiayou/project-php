@@ -72,10 +72,10 @@ class _ {
   }
   
   /**
-   * 判断是否为空, 未定义 '' 0 '0' null
+   * 判断是否为空, empty未定义 '' 0 '0' null
    */
   static function isEmpty($o) {
-    return empty($o);
+    return $o === null || $o === '';
   }
   
   /**
@@ -174,10 +174,14 @@ class _ {
     }
   }
   
-  static function compare() {
-
+  static function compare($str1, $str2) {
+    return strcmp($str1, $str2);
   }
   
+  static function isBefore($d1, $d2) {
+    return self::compare($d1, $d2) < 0 ? true : false;
+  }
+
   static function sortBy($cb) {
 
   }
