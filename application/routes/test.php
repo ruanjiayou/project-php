@@ -177,7 +177,7 @@ return [
     }
   },
   /**
-   * @api {get} /test/model 10.测试model
+   * @api {get} /test/model a.测试model
    * @apiGroup test
    * 
    * @apiSuccessExample Success-Response:
@@ -201,7 +201,7 @@ return [
     }
   },
   /**
-   * @api {get} /test/model 11.测试thrower
+   * @api {get} /test/model b.测试thrower
    * @apiGroup test
    * 
    * @apiSuccessExample Success-Response:
@@ -218,7 +218,7 @@ return [
     }
   },
   /**
-   * @api {get} /test/auth 12.测试 鉴权
+   * @api {get} /test/auth c.测试 鉴权
    * @apiGroup test
    * 
    * @apiHeader {string} token 令牌
@@ -234,7 +234,7 @@ return [
     return 'auth';
   },
   /**
-   * @api {get} /test/_ 13.仿lodash函数工具库
+   * @api {get} /test/_ d.仿lodash函数工具库
    * @apiGroup test
    * 
    * @apiSuccessExample Success-Response:
@@ -259,6 +259,36 @@ return [
     _::log('["abc"]', _::isEmptyObject(['abc']));
     dump(strtotime('2018-08-01 17:19:07'));
     return 'end';
+  },
+  /**
+   * @api {get} /test/shttp/get e.测试shttp::get()
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * Hello World
+   */
+  'get /test/shttp/get' => function($req, $res) {
+    $url = 'http://'.$_SERVER['HTTP_HOST'].'/test?a=b';
+    return shttp::get($url)->end('string');
+  },
+  /**
+   * @api {get} /test/shttp/post f.测试shttp::post()
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   name: 'test'
+   * }
+   */
+  'post /test/shttp/post' => function($req, $res) {
+    $input = input('post.');
+    $res->return($input);
+  },
+  'get /test/shttp/post' => function($req, $res) {
+    $url = 'http://'.$_SERVER['HTTP_HOST'].'/test/shttp/post';
+    return shttp::post($url)->send(['name'=>'test'])->end();
   }
 ]
 ?>

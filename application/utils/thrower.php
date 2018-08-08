@@ -31,17 +31,19 @@ class hinterErrors {
 }
 hinterErrors::$errors = loadErrors(__DIR__.'/../errors/');
 
-function thrower($module, $type, $lang = 'zh-cn') {
+function thrower($module, $type, $detail = '') {
   $hinter = new Hinter();
-  $found = isset(hinterErrors::$errors[$lang]) && isset(hinterErrors::$errors[$lang][$module]) && isset(hinterErrors::$errors[$lang][$module][$type]);
-  $message = $found ? hinterErrors::$errors[$lang][$module][$type]['message'] : '自定义错误数据没找到!';
-  $code = $found ? hinterErrors::$errors[$lang][$module][$type]['code'] : 0;
+  $es = hinterErrors::$errors;
+  $lang = Hinter::$lang;
+  $found = isset($es[$lang]) && isset($es[$lang][$module]) && isset($es[$lang][$module][$type]);
+  $message = $found ? $es[$lang][$module][$type]['message'] : '自定义错误数据没找到!';
+  $code = $found ? $es[$lang][$module][$type]['code'] : 0;
   $hinter->info = [
     R_STATUS => R_FAIL,
     R_DATA => null,
     R_CODE => $code,
     R_ERROR => $message,
-    R_STACK => ['module' => $module, 'type' => $type]
+    R_STACK => ['module' => $module, 'type' => $type, 'detail' => $detail]
   ];
   throw $hinter;
 }

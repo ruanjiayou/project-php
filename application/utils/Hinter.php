@@ -7,6 +7,7 @@
    *  git: https://github.com/ruanjiayou
    */
   class Hinter extends Exception {
+    static public $lang = 'zh-cn';
     public $info;
     public function setHinter($o, $data) {
       $this->info = array(

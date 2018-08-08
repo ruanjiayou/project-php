@@ -1,6 +1,6 @@
 <?php
   include_once __DIR__.'/_.php';
-  //error_reporting(E_ALL^E_NOTICE);
+  error_reporting(E_ALL^E_NOTICE);
   /**
    * php版参数校验类
    * 作者: 阮家友
@@ -127,6 +127,7 @@
       $arr = $this::_str2arr($str, '|');
       $hasAtom = false;
       $rule = array(
+        'required' => false,
         'nullable' => false,
         'nonzero' => false,
         'empty' => false,
@@ -137,6 +138,7 @@
         'date' => false,
         'dateonly' => false,
         'timeonly' => false,
+        'default' => null,
         'methods' => []
       );
       for($i = 0; $i < count($arr); $i++) {
@@ -206,8 +208,6 @@
                   $rule['default']['type'] = 'function';
                 }
                 $rule['default']['value'] = $match[2];
-              } else {
-                unset($rule['default']);
               }
             break;
           }

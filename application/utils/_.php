@@ -210,7 +210,7 @@ class _ {
     }
     $l = strlen($chs);
     for($i=0;$i<$len;$i++) {   
-      $res .= $chs{mt_rand(0,$l)};    //生成php随机数   
+      $res .= $chs[mt_rand(0,$l)];    //生成php随机数   
     }   
     return $res;
   }
@@ -220,6 +220,27 @@ class _ {
    */
   static function replace($str, $pattern, $replace) {
     return str_replace($pattern, $replace, $str);
+  }
+
+  /**
+   * 文件对象转base64
+   */
+  static function file2base64($o) {
+    $filepath = $o;
+    $res = '';
+    if($fp = fopen($filepath, 'rb', 0)) {
+      $data = fread($fp, filesize($filepath));
+      fclose($fp);
+      $res = self::binary2base64($data);
+    }
+    return $res;
+  }
+
+  /**
+   * 二进制转base64
+   */
+  static function binary2base64($bins) {
+    return chunk_split(base64_encode($bins));
   }
 }
 ?>

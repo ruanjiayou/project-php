@@ -1,0 +1,151 @@
+<?php
+use Qcloud\Sms\SmsSingleSender;
+
+class wxHelper {
+  static public $appId = '1400120461';
+  static public $appKey = 'ce80ec5dc84a0e03bc4ee0b74f53f4fa';
+
+  /**
+   * 传入手机号生成的是模板的sign,不然就是签名的sign
+   */
+  static function getSignature($phone='') {
+    $random = _::random(10);
+    $time = time();
+    if($phone!=='') {
+      $phone = '&mobile='.$phone;
+    }
+    $str = sprintf('appkey=%s&random=%s&time=%s%s', self::$appKey, $random, $time, $phone);
+    return [
+      'random' => $random,
+      'time' => $time,
+      'sign' => hash('sha256', $str)
+    ];
+  }
+  
+  /**
+   * 向手机发送短信
+   * @param $phone 手机号
+   * @param $sign 短信签名
+   * @param $tplId 模板id
+   * @param $params 参数数组
+   * @param $county 国家码
+   */
+  static function sendSmsMessage($phone, $sign, $tplId, $params, $county = '86') {
+    $signature = self::getSignature($phone);
+    $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/sendsms')
+      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->send([
+        'ext' => '',
+        'extend' => '',
+        'params' => $params,
+        'sig' => $signature['sign'],
+        'tel' => [
+          'mobile' => $phone,
+          'nationcode' => $county
+        ],
+        'time' => $signature['time'],
+        'tpl_id' => $tplId
+      ])
+      ->end();
+    return $result;
+  }
+  /**
+   * 添加短信签名
+   */
+  static function addSmsSign($input) {
+    $validation = new Validater([
+      'image' => 'text|alias:pic',
+      'remark' => 'string',
+      'title' => 'required|string|alias:text'
+    ]);
+    $data = $validation->validate($input);
+    $signature = self::getSignature();
+    $data['sig'] = $signature['sign'];
+    $data['time'] = $signature['time'];
+    $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/add_sign')
+      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->send($data)
+      ->end();
+    return $result;
+  }
+  /**
+   * 删除短信签名
+   */
+  static function delSmsSign($arr) {
+    $signature = self::getSignature();
+    $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/del_sign')
+      ->query(['sdkappid'=>self::$appId,'time'=>$signature['time'],'sign_id'=>$arr])
+      ->end();
+    return $result;
+  }
+  /**
+   * 修改短信签名: 禁止使用修改
+   */
+  static function modSmsSign($input) {
+    $validation = new Validater([
+      'pic' => 'text',
+      'remark' => 'string',
+      'sign_id' => 'int',
+      'text' => 'required|string'
+    ]);
+    $data = $validation->validate($input);
+    $signature = self::getSignature();
+    $data['sig'] = $signature['sign'];
+    $data['time'] = $signature['time'];
+    $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/mod_sign')
+      ->query(['sdkappid'=>self::$appId,'time'=>$signature['time'],'random'=>$signature['random']])
+      ->send($data)
+      ->end();
+    return $result;
+  }
+  /**
+   * 获取短信签名状态
+   */
+  static function getSmsSign($arr) {
+    $signature = self::getSignature();
+    $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/get_sign')
+      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->send(['sig'=>$signature['sign'],'sign_id'=>$arr,'time'=>$signature['time']])
+      ->end();
+    return $result['result'] === 0 ? $result['data'] : [];
+  }
+
+  static function addSmsTpl($input) {
+    $validation = new Validater([
+      'title' => 'required|string',
+      'text' => 'required|string',
+      'remark' => 'string',
+      'type' => 'required|string|default:"0"'
+    ]);
+    $data = $validation->validate($input);
+    $sign = self::getSignature();
+    $data['time'] = $sign['time'];
+    $data['sig'] = $sign['sign'];
+    // $url = 'http://'.$_SERVER['HTTP_HOST'].'/test/shttp/post';
+    $url = 'https://yun.tim.qq.com/v5/tlssmssvr/add_template';
+    $result = shttp::post($url)
+      ->query(['sdkappid'=>self::$appId,'random'=>$sign['random']])
+      ->send($data)
+      ->end();
+    dump($result);
+    return $result;
+  }
+
+  static function getSmsTpl($arr) {
+    $sign = self::getSignature();
+    $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/get_template')
+      ->query(['sdkappid'=>self::$appId,'random'=>$sign['random']])
+      ->send([
+        'sig' =>$sign['sign'],
+        'time' =>$sign['time'],
+        'tpl_id' => $arr
+      ])
+      ->end();
+    if($result['result']!==0) {
+      thrower('common', 'thirdApiFail', $result['msg']);
+    }
+    return $result['data'];
+  }
+}
+
+?>
