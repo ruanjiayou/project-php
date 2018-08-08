@@ -137,7 +137,14 @@ return [
    *   }],
    *   ecode: 0,
    *   error: '',
-   *   stack: ''
+   *   stack: '',
+   *   pagination: {
+   *     page: 1,
+   *     pages: 1,
+   *     limit: 0,
+   *     count: 1,
+   *     total: 1,
+   *   }
    * }
    */
   'get /v1/user/images' => function($req, $res) {

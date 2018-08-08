@@ -13,7 +13,7 @@ return [
    * HTTP/1.1 200 OK
    * {
    *   state: 'success',
-   *   edata: {
+   *   rdata: {
    *     id: 1,
    *     phone: '18888888888',
    *     nickName: 'max',
@@ -43,7 +43,7 @@ return [
    * HTTP/1.1 200 OK
    * {
    *   state: 'success',
-   *   edata: null,
+   *   rdata: null,
    *   ecode: 0,
    *   error: '',
    *   stack: ''
@@ -68,7 +68,7 @@ return [
    * HTTP/1.1 200 OK
    * {
    *   state: 'success',
-   *   edata: null,
+   *   rdata: null,
    *   ecode: 0,
    *   error: '',
    *   stack: ''
@@ -97,7 +97,7 @@ return [
    *   state: 'success',
    *   ecode: 0,
    *   error: '',
-   *   edata: [{
+   *   rdata: [{
    *     id: 1,
    *     phone: '18888888888',
    *     nickName: 'max',
@@ -144,7 +144,7 @@ return [
    *   state: 'success',
    *   ecode: 0,
    *   error: '',
-   *   edata: {
+   *   rdata: {
    *     id: 1,
    *     phone: '18888888888',
    *     nickName: 'max',

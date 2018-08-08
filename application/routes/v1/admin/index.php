@@ -16,15 +16,18 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success',
-   *   result: {
+   *   state: 'success',
+   *   rdata: {
    *     id: 1,
    *     phone: '18888888888',
    *     nickName: 'max',
    *     avatar: 'https://images.baidu.com',
    *     isSA: 1,
    *     createdAt: "2018-07-31 17:43:48"
-   *   }
+   *   },
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'put /v1/admin/self' => function($req, $res) {
@@ -46,21 +49,22 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success',
-   *   result: {
+   *   state: 'success',
+   *   rdata: {
    *     id: 1,
    *     phone: '18888888888',
    *     nickName: 'max',
    *     avatar: 'https://images.baidu.com',
    *     isSA: 1,
    *     createdAt: "2018-07-31 17:43:48"
-   *   }
+   *   },
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'put /v1/admin/password' => function($req, $res) {
-    $adminBLL = new AdminBLL();
-    $admin = $adminBLL::auth($req);
-
+    $admin = AdminBLL::auth($req);
     //TODO:
     return 'admin-self';
   },
@@ -73,21 +77,22 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success',
-   *   result: {
+   *   state: 'success',
+   *   rdata: {
    *     id: 1,
    *     phone: '18888888888',
    *     nickName: 'max',
    *     avatar: 'https://images.baidu.com',
    *     isSA: 1,
    *     createdAt: "2018-07-31 17:43:48"
-   *   }
+   *   },
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'get /v1/admin/self' => function($req, $res) {
-    $adminBLL = new AdminBLL();
-    $admin = $adminBLL::auth($req);
-
+    $admin = AdminBLL::auth($req);
     $res->return(_::filter($admin, ['password', 'token', 'salt']));
   }
 ];

@@ -27,8 +27,8 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success',
-   *   result: {
+   *   state: 'success',
+   *   rdata: {
    *     id: 1,
    *     phone: '18888888888',
    *     identity: '421224199311111111',
@@ -50,7 +50,10 @@ return [
    *     city: '武汉',
    *     type: "servant",
    *     createdAt: "2018-07-31 17:43:48"
-   *   }
+   *   },
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'put /v1/user/self' => function($req, $res) {
@@ -77,10 +80,11 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success',
-   *   result: {
-   *     id: 1,
-   *   }
+   *   state: 'success',
+   *   rdata: null,
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'put /v1/user/password' => function($req, $res) {
@@ -96,8 +100,8 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success',
-   *   result: {
+   *   state: 'success',
+   *   rdata: {
    *     id: 1,
    *     phone: '18888888888',
    *     identity: '421224199311111111',
@@ -119,7 +123,10 @@ return [
    *     city: '武汉',
    *     type: "servant",
    *     createdAt: "2018-07-31 17:43:48"
-   *   }
+   *   },
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'get /v1/user/self' => function($req, $res) {

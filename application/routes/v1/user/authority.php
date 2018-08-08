@@ -22,7 +22,11 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success'
+   *   state: 'success',
+   *   rdata: null,
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'post /v1/auth/user/sign-up' => function($req, $res) {
@@ -40,10 +44,13 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success',
-   *   result: {
+   *   state: 'success',
+   *   rdata: {
    *     token: ''
-   *   }
+   *   },
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'post /v1/auth/user/sign-in' => function($req, $res) {
@@ -62,7 +69,11 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success'
+   *   state: 'success',
+   *   rdata: null,
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'post /v1/auth/user/forgot-password' => function($req, $res) {
@@ -80,7 +91,11 @@ return [
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   status: 'success'
+   *   state: 'success',
+   *   rdata: null,
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
    * }
    */
   'post /v1/auth/user/reset-password' => function($req, $res) {
