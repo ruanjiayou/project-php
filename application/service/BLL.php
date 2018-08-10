@@ -29,6 +29,7 @@ class BLL {
   }
 
   public function update($data, $condition) {
+    //TODO: 数据不存在 错误不明
     // $validation = new Validater([
     //   'name' => 'required|string'
     // ]);
@@ -50,13 +51,8 @@ class BLL {
     return model($this->table)->getList($hql);
   }
 
-  public function getInfo($condition) {
-    $model= model($this->table);
-    $pk = $model->primaryKey;
-    if(!_::isObject($condition)) {
-      $condition = [$pk => $condition];
-    }
-    return model($this->table)->getInfo($condition);
+  public function getInfo($condition, $opts=[]) {
+    return model($this->table)->getInfo($condition, $opts);
   }
 
 }

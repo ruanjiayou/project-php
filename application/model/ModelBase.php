@@ -13,16 +13,23 @@ class ModelBase extends Model {
     }
 
     function remove($condition) {
+        if(is_integer($condition) || is_string($condition)) {
+            $condition = [$this->primaryKey=>$condition];
+        }
         return db($this->name)->where($condition)->delete();
     }
 
     function edit($condition, $data) {
+        if(is_integer($condition) || is_string($condition)) {
+            $condition = [$this->primaryKey=>$condition];
+        }
         db($this->name)->where($condition)->update($data);
         return $this->getInfo($condition);
     }
 
     function getInfo($condition, $opt = []) {
         $field = isset($opt['field']) ? $opt['field'] : '*';
+        $order = isset($opt['order']) ? $opt['order'] : 'id ASC';
         $exclude = false;
         if($field[0] === '!') {
             $exclude = true;
@@ -31,16 +38,20 @@ class ModelBase extends Model {
         if(is_integer($condition) || is_string($condition)) {
             $condition = [$this->primaryKey=>$condition];
         }
-        return db($this->name)->where($condition)->field($field, $exclude)->find();
+        return db($this->name)->where($condition)->field($field, $exclude)->order($order)->find();
     }
 
     function getList($opts=array()) {
         $where = isset($opts['where']) ? $opts['where'] : [];
         $field = isset($opts['field']) ? $opts['field'] : '*';
+        $whereOr = isset($opts['whereOr']) ? $opts['whereOr'] : [];
         $exclude = false;
         if($field[0] === '!') {
             $exclude = true;
             $field = substr($field, 1);
+        }
+        if(is_integer($where) || is_string($where)) {
+            $where = [$this->primaryKey=>$where];
         }
         $order = isset($opts['order']) ? $opts['order'] : $this->primaryKey.' DESC';
         $limit = isset($where['limit']) ? $where['limit'] : 10;
@@ -48,9 +59,9 @@ class ModelBase extends Model {
         unset($where['page']);
         unset($where['limit']);
         if($limit === 0) {
-            return db($this->name)->where($where)->field($field, $exclude)->order($order)->select();
+            return db($this->name)->where($where)->whereOr($whereOr)->field($field, $exclude)->order($order)->select();
         } else {
-            return db($this->name)->where($where)->field($field, $exclude)->order($order)->paginate($limit,false,['page'=>$page]);
+            return db($this->name)->where($where)->whereOr($whereOr)->field($field, $exclude)->order($order)->paginate($limit,false,['page'=>$page]);
         }
     }
 }
