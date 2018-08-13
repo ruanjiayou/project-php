@@ -42,14 +42,16 @@ Request::hook('paging', function(Request $req, $cb = null){
   return $condition;
 });
 
-Response::hook('return', function(Response $res, $result) {
-  $res->data([
+Response::hook('return', function(Response $res, $result, $param = []) {
+  $resp = [
     R_STATUS => empty($result) ? R_FAIL : R_SUCCESS,
     R_DATA => $result,
     R_CODE => 0,
     R_ERROR => '',
     R_STACK => ''
-  ]);
+  ];
+  $resp = _::assign($resp, $param);
+  $res->data($resp);
 });
 
 Response::hook('success', function(Response $res){

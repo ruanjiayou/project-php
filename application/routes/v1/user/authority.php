@@ -59,12 +59,10 @@ return [
     $res->return($result);
   },
   /**
-   * @api {post} /v1/auth/user/forgot-password 忘记密码
+   * @api {post} /v1/auth/user/forgot-password 忘记密码,向手机号发送验证码
    * @apiGroup user-authority
    * 
    * @apiParam {string} phone 手机号
-   * @apiParam {string} password 密码
-   * @apiParam {string} code 验证码
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -81,7 +79,7 @@ return [
     return 'user-forgot-password';
   },
   /**
-   * @api {post} /v1/auth/user/reset-password 重置密码
+   * @api {post} /v1/auth/user/reset-password 验证码重置密码
    * @apiGroup user-authority
    * 
    * @apiParam {string} phone 手机号
@@ -99,8 +97,9 @@ return [
    * }
    */
   'post /v1/auth/user/reset-password' => function($req, $res) {
-    //TODO:
-    return 'user-reset-password';
+    $userBLL = new UserBLL();
+    $userBLL->forgotPassword(input('post.'));
+    $res->success();
   }
 ];
 

@@ -34,11 +34,6 @@ class BLL {
     //   'name' => 'required|string'
     // ]);
     // $data = $validation->validate($data);
-    $model= model($this->table);
-    $pk = $model->primaryKey;
-    if(!_::isObject($condition)) {
-      $condition = [$pk => $condition];
-    }
     return model($this->table)->edit($condition, $data);
   }
 

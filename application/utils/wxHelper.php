@@ -74,7 +74,8 @@ class wxHelper {
   static function delSmsSign($arr) {
     $signature = self::getSignature();
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/del_sign')
-      ->query(['sdkappid'=>self::$appId,'time'=>$signature['time'],'sign_id'=>$arr])
+      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->send(['sign_id'=>$arr,'sig'=>$signature['sign'],'time'=>$signature['time']])
       ->end();
     return $result;
   }
@@ -110,12 +111,15 @@ class wxHelper {
     return $result['result'] === 0 ? $result['data'] : [];
   }
 
+  /**
+   * 添加模板
+   */
   static function addSmsTpl($input) {
     $validation = new Validater([
       'title' => 'required|string',
       'text' => 'required|string',
       'remark' => 'string',
-      'type' => 'required|string|default:"0"'
+      'type' => 'required|string|default:0'
     ]);
     $data = $validation->validate($input);
     $sign = self::getSignature();
@@ -127,19 +131,43 @@ class wxHelper {
       ->query(['sdkappid'=>self::$appId,'random'=>$sign['random']])
       ->send($data)
       ->end();
-    dump($result);
     return $result;
   }
-
-  static function getSmsTpl($arr) {
+  static function delSmsTpl($arr) {
+    $signature = self::getSignature();
+    $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/del_template')
+      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->send(['sig'=>$signature['sign'],'time'=>$signature['time'],'tpl_id'=>$arr])
+      ->end();
+    return $result;
+  }
+  static function getSmsTpl($o=[]) {
     $sign = self::getSignature();
+    $query = [
+      'sig' =>$sign['sign'],
+      'time' =>$sign['time']
+    ];
+    if(_::isArray($o) && count($o)>0) {
+      $query['tpl_id'] = $o;
+    } else {
+      $page = 1;
+      $limit = 50;
+      if(_::isObject($o)) {
+        if(_::isInt($o['limit']) && $o['limit']>0 && $o['limit']<=50) {
+          $limit = $o['limit'];
+        }
+        if(_::isInt($o['page']) && $o['page']>0) {
+          $page = $o['page'];
+        }
+      }
+      $query['tpl_page'] = [
+        'offset' => ($page-1)*$limit,
+        'max' => $limit
+      ];
+    }
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/get_template')
       ->query(['sdkappid'=>self::$appId,'random'=>$sign['random']])
-      ->send([
-        'sig' =>$sign['sign'],
-        'time' =>$sign['time'],
-        'tpl_id' => $arr
-      ])
+      ->send($query)
       ->end();
     if($result['result']!==0) {
       thrower('common', 'thirdApiFail', $result['msg']);

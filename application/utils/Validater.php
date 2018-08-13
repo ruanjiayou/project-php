@@ -274,7 +274,7 @@
             $err['rule'] = 'int';
             $this->error($err, $data);
           }
-          $v = floatval($v);
+          $v = intval($v);
         }
         if($rule['float']) {
           $regstr = '/^([0-9]+)(.([0-9]+))?$/';

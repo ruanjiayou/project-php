@@ -22,11 +22,11 @@ class UserBLL extends BLL {
       'password' => 'required|string|minlength:6|maxlength:18',
       'nickName' => 'required|string',
       'code' => 'required|string',
-      'rccode' => 'string|default:null',
-      'createdAt' => 'string|default:datetime',
-      'salt' => 'int|default:timestamps'
+      'rccode' => 'required|string',
+      'createdAt' => 'string|default:datetime'
     ]);
     $input = $validation->validate($data);
+    $input['salt'] = _::random(24, 'mix');
     $rccode = $input['rccode'];
     $code = $input['code'];
     unset($input['rccode']);
@@ -35,11 +35,14 @@ class UserBLL extends BLL {
     if(!empty($result)) {
       thrower('user', 'phoneRegistered');
     }
+    // FIXME: 短信验证码,短信不够用,暂时注释
+    //SmsBLL::validateCode($input['phone'], $code);dump('code');exit;
+
     if($input['type'] !== 'agency') {
       if($rccode === null) {
         thrower('rccode', 'needRCcode');
       }
-      $result = model($this->table)->getInfo(['rccode'=>$rccode]);
+      $result = model('rccode')->getInfo(['rccode'=>$rccode]);
       if(empty($result)) {
         thrower('rccode', 'RCcodeNotFound');
       } else if($result['userId']!==null) {
@@ -49,10 +52,11 @@ class UserBLL extends BLL {
         thrower('rccode', 'RCcodeExpired');
       }
     }
-    //TODO: 短信验证码$code
+    $input['password'] = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$input['salt']]);
 
     $result = model($this->table)->add($input);
     model('rccode')->edit(['rccode'=>$rccode], ['userId'=>$result['id'], 'userName'=>$result['nickName'], 'userAvatar'=>$result['avatar'], 'type'=>$result['type']]);
+    $result = model($this->table)->edit($result['id'], ['rccode'=>$rccode]);
     return $result;
   }
 
@@ -63,9 +67,10 @@ class UserBLL extends BLL {
     ]);
     $input = $validation->validate($data);
     $result = model($this->table)->getInfo(['phone'=>$input['phone']]);
+    $password = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$result['salt']]);
     if(empty($result)) {
       thrower('user', 'userNotFound');
-    } else if($result['password']!==$input['password']) {
+    } else if($result['password']!==$password) {
       thrower('user', 'passwordError');
     }
     $token = $result['token'];
@@ -87,6 +92,67 @@ class UserBLL extends BLL {
   }
 
   /**
+   * 忘记密码,短信重置
+   */
+  function forgotPassword($phone, $code, $newpsw) {
+    $validation = new Validater([
+      'phone' => 'required|string',
+      'code' => 'required|string',
+      'password' => 'required|string|alias:newpsw'
+    ]);
+    $data = $validation->validate($input);
+    SmsBLL::validateCode($data['phone'], $data['code'], 'forgot');
+    return $this->resetPassword($data['phone'], $data['newpsw']);
+  }
+  /**
+   * 管理员重置密码
+   */
+  function resetPassword($phone, $newpsw) {
+    $user = model($this->table)->getInfo(['phone'=>$phone]);
+    if($user === null) {
+      thrower('user', 'userNotFound');
+    }
+    $salt = _::random(24, 'mix');
+    $newpsw = password_hash($newpsw, PASSWORD_BCRYPT, ['salt'=>$user['salt']]);
+    model($this->table)->edit(['phone'=>$phone], ['password'=>$newpsw, 'salt'=>$salt, 'token'=>'']);
+    return true;
+  }
+  /**
+   * 用户修改密码
+   */
+  function changePassword($user, $input) {
+    $validation = new Validater([
+      'oldPassword' => 'required|string|alias:oldpsw',
+      'newPassword' => 'required|string|alias:newpsw'
+    ]);
+    $data = $validation->validate($input);
+    $salt = _::random(24, 'mix');
+    $oldpsw = password_hash($data['oldpsw'], PASSWORD_BCRYPT, ['salt'=>$user['salt']]);
+    $newpsw = password_hash($data['newpsw'], PASSWORD_BCRYPT, ['salt'=>$salt]);
+    if($user['password']!==$oldpsw) {
+      thrower('user', 'passwordError');
+    }
+    return $this->resetPassword($user['phone'], $newpsw);
+  }
+
+  function create($input) {
+    $validation = new Validater([
+      'phone' => 'required|string',
+      'nickName' => 'required|string',
+      'type' => 'required|enum:servant,buyer,agency',
+      'password' => 'required|string|default:"123456"',
+      'createdAt' => 'required|date|default:datetime'
+    ]);
+    $data = $validation->validate($input);
+    $user = $this->getInfo(['phone'=>$data['phone']]);
+    if($user!==null) {
+      thrower('user', 'phoneRegistered');
+    }
+    $data['salt'] = _::random(24, 'mix');
+    $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT, ['salt'=>$data['salt']]);
+    return model($this->table)->add($data);
+  }
+  /**
    * TODO: 同步 rccode表的 name和avatar字段
    */
   function update($data, $condition) {
@@ -99,6 +165,7 @@ class UserBLL extends BLL {
       'address' => 'string|maxlength:255',
       'city' => 'string|maxlength:255',
       'age' => 'nonzero|int|min:0|max:100',
+      'money' => 'int',
       'height' => 'int',
       'weight' => 'int',
       'x' => 'float',
