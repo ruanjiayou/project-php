@@ -22,11 +22,12 @@ class SigninBLL extends BLL {
     if(null === $price) {
       thrower('sign', 'signPriceFail');
     }
+    (new UserBillBLL())->balance([
+      'type' => 'income',
+      'value' => $price['value'],
+      'detail' => 'signin'
+    ], $user);
     $sign = model('signin')->add($query);
-    $query['type'] = 'income';
-    $query['value'] = $price['value'];
-    model('user_bill')->add($query);
-    model('user')->edit(['id'=>$user['id']], ['money'=>$price['value']+$user['money']]);
     return $sign;
   }
 

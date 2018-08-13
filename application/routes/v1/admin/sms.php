@@ -59,7 +59,7 @@ return [
     $res->return($result);
   },
   /**
-   * @api {get} /v1/admin/sms-tpl 获取签名列表
+   * @api {get} /v1/admin/sms-sign 获取签名列表
    * @apiGroup admin-sms
    * 
    * @apiHeader {string} token 鉴权
@@ -98,12 +98,69 @@ return [
     $result = $smsBLL->getSign();
     $res->return($result);
   },
+  /**
+   * @api {post} /v1/admin/sms-tpl 获取模板列表
+   * @apiGroup admin-sms
+   * 
+   * @apiHeader {string} token 鉴权
+   * 
+   * @apiParam {string} title 标题
+   * @apiParam {string} text 内容
+   * @apiParam {string} [remark] 备注
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   state: 'success',
+   *   rdata: {
+   *     id: 1,
+   *     logicId: 1,
+   *     title: '18888888888',
+   *     content: 'max',
+   *     type: 'common',
+   *     status: 'pending',
+   *     reason: '',
+   *     description: '',
+   *     createdAt: "2018-07-31 17:43:48"
+   *   },
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
+   * }
+   */
   'post /v1/admin/sms-tpl' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $smsBLL = new SmsBLL();
 
     $result = $smsBLL->addTpl(input('post.'));
     $res->return($result);
+  },
+  /**
+   * @api {delete} /v1/admin/sms-tpl/:smsId 删除模板
+   * @apiGroup admin-sms
+   * 
+   * @apiHeader {string} token 鉴权
+   * 
+   * @apiParam {string} title 标题
+   * @apiParam {string} text 内容
+   * @apiParam {string} [remark] 备注
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   state: 'success',
+   *   rdata: null,
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
+   * }
+   */
+  'delete /v1/admin/sms-tpl/:smsId' => function($req, $res) {
+    $admin = AdminBLL::auth($req);
+    $smsBLL = new SmsBLL();
+
+    $smsBLL->delTpl($req->param('smsId'));
+    $res->success();
   },
   /**
    * @api {get} /v1/admin/sms-tpl 获取模板列表
@@ -149,8 +206,8 @@ return [
       $h['where']['type'] = ['notin',['sign']];
       return $h;
     });
-    $result = $smsBLL->getTpl($hql);
-    $res->paging($result);
+    $dataAndPaginator = $smsBLL->getTpl($hql);
+    $res->return($dataAndPaginator['data'], [R_PAGENATOR=>$dataAndPaginator[R_PAGENATOR]]);
   },
   /**
    * @api {post} /v1/admin/sms-message 发送短信

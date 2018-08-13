@@ -158,7 +158,7 @@ return [
     $adminBLL = new AdminBLL();
     $admin = $adminBLL::auth($req);
     
-    $nAdmin = $adminBLL->getInfo($req->param('adminId'));
+    $nAdmin = $adminBLL->getInfo($req->param('adminId'), ['field'=>'!password,token,salt']);
     $res->return($nAdmin);
   }
 ];

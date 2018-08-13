@@ -65,7 +65,7 @@ return [
     if($user['status'] === 'registered') {
       $data['status'] = $user['type'] === 'servant' ? 'approving' : 'approved';
     }
-    $result = $userBLL->update($data, $user['id']);
+    $result = $userBLL->update(_::filter($data, ['money', 'status', 'attr', 'images']), $user['id']);
     $res->return($result);
   },
   /**
@@ -74,8 +74,8 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string} password 新密码
-   * @apiParam {string} code 验证码
+   * @apiParam {string} newPassword 新密码
+   * @apiParam {string} oldPassword 旧密码
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -88,8 +88,11 @@ return [
    * }
    */
   'put /v1/user/password' => function($req, $res) {
-    //TODO:
-    return 'user-self';
+    $userBLL = new UserBLL();
+    $user = $userBLL->auth($req);
+
+    $userBLL->changePassword($user, input('put.'));
+    $res->success();
   },
   /**
    * @api {get} /v1/user/self 获取个人资料

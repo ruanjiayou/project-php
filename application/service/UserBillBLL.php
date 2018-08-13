@@ -5,8 +5,9 @@ use think\Request;
 class UserBillBLL extends BLL {
 
   public $table = 'user_bill';
-  
-  public function create($data) {
+
+  function balance($input, $user) {
+    $input['userId'] = $user['id'];
     $validation = new Validater([
       'userId' => 'required|int',
       'type' => 'required|enum:income,expent',
@@ -14,10 +15,11 @@ class UserBillBLL extends BLL {
       'detail' => 'string',
       'createdAt' => 'required|string|default:datetime'
     ]);
-    $input = $validation->validate($data);
-    return model($this->table)->add($input);
+    $data = $validation->validate($input);
+    $money = $data['type'] === 'income' ? $user['money'] + $data['value'] : $user['money'] - $data['value'];
+    (new UserBLL())->update(['money'=>$money], $user['id']);
+    return model($this->table)->add($data);
   }
-
 }
 
 ?>

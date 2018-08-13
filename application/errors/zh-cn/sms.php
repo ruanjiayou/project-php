@@ -30,5 +30,15 @@ return [
     'status' => 200,
     'message' => '发送短信失败!'
   ],
+  'codeError' => [
+    'code' => 10770,
+    'status' => 200,
+    'message' => '验证码不正确!'
+  ],
+  'codeExpired' => [
+    'code' => 10780,
+    'status' => 200,
+    'message' => '验证码已过期!'
+  ]
 ]
 ?>

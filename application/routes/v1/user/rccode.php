@@ -99,7 +99,7 @@ return [
     $rccodeBLL = new RccodeBLL();
     $user = $userBLL->auth($req);
 
-    $hql = $req->paging(function($h) {
+    $hql = $req->paging(function($h) use($user) {
       if($user['type']==='agency') {
         $h['where']['agencyId'] = $user['id'];
       } else {

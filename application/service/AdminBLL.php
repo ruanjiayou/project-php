@@ -15,6 +15,27 @@ class AdminBLL extends BLL {
     return $admin;
   }
 
+  function resetPassword($phone, $newpsw) {
+    $admin = model($this->table)->getInfo(['phone'=>$phone]);
+    if($user === null) {
+      thrower('user', 'userNotFound');
+    }
+    $salt = _::random(24, 'mix');
+    $newpsw = hash($newpsw.'-'.$salt);
+    model($this->table)->edit(['phone'=>$phone], ['password'=>$newpsw, 'salt'=>$salt, 'token'=>'']);
+    return true;
+  }
+
+  function changePassword($admin, $oldpsw, $newpsw) {
+    $salt = _::random(24, 'mix');
+    $oldpsw = hash($oldpsw.'-'.$admin['salt']);
+    $newpsw = hash($newpsw.'-'.$salt);
+    if($admin['password']!==$oldpsw) {
+      thrower('user', 'passwordError');
+    }
+    return $this->resetPassword($admin['phone'], $newpsw);
+  }
+
   public function signIn($data) {
     $validation = new Validater([
       'phone' => 'required|string|minlength:7|maxlength:11',
@@ -22,9 +43,10 @@ class AdminBLL extends BLL {
     ]);
     $input = $validation->validate($data);
     $result = model($this->table)->getInfo(['phone'=>$input['phone']]);
+    $password = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$result['salt']]);
     if(empty($result)) {
       thrower('user', 'userNotFound');
-    } else if($result['password']!==$input['password']) {
+    } else if($result['password']!==$password) {
       thrower('user', 'passwordError');
     }
     $token = $result['token'];
@@ -50,11 +72,12 @@ class AdminBLL extends BLL {
       'phone' => 'required|string|minlength:7|maxlength:11',
       'nickName' => 'required|string',
       'password' => 'string|default:"123456"',
-      'salt' => 'string|default:timestamps',
       'isSA' => 'boolean|default:false',
       'createdAt' => 'string|default:datetime'
     ]);
     $input = $validation->validate($data);
+    $input['salt'] = _::random(24, 'mix');
+    $input['password'] = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$input['salt']]);
     $admin = model($this->table)->getInfo(['phone'=>$input['phone']]);
     if(!empty($admin)) {
       thrower('user', 'phoneRegistered');
@@ -74,10 +97,6 @@ class AdminBLL extends BLL {
     }
     $admin = model($this->table)->edit($condition, $data);
     return $admin;
-  }
-
-  public function getInfo($condition) {
-    return model($this->table)->field('!password,token,salt')->getInfo($condition);
   }
 
   public function changeRight($adminId, $data) {

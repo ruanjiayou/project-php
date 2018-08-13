@@ -23,7 +23,7 @@ class SmsBLL extends BLL {
     $data['logicId'] = $sign['data']['id'];
     $result = null;
     if($sign['result'] === 0) {
-      $result = model($this->table)->add($data);
+      $result = model($this->table)->add(_::pick($data, ['logicId', 'title', 'type', 'status', 'createdAt', 'description']));
     } else {
       thrower('sms', 'addSignFail', $sign['result'].' '.$sign['msg']);
     }
@@ -40,12 +40,15 @@ class SmsBLL extends BLL {
       thrower('sms', 'smsSignUsing');
     } else {
       // 删除数据库的同事 同步 微信平台
-      wxHelper::delSmsSign([$sign['logicId']]);
+      $result = wxHelper::delSmsSign([intval($sign['logicId'])]);
+      if($result['result']!==0) {
+        thrower('common', 'thirdApiFail', $result['result'].' '.$result['msg']);
+      }
       return $signModel->destroy($query);
     }
   }
   /**
-   * 
+   * 此方法禁用
    */
   function putSign($smsId, $input) {
     $validation = new Validater([
@@ -64,52 +67,42 @@ class SmsBLL extends BLL {
     return $sign;
   }
   /**
-   * 获取所有签名并刷新状态
+   * 获取所有签名并刷新审核状态
    */
   function getSign() {
     $results = model($this->table)->getList(['where'=>['type'=>'sign'], 'limit'=>0])->items();
     $ids = [];
-    // TODO: 不只是同步状态 还有其他字段
     for($n=0;$n<count($results);$n++) {
       if($results[$n]['status'] === 'pending') {
         array_push($ids, intval($results[$n]['logicId']));
       }
     }
-    $signs = wxHelper::getSmsSign($ids);
+    $signs = [];
+    if(count($ids)!==0) {
+      $signs = wxHelper::getSmsSign($ids);
+    }
     $res = [];
-    for($j=0;$j<count($signs);$j++) {
-      $sign = $signs[$j];
-      $found = false;
-      for($i=0;$i<count($results);$i++) {
-        $result = $results[$i];
+    for($i=0;$i<count($results);$i++) {
+      $result = $results[$i];
+      for($j=0;$j<count($signs);$j++) {
+        $sign = $signs[$j];
         if($sign['id'] === intval($result['logicId'])) {
-          $found = true;
-          if($result['status'] === 'pending') {
-            if($sign['status'] === 0) {
-              $result = model($this->table)->edit(['id'=>$result['id'], 'logicId'=>$result['logicId']], ['status'=>'success']);
-            } else if($sign['status'] ===2) {
-              $result = model($this->table)->edit(['id'=>$result['id'], 'logicId'=>$result['logicId']], ['status'=>'fail', 'reason'=>$sign['reply']]);
-            }
+          if($sign['status'] === 0) {
+            $result = model($this->table)->edit(['id'=>$result['id']], ['status'=>'success']);
+            
+          } elseif($sign['status'] === 2) {
+            $result = model($this->table)->edit(['id'=>$result['id']], ['status'=>'fail', 'reason'=>$sign['reply']]);
           }
-          array_push($res, $result);
+          break;
         }
       }
-      if($found===false) {
-        // 1: 审核中 0: 成功 2: 失败
-        $status = ['success', 'pending', 'fail'];
-        $result = model($this->table)->add([
-          'logicId'=>$sign['id'],
-          'title'=>$sign['text'],
-          'type'=>'sign',
-          'status'=>$status[$sign['status']],
-          'reason'=>$sign['reply'],
-          'createdAt' => date('Y-m-d H:i:s')
-        ]);
-        array_push($res, $result);
-      }
+      array_push($res, $result);
     }
     return $res;
   }
+  /**
+   * 添加模板
+   */
   function addTpl($input) {
     $tpl = wxHelper::addSmsTpl($input);
     $result = null;
@@ -127,30 +120,63 @@ class SmsBLL extends BLL {
     }
     return $result;
   }
-  function delTpl() {
 
+  function delTpl($smsId) {
+    $smsModel = model($this->table);
+    $query = [$smsModel->primaryKey=>$smsId, 'type'=>'common'];
+    $tpl = $smsModel->getInfo($query);
+    if($tpl !== null && $tpl['status'] === 'using') {
+      thrower('sms', 'smsSignUsing');
+    } else {
+      // 删除数据库的同事 同步 微信平台
+      $result = wxHelper::delSmsTpl([intval($tpl['logicId'])]);
+      if($result['result']!==0) {
+        thrower('common', 'thirdApiFail', $result['result'].' '.$result['msg']);
+      }
+      return $smsModel->destroy($query);
+    }
   }
-  function putTpl() {
-
-  }
+  /**
+   * 获取所有目标并刷新审核状态
+   */
   function getTpl($hql) {
-    $results = model($this->table)->getList($hql);
-    $ids = array_map(function($item){
-      return intval($item['logicId']);
-    }, $results->items());
-    $tpls = wxHelper::getSmsTpl($ids);
-    // TODO: 更新模板状态和其他
-    //dump($tpls);
-    //  'id' => int 170055
-    //  'international' => int 0
-    //  'text' => string '{1}为您的验证码，请于{2}分钟内填写' (length=48)
-    //  'status' => int 0
-    //  'type' => int 0
-    //  'reply' => string '' (length=0)
-    //  'title' => string '注册和修改密码' (length=21)
-    //  'apply_time' => string '2018-08-07 16:39:08' (length=19)
-    //  'reply_time' => string '2018-08-07 16:40:34' (length=19)
-    return $results;
+    $dataset = model($this->table)->getList($hql);
+    $results = $dataset->items();
+    $ids = [];
+    for($n=0;$n<count($results);$n++) {
+      if($results[$n]['status'] === 'pending') {
+        array_push($ids, intval($results[$n]['logicId']));
+      }
+    }
+    $tpls = [];
+    if(count($ids)!==0) {
+      $tpls = wxHelper::getSmsTpl($ids);
+    }
+    $paginator = [
+      R_PAGENATOR_PAGE =>$dataset->currentPage(),
+      R_PAGENATOR_PAGES =>$dataset->lastPage(),
+      R_PAGENATOR_LIMIT =>$dataset->listRows(),
+      R_PAGENATOR_COUNT =>$dataset->count(),
+      R_PAGENATOR_TOTAL=>$dataset->total(),
+    ];
+    $res = [];
+    for($i=0;$i<count($results);$i++) {
+      $result = $results[$i];
+      for($j=0;$j<count($tpls);$j++) {
+        $tpl = $tpls[$j];
+        if($tpl['id'] === intval($result['logicId'])) {
+          if($tpl['status'] === 0) {
+            $result = model($this->table)->edit(['id'=>$result['id']], ['status'=>'success']);
+            
+          } elseif($tpl['status'] === 2) {
+            $result = model($this->table)->edit(['id'=>$result['id']], ['status'=>'fail', 'reason'=>$tpl['reply']]);
+          }
+          break;
+        }
+      }
+      array_push($res, $result);
+    }
+    return ['data'=>$res, R_PAGENATOR=>$paginator];
   }
   function sendMessage($input) {
     $validation = new Validater([
@@ -170,7 +196,8 @@ class SmsBLL extends BLL {
     $tpl = model($this->table)->getInfo(['id'=>$place['smsId']]);
     $message = model('sms_message')->add([
       'smsId' => $tpl['id'],
-      'tpl' => $tpl['content'],
+      'title' => $tpl['title'],
+      'content' => $tpl['content'],
       'json' => json_encode($data['params']),
       'phone' => $data['phone'],
       'type' => $data['type'],
@@ -183,6 +210,24 @@ class SmsBLL extends BLL {
       thrower('sms', 'smsSendFail', $result['errmsg']);
     }
     return $result;
+  }
+
+  /**
+   * 验证手机的验证码
+   */
+  static function validateCode($phone, $code, $type = 'zhuche') {
+    $sms = model('sms_message')->getInfo(['type'=>$type,'phone'=>$phone], ['order'=>'id DESC']);
+    if($sms === null) {
+      thrower('sms', 'codeError');
+    } else {
+      $json = json_decode($sms['json']);
+      if($json[0]!==$code) {
+        thrower('sms', 'codeError');
+      }
+      if(time() > 60*10+strtotime($sms['createdAt'])) {
+        thrower('sms', 'codeExpired');
+      }
+    }
   }
 }
 ?>
