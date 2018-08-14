@@ -36,7 +36,7 @@ class UserBLL extends BLL {
       thrower('user', 'phoneRegistered');
     }
     // FIXME: 短信验证码,短信不够用,暂时注释
-    SmsBLL::validateCode($input['phone'], $code);dump('code');exit;
+    SmsBLL::validateCode($input['phone'], $code);
 
     if($input['type'] !== 'agency') {
       if($rccode === null) {
