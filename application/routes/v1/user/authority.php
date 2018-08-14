@@ -46,7 +46,8 @@ return [
    * {
    *   state: 'success',
    *   rdata: {
-   *     token: ''
+   *     token: '',
+   *     type: 'buyer'
    *   },
    *   ecode: 0,
    *   error: '',

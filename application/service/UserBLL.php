@@ -74,7 +74,7 @@ class UserBLL extends BLL {
       thrower('user', 'passwordError');
     }
     $token = $result['token'];
-    $data = ['token'=>$token];
+    $data = ['token'=>$token, 'type' => $result['type']];
     if($token!=='') {
       try {
         $token = (array)JWT::decode($data['token'], C_AUTH_KEY, array('HS256'));
