@@ -54,7 +54,4 @@ class SigninBLL extends BLL {
     return null !== $sign;
   }
 
-  static function signs($userId) {
-    //TODO: 获取本月签到记录
-  }
 }

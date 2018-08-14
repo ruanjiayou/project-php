@@ -16,8 +16,11 @@ class UserBillBLL extends BLL {
       'createdAt' => 'required|string|default:datetime'
     ]);
     $data = $validation->validate($input);
-    $money = $data['type'] === 'income' ? $user['money'] + $data['value'] : $user['money'] - $data['value'];
-    (new UserBLL())->update(['money'=>$money], $user['id']);
+    // 平台收入不同步
+    if($user['id']!==0) {
+      $money = $data['type'] === 'income' ? $user['money'] + $data['value'] : $user['money'] - $data['value'];
+      (new UserBLL())->update(['money'=>$money], $user['id']);
+    }
     return model($this->table)->add($data);
   }
 }
