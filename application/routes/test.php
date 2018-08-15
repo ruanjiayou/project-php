@@ -286,9 +286,18 @@ return [
     $input = input('post.');
     $res->return($input);
   },
-  'get /test/shttp/post' => function($req, $res) {
-    $url = 'http://'.$_SERVER['HTTP_HOST'].'/test/shttp/post';
-    return shttp::post($url)->send(['name'=>'test'])->end();
+  /**
+   * @api {get} /test/route-pattern g.测试路由中写正则
+   * @apiGroup test
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   name: 'test'
+   */
+  'get /test/route-pattern' => function($req, $res) {
+    $r = CustomRoute::getRoutePattern('get /admin/:adminId([0-9]+)/auth/:name(\w+)');
+    $res->return($r);
   }
 ]
 ?>

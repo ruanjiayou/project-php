@@ -5,13 +5,17 @@ use think\Request;
 class BLL {
   
   public $table = '';
+  public $strict = false;
+
+  function __construct($strict = false) {
+    $this->strict = $strict;
+  }
+
+  function strict() {
+    $this->strict = true;
+  }
 
   public function create($data) {
-    // $validation = new Validater([
-    //   'name' => 'required|string'
-    // ]);
-    // $input = $validation->validate($data);
-    // return model('tag')->add($input);
     return model($this->table)->add($data);
   }
 
@@ -29,12 +33,11 @@ class BLL {
   }
 
   public function update($data, $condition) {
-    //TODO: 数据不存在 错误不明
-    // $validation = new Validater([
-    //   'name' => 'required|string'
-    // ]);
-    // $data = $validation->validate($data);
-    return model($this->table)->edit($condition, $data);
+    $result = model($this->table)->edit($condition, $data);
+    if($this->strict === true && null === $result) {
+      thrower('common', 'notFound');
+    }
+    return $result;
   }
 
   public function getAll($hql=[]) {
@@ -47,7 +50,11 @@ class BLL {
   }
 
   public function getInfo($condition, $opts=[]) {
-    return model($this->table)->getInfo($condition, $opts);
+    $result = model($this->table)->getInfo($condition, $opts);
+    if($this->strict === true && null === $result) {
+      thrower('common', 'notFound');
+    }
+    return $result;
   }
 
 }

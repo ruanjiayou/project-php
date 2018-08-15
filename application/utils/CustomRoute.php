@@ -148,16 +148,32 @@ class CustomRoute {
     }
   }
 
+  static function getRoutePattern($route) {
+    preg_match_all('/[:]([0-9a-zA-Z]+)\((.*?)\)/', $route, $out);
+    $res = [];
+    for($i=0;$i<count($out[0]);$i++) {
+      array_push($res, [$out[0][$i], $out[1][$i], $out[2][$i]]);
+    }
+    return $res;
+  }
   static function loadAll($opt) {
     self::scanner($opt);
+    $pattern = [];
     foreach(self::$routes as $k => $v) {
       $info = explode(' ', $k);
       $method = strtolower($info[0]);
       $route = $info[1];
-      // TODO: match group
-      if('pattern' == $method) {
-        Route::pattern($route,$v);
-      } else if(in_array($method, ['post', 'delete', 'put', 'get'])) {
+      if(in_array($method, ['post', 'delete', 'put', 'get'])) {
+        // 自动加正则限制
+        $patterns = self::getRoutePattern($route);
+        if(count($patterns)!==0) {
+          foreach($patterns as $p) {
+            $name = $pattern[1];
+            $value = $pattern[2];
+            $pattern[$name] = $value;
+            $route = str_replace('('.$value.')', '', $route);
+          }
+        }
         Route::rule($route.'$', function(Request $req, Response $res) use($v){
           $result = '';
           try {
@@ -190,6 +206,9 @@ class CustomRoute {
           return $result;
         }, $method);
       }
+    }
+    foreach($pattern as $k => $v) {
+      Route::pattern($k, $v);
     }
   }
 }
