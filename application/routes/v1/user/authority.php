@@ -101,6 +101,32 @@ return [
     $userBLL = new UserBLL();
     $userBLL->forgotPassword(input('post.'));
     $res->success();
+  },
+  /**
+   * @api {post} /v1/auth/user/message/sign-up 点击发送注册验证码
+   * @apiGroup user-authority
+   * 
+   * @apiParam {string} phone 手机号
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   state: 'success',
+   *   rdata: null,
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
+   * }
+   */
+  'post /v1/auth/user/message/sign-up' => function($req, $res) {
+    $userBLL = new UserBLL();
+    $smsBLL = new SmsBLL();
+    $smsBLL->sendMessage([
+      'phone' => input('post.phone'),
+      'type' => 'zhuche',
+      'params' => [_::random(6, 'imix'), 10]
+    ]);
+    $res->success();
   }
 ];
 

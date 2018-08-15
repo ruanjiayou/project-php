@@ -15,6 +15,15 @@ class UserBLL extends BLL {
     return $user;
   }
 
+  /**
+   * 注册
+   * 1.验证字段
+   * 2.验证手机号是否注册
+   * 3.验证短信验证码
+   * 4.验证推荐码
+   * 5.生成随机盐
+   * 6.记录推荐关系
+   */
   function signUp($data) {
     $validation = new Validater([
       'type' => 'required|string|enum:buyer,servant,agency',
@@ -60,6 +69,9 @@ class UserBLL extends BLL {
     return $result;
   }
 
+  /**
+   * 登录返回鉴权token和角色类型type
+   */
   function signIn($data) {
     $validation = new Validater([
       'phone' => 'required|string|minlength:7|maxlength:11',
