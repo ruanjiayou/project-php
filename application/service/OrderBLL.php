@@ -10,12 +10,12 @@ class OrderBLL extends BLL {
     $validation = new Validater([
       'userId' => 'required|int',
       'price' => 'required|int',
-      'type' => 'enum:recharge,withdraw',
-      'status' => 'enum:pending,success,fail',
+      'type' => 'required|enum:recharge,withdraw',
+      'status' => 'enum:pending,success,fail|default:"pending"',
       'trade_no' => 'string|default:""',
       'order_no' => 'string|default:""',
       'reason' => 'string|default:""',
-      'createdAt' => 'required|datetime|default:datetime'
+      'createdAt' => 'required|string|default:datetime'
     ]);
     $data = $validation->validate($input);
     $isFound = false;
@@ -26,7 +26,15 @@ class OrderBLL extends BLL {
       $isFound = $order === null ? false : true;
     } while($isFound);
     $data['order_no'] = $order_no;
-    return model($this->table)->add($data);
+    $payInfo = alipayHelper::appPay([
+      'body' => '测试充值',
+      'subject' => '测试APP支付',
+      'out_trade_no' => $data['order_no'],
+      'total_amount' => $data['price']
+    ]);
+    $order = model($this->table)->add($data);
+    $order['prepay'] = $payInfo;
+    return $order;
   }
 }
 

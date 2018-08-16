@@ -21,9 +21,11 @@ return [
    * }
    */
   'post /v1/user/wallet/recharge' => function($req, $res) {
-    $aop = new AopClient ();
-    dump($aop);
-    $res->return([]);
+    $user = UserBLL::auth($req);
+    $orderBLL = new OrderBLL();
+    
+    $order = $orderBLL->create(['type'=>'recharge', 'userId'=>$user['id'], 'price'=>input('post.money'),]);
+    $res->return($order);
   },
   /**
    * @api {post} /v1/user/wallet/withdraw 提现
