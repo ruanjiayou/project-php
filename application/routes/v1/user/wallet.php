@@ -49,6 +49,34 @@ return [
    */
   'post /v1/user/wallet/withdraw' => function($req, $res) {
 
+  },
+  /**
+   * @api {get} /v1/user/wallet/yestoday 昨日收益
+   * @apiGroup user-wallet
+   * 
+   * @apiHeader {string} token 鉴权
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   state: 'success',
+   *   rdata: {
+   *     
+   *   },
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
+   * }
+   */
+  'get /v1/user/wallet/yestoday' => function($req, $res) {
+    $user = UserBLL::auth($req);
+
+    //获取今天00:00
+    $start = strtotime(date('Y-m-d'.'00:00:00',time()-3600*24));
+    //获取今天24:00
+    $end = strtotime(date('Y-m-d'.'00:00:00',time()));
+    $money = model('user_bill')->where(['userId'=>$user['id'], 'type'=>'income', 'createdAt'=>['between', [$start, $end]]])->sum('value');
+    $res->return(['money'=>$money]);
   }
 ];
 ?>

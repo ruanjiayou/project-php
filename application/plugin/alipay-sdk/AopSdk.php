@@ -15,7 +15,7 @@
  */
 if (!defined("AOP_SDK_WORK_DIR"))
 {
-	define("AOP_SDK_WORK_DIR", __DIR__."\\tmp\\");
+	define("AOP_SDK_WORK_DIR", __DIR__.DIRECTORY_SEPARATOR."tmp".DIRECTORY_SEPARATOR);
 }
 /**
  * 是否处于开发模式
