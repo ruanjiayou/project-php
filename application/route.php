@@ -29,8 +29,14 @@ define('C_PUNISHMENT1_M', 5);
 define('C_PUNISHMENT1_V', 50);
 define('C_PUNISHMENT2_M', 15);
 define('C_PUNISHMENT2_V', 100);
+// 支付宝
+define('C_ALI_APPID', '');
+define('C_ALI_PRIVATEKEY', '');
+define('C_ALI_PUBLICKEY', '');
+define('C_ALI_PAYCB', '');
 
 include_once __DIR__.'/service/BLL.php';
+include_once __DIR__.'/plugin/alipay-sdk/AopSdk.php';
 
 function autoLoad($dir) {
   $dh = opendir($dir);
