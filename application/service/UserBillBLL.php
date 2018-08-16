@@ -11,7 +11,7 @@ class UserBillBLL extends BLL {
     $validation = new Validater([
       'userId' => 'required|int',
       'type' => 'required|enum:income,expent',
-      'value' => 'required|int|nonzero',
+      'value' => 'required|int',
       'detail' => 'string',
       'createdAt' => 'required|string|default:datetime'
     ]);
