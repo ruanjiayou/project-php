@@ -124,7 +124,7 @@ return [
     $smsBLL->sendMessage([
       'phone' => input('post.phone'),
       'type' => 'zhuche',
-      'params' => [_::random(6, 'imix'), 10]
+      'params' => [_::random(6), 10]
     ]);
     $res->success();
   }
