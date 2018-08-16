@@ -10,8 +10,9 @@ return [
       return 'fail';
     } else {
       $orderBLL->update(['trade_no'=>$data['trade_no'],'status'=>'success'], ['id'=>$order['id']]);
+      return 'success';
     }
-    return $flag ? 'success' : 'fail';
+    //return $flag ? 'success' : 'fail';
   }
 ];
 ?>
