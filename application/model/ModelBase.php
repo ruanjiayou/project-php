@@ -54,8 +54,8 @@ class ModelBase extends Model {
             $where = [$this->primaryKey=>$where];
         }
         $order = isset($opts['order']) ? $opts['order'] : $this->primaryKey.' DESC';
-        $limit = isset($where['limit']) ? $where['limit'] : 10;
-        $page = isset($where['page']) ? $where['page'] : 1;
+        $limit = isset($opts['limit']) ? $opts['limit'] : 10;
+        $page = isset($opts['page']) ? $opts['page'] : 1;
         unset($where['page']);
         unset($where['limit']);
         if($limit === 0) {
