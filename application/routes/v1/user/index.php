@@ -20,6 +20,7 @@ return [
    * @apiParam {float} [y] 纬度
    * @apiParam {string} [address] 籍贯
    * @apiParam {string} [city] 所在城市
+   * @apiParam {int} [cityId] 所在城市
    * @apiParam {string} [identity] 身份证
    * @apiParam {string} [introduce] 简介
    * @apiParam {array} [tags] 个性标签
@@ -48,6 +49,7 @@ return [
    *     money: 888,
    *     address: "",
    *     city: '武汉',
+   *     cityId: 77,
    *     type: "servant",
    *     createdAt: "2018-07-31 17:43:48"
    *   },
@@ -124,6 +126,7 @@ return [
    *     money: 888,
    *     address: "",
    *     city: '武汉',
+   *     cityId: 77,
    *     type: "servant",
    *     createdAt: "2018-07-31 17:43:48"
    *   },

@@ -176,6 +176,7 @@ class UserBLL extends BLL {
       'introduce' => 'string|maxlength:255',
       'address' => 'string|maxlength:255',
       'city' => 'string|maxlength:255',
+      'cityId' => 'int|nonzero',
       'age' => 'nonzero|int|min:0|max:100',
       'money' => 'int',
       'height' => 'int',
