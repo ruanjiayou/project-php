@@ -44,7 +44,7 @@ class UserBLL extends BLL {
     if(!empty($result)) {
       thrower('user', 'phoneRegistered');
     }
-    // FIXME: 短信验证码,短信不够用,暂时注释
+    // 短信验证码,短信不够用,可以注释下面一行
     SmsBLL::validateCode($input['phone'], $code);
 
     if($input['type'] !== 'agency') {
@@ -165,7 +165,7 @@ class UserBLL extends BLL {
     return model($this->table)->add($data);
   }
   /**
-   * TODO: 同步 rccode表的 name和avatar字段
+   * 业务逻辑: 同步 rccode表的 name和avatar字段
    */
   function update($data, $condition) {
     $validation = new Validater([
@@ -195,6 +195,31 @@ class UserBLL extends BLL {
     $user = model($this->table)->edit($condition, $input);
     if($user['tags']!=='') {
       $user['tags'] = json_decode($user['tags']);
+    }
+    if($type!=='buyer') {
+      $type = $user['type'];
+      $query = [];
+      $syncData = [];
+      if($type==='servant') {
+        $query['userId'] = $user['id'];
+        if(isset($input['nickName'])) {
+          $syncData['userName'] = $input['nickName'];
+        }
+        if(isset($input['avatar'])) {
+          $syncData['userAvatar'] = $input['avatar'];
+        }
+      } else {
+        $query['agencyId'] = $user['id'];
+        if(isset($input['nickName'])) {
+          $syncData['agencyName'] = $input['nickName'];
+        }
+        if(isset($input['avatar'])) {
+          $syncData['agencyAvatar'] = $input['avatar'];
+        }
+      }
+      if(!_::isEmptyObject($syncData)) {
+        model('rccode')->edit($query, $syncData);
+      }
     }
     return $user;
   }

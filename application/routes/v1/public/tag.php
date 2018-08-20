@@ -32,7 +32,8 @@ return [
    */
   'get /v1/public/tags' => function($req, $res) {
     $tagBLL = new TagBLL();
-    $res->paging($tagBLL->getAll());
+    $catalogBLL = new CatalogBLL();
+    $res->return($tagBLL->getAll(), ['catalog'=>$catalogBLL->getAll()]);
   }
 ];
 ?>

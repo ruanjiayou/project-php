@@ -93,7 +93,6 @@ class myHttp {
   /**
    * 发送请求获取返回
    * @param $datatype xml/json/string
-   * TODO: 文件/图片转base64/callback
    */
   function end($datatype = 'json') {
     // 最终url
