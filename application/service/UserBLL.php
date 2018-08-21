@@ -153,6 +153,7 @@ class UserBLL extends BLL {
       'nickName' => 'required|string',
       'type' => 'required|enum:servant,buyer,agency',
       'password' => 'required|string|default:"123456"',
+      'status' => 'required|enum:registered,approving,approved,forbidden|default:"approved"',
       'createdAt' => 'required|date|default:datetime'
     ]);
     $data = $validation->validate($input);
