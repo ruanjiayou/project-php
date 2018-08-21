@@ -125,7 +125,7 @@ class UserBLL extends BLL {
       thrower('user', 'userNotFound');
     }
     $salt = _::random(24, 'mix');
-    $newpsw = password_hash($newpsw, PASSWORD_BCRYPT, ['salt'=>$user['salt']]);
+    $newpsw = password_hash($newpsw, PASSWORD_BCRYPT, ['salt'=>$salt]);
     model($this->table)->edit(['phone'=>$phone], ['password'=>$newpsw, 'salt'=>$salt, 'token'=>'']);
     return true;
   }
