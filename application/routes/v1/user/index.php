@@ -67,7 +67,7 @@ return [
     if($user['status'] === 'registered') {
       $data['status'] = $user['type'] === 'servant' ? 'approving' : 'approved';
     }
-    $result = $userBLL->update(_::filter($data, ['money', 'status', 'attr', 'images']), $user['id']);
+    $result = $userBLL->update(_::filter($data, ['money', 'attr', 'images']), $user['id']);
     $res->return($result);
   },
   /**
