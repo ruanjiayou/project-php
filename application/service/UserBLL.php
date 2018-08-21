@@ -106,7 +106,7 @@ class UserBLL extends BLL {
   /**
    * 忘记密码,短信重置
    */
-  function forgotPassword($phone, $code, $newpsw) {
+  function forgotPassword($input) {
     $validation = new Validater([
       'phone' => 'required|string',
       'code' => 'required|string',
