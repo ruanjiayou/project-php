@@ -159,6 +159,15 @@ class CustomRoute {
   static function loadAll($opt) {
     self::scanner($opt);
     $pattern = [];
+    Route::rule('/:all([\w\W]+)', function(Request $req, Response $res){
+      header('Access-Control-Allow-Origin: *');
+      //header('Access-Control-Allow-Credentials: false;');
+      //header('Access-Control-Allow-Headers: token;');
+      //header("Access-Control-Max-Age: 86400");
+      header("Access-Control-Allow-Headers: Content-Type, token");
+      header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT');
+      return $res->getData();
+    }, 'OPTIONS');
     foreach(self::$routes as $k => $v) {
       $info = explode(' ', $k);
       $method = strtolower($info[0]);
@@ -175,6 +184,7 @@ class CustomRoute {
           }
         }
         Route::rule($route.'$', function(Request $req, Response $res) use($v){
+          //header('Access-Control-Allow-Origin: *');
           $result = '';
           try {
             $result = $v($req, $res);
