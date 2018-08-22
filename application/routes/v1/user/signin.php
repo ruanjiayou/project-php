@@ -29,7 +29,7 @@ return [
     }
   },
   /**
-   * @api {post} /v1/user/sign-in 某月签到记录列表
+   * @api {get} /v1/user/sign-in 某月签到记录列表
    * @apiGroup user-signin
    * 
    * @apiHeader {string} token 鉴权

@@ -179,6 +179,7 @@ class CustomRoute {
             header('Access-Control-Allow-Origin: *');
             //header('Access-Control-Allow-Credentials: false;');
             //header('Access-Control-Allow-Headers: token;');
+            header("Access-Control-Max-Age: 86400");
             header("Access-Control-Allow-Headers: Content-Type");
             header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT');
             return $res->getData();
