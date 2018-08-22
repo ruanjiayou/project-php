@@ -37,7 +37,7 @@ class Response
     // 输出参数
     protected $options = [];
     // header参数
-    protected $header = ['Access-Control-Allow-Origin' => '*', "Access-Control-Allow-Headers" => 'Origin, X-Requested-With, Content-Type, Accept', 'Access-Control-Allow-Methods'=> 'GET, POST, PUT, DELETE, OPTIONS'];
+    protected $header = [];
 
     protected $content = null;
 

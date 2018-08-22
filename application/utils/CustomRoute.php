@@ -175,6 +175,14 @@ class CustomRoute {
           }
         }
         Route::rule($route.'$', function(Request $req, Response $res) use($v){
+          if($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            header('Access-Control-Allow-Origin: *');
+            //header('Access-Control-Allow-Credentials: false;');
+            //header('Access-Control-Allow-Headers: token;');
+            header("Access-Control-Allow-Headers: Content-Type");
+            header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT');
+            return $res->getData();
+          }
           $result = '';
           try {
             $result = $v($req, $res);
@@ -204,7 +212,7 @@ class CustomRoute {
             ]);
           }
           return $result;
-        }, $method);
+        }, $method.'|OPTIONS');
       }
     }
     foreach($pattern as $k => $v) {
