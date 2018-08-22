@@ -10,7 +10,7 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string} name 标签名称
+   * @apiParam {array} works 数组,如['2018-08-08']
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -35,7 +35,7 @@ return [
     $res->paging($results);
   },
   /**
-   * @api {post} /v1/user/works 某月工作日列表
+   * @api {get} /v1/user/works 某月工作日列表
    * @apiGroup user-work
    * 
    * @apiHeader {string} token 鉴权
