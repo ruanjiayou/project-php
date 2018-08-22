@@ -22,17 +22,21 @@ return [
    */
   'post /v1/user/sign-in' => function($req, $res) {
     $user = UserBLL::auth($req);
-    if(null !== SigninBLL::signin($user)) {
-      $res->success();
+    $siginin = SigninBLL::signin($user);
+    if(null !== $siginin) {
+      $res->return($siginin);
     } else {
       $res->fail();
     }
   },
   /**
-   * @api {get} /v1/user/sign-in 某月签到记录列表
+   * @api {get} /v1/user/sign-in 某月签到记录列表,默认是当前年月
    * @apiGroup user-signin
    * 
    * @apiHeader {string} token 鉴权
+   * 
+   * @apiParam {int} year [年]
+   * @apiParam {int} month [月]
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
