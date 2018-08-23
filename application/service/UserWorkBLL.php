@@ -34,6 +34,19 @@ class UserWorkBLL extends BLL {
     $input = $validation->validate($data);
     return model($this->table)->add($input);
   }
+  
+  public function destroy($workAt) {
+    $t = strtotime($workAt.' 00:00:00');
+    if($t < time()) {
+      return false;
+    }
+    $work = $userWorkBLL->getInfo(['workAt'=>['like', $workAt.'%']]);
+    if($work !== null) {
+      $userWorkBLL->destroy($work['id']);
+      return true;
+    }
+    return false;
+  }
 
   public function isWork($data) {
     $validation = new Validater([

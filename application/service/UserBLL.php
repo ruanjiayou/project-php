@@ -229,15 +229,14 @@ class UserBLL extends BLL {
     $validation = new Validater([
       'type' => 'enum:servant,buyer,agency|ignore',
       'status' => 'enum:approved,approving,forbidden,registered|ignore',
-      'attr' => 'enum:hot,recommend,normal|ignore',
-      'search' => 'empty|string|default:""'
+      'attr' => 'enum:hot,recommend,normal|ignore'
     ]);
     $hql['field'] = '!password,token,salt';
     $where = $validation->validate($hql['where']);
-    if($where['search']!=='') {
-      $where['phone|nickName'] = ['like', '%'.$where['search'].'%'];
+    if($hql['search']!=='') {
+      $where['phone|nickName'] = ['like', '%'.$hql['search'].'%'];
     }
-    unset($where['search']);
+    unset($hql['search']);
     $hql['where'] = $where;
     return model($this->table)->getList($hql);
   }

@@ -71,7 +71,8 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {date} workAt 如: '2018-08-08'
+   * @apiParam {string} workAt 如: '2018-08-08'
+   * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
@@ -88,7 +89,13 @@ return [
    * }
    */
   'delete /v1/user/work/:workAt' => function($req, $res) {
-    return '';
+    $user = UserBLL::auth($req);
+    $userWorkBLL = new UserWorkBLL();
+    if($userWorkBLL->destroy($req->param('workAt'))) {
+      $res->success();
+    } else {
+      $res->fail();
+    }
   }
 ];
 
