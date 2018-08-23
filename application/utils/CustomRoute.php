@@ -33,9 +33,9 @@ Request::hook('paging', function(Request $req, $cb = null){
   if(!empty($query[R_ORDER])) {
     $condition[R_ORDER] = str_replace('-', ' ', $query[R_ORDER]);
   }
-  // if(!empty($query[R_SEARCH])) {
-  //   $condition['where'][R_SEARCH] = $query[R_SEARCH];
-  // }
+  if(isset($query[R_SEARCH]) && $query[R_SEARCH]!=='') {
+    $condition[R_SEARCH] = $query[R_SEARCH];
+  }
   if(!empty($cb)) {
     $condition = $cb($condition, $query);
   }
