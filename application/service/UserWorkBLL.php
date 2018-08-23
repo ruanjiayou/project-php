@@ -56,6 +56,7 @@ class UserWorkBLL extends BLL {
     if(!isset($query['month'])) {
       $query['month'] = date('m');
     }
+    $query['month'] = $query['month'] < 10 ? '0'.$query['month'] : $query['month'];
     $where = ['userId'=>$userId, 'workAt'=>['like', $query['year'].'-'.$query['month'].'-'.'%']];
     $result = model($this->table)->getList(['where'=>$where]);
     return $result;
