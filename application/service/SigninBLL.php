@@ -28,6 +28,7 @@ class SigninBLL extends BLL {
       'detail' => 'signin'
     ], $user);
     $sign = model('signin')->add($query);
+    $sign['value'] = $price['value'];
     return $sign;
   }
 
