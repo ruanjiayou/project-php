@@ -40,9 +40,9 @@ class UserWorkBLL extends BLL {
     if($t < time()) {
       return false;
     }
-    $work = $userWorkBLL->getInfo(['workAt'=>['like', $workAt.'%']]);
+    $work = $this->getInfo(['workAt'=>['like', $workAt.'%']]);
     if($work !== null) {
-      $userWorkBLL->destroy($work['id']);
+      model($this->table)->remove($work['id']);
       return true;
     }
     return false;
