@@ -88,7 +88,7 @@ return [
    *   stack: ''
    * }
    */
-  'delete /v1/user/work/:workAt' => function($req, $res) {
+  'delete /v1/user/works/:workAt' => function($req, $res) {
     $user = UserBLL::auth($req);
     $userWorkBLL = new UserWorkBLL();
     if($userWorkBLL->destroy($req->param('workAt'))) {
