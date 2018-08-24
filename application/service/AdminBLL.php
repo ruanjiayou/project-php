@@ -17,26 +17,24 @@ class AdminBLL extends BLL {
 
   function resetPassword($phone, $newpsw) {
     $admin = model($this->table)->getInfo(['phone'=>$phone]);
-    if($user === null) {
+    if($admin === null) {
       thrower('user', 'userNotFound');
     }
     $salt = _::random(24, 'mix');
-    $newpsw = hash($newpsw.'-'.$salt);
+    $newpsw = password_hash($newpsw, PASSWORD_BCRYPT, ['salt'=>$salt]);
     model($this->table)->edit(['phone'=>$phone], ['password'=>$newpsw, 'salt'=>$salt, 'token'=>'']);
     return true;
   }
 
   function changePassword($admin, $oldpsw, $newpsw) {
-    $salt = _::random(24, 'mix');
-    $oldpsw = hash($oldpsw.'-'.$admin['salt']);
-    $newpsw = hash($newpsw.'-'.$salt);
+    $oldpsw = password_hash($oldpsw, PASSWORD_BCRYPT, ['salt'=>$admin['salt']]);
     if($admin['password']!==$oldpsw) {
       thrower('user', 'passwordError');
     }
     return $this->resetPassword($admin['phone'], $newpsw);
   }
 
-  public function signIn($data) {
+  function signIn($data) {
     $validation = new Validater([
       'phone' => 'required|string|minlength:7|maxlength:11',
       'password' => 'required|string|minlength:6|maxlength:18'
@@ -67,7 +65,7 @@ class AdminBLL extends BLL {
     return $data;
   }
 
-  public function create($data) {
+  function create($data) {
     $validation = new Validater([
       'phone' => 'required|string|minlength:7|maxlength:11',
       'nickName' => 'required|string',
@@ -86,7 +84,7 @@ class AdminBLL extends BLL {
     return $admin;
   }
 
-  public function update($data, $condition) {
+  function update($data, $condition) {
     $validation = new Validater([
       'nickName' => 'string|minlength:3|maxlength:18',
       'avatar' => 'string|maxlength:255'
@@ -99,7 +97,11 @@ class AdminBLL extends BLL {
     return $admin;
   }
 
-  public function changeRight($adminId, $data) {
+  function getList($hql) {
+
+  }
+
+  function changeRight($adminId, $data) {
     $validation = new Validater([
       'rights' => 'required|array'
     ]);

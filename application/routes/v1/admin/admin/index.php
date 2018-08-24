@@ -78,7 +78,7 @@ return [
     $adminBLL = new AdminBLL();
     $admin = $adminBLL::auth($req);
     
-    $adminBLL::changeRight($req->param('adminId'), input('put.'));
+    $adminBLL->changeRight($req->param('adminId'), input('put.'));
     $res->success();
   },
   /**
