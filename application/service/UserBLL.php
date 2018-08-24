@@ -186,7 +186,7 @@ class UserBLL extends BLL {
       'y' => 'float',
       'images' => 'int',
       'status' => 'string|enum:approving,approved,forbidden',
-      'attr' => 'string|enum:normal,hot',
+      'attr' => 'string|enum:normal,hot,recommend',
       'tags' => 'object|default:(toString)'
     ]);
     $input = $validation->validate($data);
