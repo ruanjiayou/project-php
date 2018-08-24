@@ -63,7 +63,7 @@ class AdminBLL extends BLL {
       model($this->table)->edit(['phone'=>$input['phone']], $data);
     }
     $data['isSA'] = $result['isSA'];
-    $data['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId','where'=>['adminId'=>$result['id']]]);
+    $data['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId,authorityName','where'=>['adminId'=>$result['id']]]);
     return $data;
   }
 
@@ -108,9 +108,10 @@ class AdminBLL extends BLL {
       'rights' => 'required|array'
     ]);
     $rights = $validation->validate($data);
+    $rights = model('authority')->getList(['limit'=>0,'where'=>['id'=>['in',$rights['rights']]]]);
     model('admin_auth')->remove(['adminId'=>$adminId]);
-    foreach($rights['rights'] as $r) {
-      model('admin_auth')->add(['adminId'=>$adminId,'authorityId'=>$r]);
+    foreach($rights as $r) {
+      model('admin_auth')->add(['adminId'=>$adminId,'authorityId'=>$r['id'], 'authorityName'=>$r['name']]);
     }
     return true;
   }

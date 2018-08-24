@@ -48,7 +48,11 @@ return [
    * }
    */
   'post /v1/user/wallet/withdraw' => function($req, $res) {
-
+    $user = UserBLL::auth($req);
+    $orderBLL = new OrderBLL();
+    
+    $order = $orderBLL->create(['type'=>'withdraw', 'userId'=>$user['id'], 'price'=>input('post.money'),]);
+    $res->return($order);
   },
   /**
    * @api {get} /v1/user/wallet/yestoday 昨日收益

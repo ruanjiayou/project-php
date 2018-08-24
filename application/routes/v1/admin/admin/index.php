@@ -159,7 +159,7 @@ return [
     $admin = $adminBLL::auth($req);
     
     $nAdmin = $adminBLL->getInfo($req->param('adminId'), ['field'=>'!password,token,salt']);
-    $nAdmin['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId','where'=>['adminId'=>$nAdmin['id']]]);
+    $nAdmin['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId,authorityName','where'=>['adminId'=>$nAdmin['id']]]);
     $res->return($nAdmin);
   }
 ];

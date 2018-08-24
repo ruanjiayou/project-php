@@ -94,7 +94,7 @@ return [
    */
   'get /v1/admin/self' => function($req, $res) {
     $admin = AdminBLL::auth($req);
-    $admin['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId','where'=>['adminId'=>$admin['id']]]);
+    $admin['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId,authorityName','where'=>['adminId'=>$admin['id']]]);
     $res->return(_::filter($admin, ['password', 'token', 'salt']));
   }
 ];
