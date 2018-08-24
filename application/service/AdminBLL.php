@@ -62,6 +62,8 @@ class AdminBLL extends BLL {
       $data['token'] = $token;
       model($this->table)->edit(['phone'=>$input['phone']], $data);
     }
+    $data['isSA'] = $result['isSA'];
+    $data['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId','where'=>['adminId'=>$result['id']]]);
     return $data;
   }
 
