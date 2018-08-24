@@ -240,7 +240,7 @@
      */
     function check($data) {
       foreach($this->rules as $k => $rule) {
-        if(_::isObject($rule['default']) && 'value' == $rule['default']['type']) {
+        if(!isset($data[$k]) && _::isObject($rule['default']) && 'value' == $rule['default']['type']) {
           $data[$k] = $rule['default']['value'];
         }
         if(!isset($data[$k])) {
