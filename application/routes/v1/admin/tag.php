@@ -37,10 +37,12 @@ return [
     $res->return($result);
   },
   /**
-   * @api {delete} /v1/admin/tags/:tagId 删除标签
+   * @api {delete} /v1/admin/tags 删除标签
    * @apiGroup admin-tag
    * 
    * @apiHeader {string} token 鉴权
+   * 
+   * @apiParam {array} id id数组
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
