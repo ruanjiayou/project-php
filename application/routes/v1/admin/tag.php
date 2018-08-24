@@ -123,8 +123,8 @@ return [
     $admin = AdminBLL::auth($req);
     $tagBLL = new TagBLL();
     $hql = ['where'=>[]];
-    if(isset($_GET['cateId'])) {
-      $hql['where'] = intval($_GET['cateId']);
+    if(isset($_GET['cataId'])) {
+      $hql['where'] = ['cataId'=>intval($_GET['cataId'])];
     }
     $result = $tagBLL->getAll($hql);
     $res->paging($result);
