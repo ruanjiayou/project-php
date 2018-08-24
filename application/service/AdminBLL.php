@@ -100,7 +100,7 @@ class AdminBLL extends BLL {
   }
 
   function getList($hql) {
-
+    return model($this->table)->getList($hql);
   }
 
   function changeRight($adminId, $data) {
