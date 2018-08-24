@@ -5,7 +5,7 @@ use think\Response;
 
 return [
   /**
-   * @api {delete} /v1/admin/tags/:adminId 标签
+   * @api {post} /v1/admin/tags/:adminId 标签
    * @apiGroup admin-tag
    * 
    * @apiHeader {string} token 鉴权
@@ -95,6 +95,8 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
+   * @apiParam {int} cataId 分类id
+   * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
@@ -120,8 +122,11 @@ return [
   'get /v1/admin/tags' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $tagBLL = new TagBLL();
-
-    $result = $tagBLL->getAll();
+    $hql = ['where'=>[]];
+    if(isset($_GET['cateId'])) {
+      $hql['where'] = intval($_GET['cateId']);
+    }
+    $result = $tagBLL->getAll($hql);
     $res->paging($result);
   },
   /**
@@ -134,22 +139,15 @@ return [
    * HTTP/1.1 200 OK
    * {
    *   state: 'success',
-   *   rdata: [{
+   *   rdata: {
    *     id: 1,
    *     name: 'y',
    *     cataId: 1,
    *     cataName: 'x',
-   *   }],
+   *   },
    *   ecode: 0,
    *   error: '',
-   *   stack: '',
-   *   pagination: {
-   *     page: 1,
-   *     pages: 1,
-   *     limit: 0,
-   *     count: 1,
-   *     total: 1,
-   *   }
+   *   stack: ''
    * }
    */
   'get /v1/admin/tags/:tagId' => function($req, $res) {
