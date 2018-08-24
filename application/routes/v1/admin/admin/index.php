@@ -8,6 +8,7 @@ return [
    * 
    * @apiParam {string} [nickName] 昵称
    * @apiParam {string} [phone] 手机号
+   * @apiParam {string} [password] 密码
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
