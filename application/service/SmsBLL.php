@@ -11,7 +11,7 @@ class SmsBLL extends BLL {
    */
   function addSign($input) {
     $validation = new Validater([
-      'title' => 'required|string',
+      'text' => 'required|string',
       'image' => 'required|text',
       'description' => 'required|empty|string|default:""',
       'type' => 'required|string|default:"sign"',
@@ -23,7 +23,7 @@ class SmsBLL extends BLL {
     $data['logicId'] = $sign['data']['id'];
     $result = null;
     if($sign['result'] === 0) {
-      $result = model($this->table)->add(_::pick($data, ['logicId', 'title', 'type', 'status', 'createdAt', 'description']));
+      $result = model($this->table)->add(_::pick($data, ['logicId', 'text', 'type', 'status', 'createdAt', 'description']));
     } else {
       thrower('sms', 'addSignFail', $sign['result'].' '.$sign['msg']);
     }
@@ -70,7 +70,7 @@ class SmsBLL extends BLL {
    * 获取所有签名并刷新审核状态
    */
   function getSign() {
-    $results = model($this->table)->getList(['where'=>['type'=>'sign'], 'limit'=>0])->items();
+    $results = model($this->table)->getList(['where'=>['type'=>'sign'], 'limit'=>0]);
     $ids = [];
     for($n=0;$n<count($results);$n++) {
       if($results[$n]['status'] === 'pending') {
@@ -109,8 +109,7 @@ class SmsBLL extends BLL {
     if($tpl['result'] === 0) {
       $result = model($this->table)->add([
         'logicId' => $tpl['data']['id'],
-        'title' => $input['title'],
-        'content' => $input['text'],
+        'text' => $input['text'],
         'type' => 'common',
         'status' => 'pending',
         'createdAt' => date('Y-m-d H:i:s')
@@ -121,6 +120,9 @@ class SmsBLL extends BLL {
     return $result;
   }
 
+  /**
+   * 删除模板
+   */
   function delTpl($smsId) {
     $smsModel = model($this->table);
     $query = [$smsModel->primaryKey=>$smsId, 'type'=>'common'];
@@ -177,57 +179,6 @@ class SmsBLL extends BLL {
       array_push($res, $result);
     }
     return ['data'=>$res, R_PAGENATOR=>$paginator];
-  }
-  function sendMessage($input) {
-    $validation = new Validater([
-      'phone' => 'required|string',
-      'type' => 'required|enum:forgot,modify,zhuche,system,invite,cancel,refused,accepted,canceled',
-      'params' => 'required|array'
-    ]);
-    $data = $validation->validate($input);
-    $sign = model($this->table)->getInfo(['type'=>'sign','status'=>'success']);
-    $place = model('sms_place')->getInfo(['place'=>$data['type']]);
-    if($sign===null) {
-      thrower('sms', 'signNotFound');
-    }
-    if($place === null) {
-      thrower('sms', 'tplNotFound');
-    }
-    $tpl = model($this->table)->getInfo(['id'=>$place['smsId']]);
-    $message = model('sms_message')->add([
-      'smsId' => $tpl['id'],
-      'title' => $tpl['title'],
-      'content' => $tpl['content'],
-      'json' => json_encode($data['params']),
-      'phone' => $data['phone'],
-      'type' => $data['type'],
-      'status' => 'success',
-      'createdAt' => date('Y-m-d H:i:s')
-    ]);
-    $result = wxHelper::sendSmsMessage($data['phone'], $sign['title'], $tpl['logicId'], $data['params']);
-    if($result['result']!==0) {
-      model('sms_message')->edit(['id'=>$tpl['id']], ['status'=>'fail']);
-      thrower('sms', 'smsSendFail', $result['errmsg']);
-    }
-    return $result;
-  }
-
-  /**
-   * 验证手机的验证码
-   */
-  static function validateCode($phone, $code, $type = 'zhuche') {
-    $sms = model('sms_message')->getInfo(['type'=>$type,'phone'=>$phone], ['order'=>'id DESC']);
-    if($sms === null) {
-      thrower('sms', 'codeError');
-    } else {
-      $json = json_decode($sms['json']);
-      if($json[0]!==$code) {
-        thrower('sms', 'codeError');
-      }
-      if(time() > 60*10+strtotime($sms['createdAt'])) {
-        thrower('sms', 'codeExpired');
-      }
-    }
   }
 }
 ?>

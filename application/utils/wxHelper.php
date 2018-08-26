@@ -56,7 +56,7 @@ class wxHelper {
     $validation = new Validater([
       'image' => 'text|alias:pic',
       'remark' => 'string',
-      'title' => 'required|string|alias:text'
+      'text' => 'required|string'
     ]);
     $data = $validation->validate($input);
     $signature = self::getSignature();
@@ -116,7 +116,6 @@ class wxHelper {
    */
   static function addSmsTpl($input) {
     $validation = new Validater([
-      'title' => 'required|string',
       'text' => 'required|string',
       'remark' => 'string',
       'type' => 'required|string|default:0'

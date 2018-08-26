@@ -208,39 +208,6 @@ return [
     });
     $dataAndPaginator = $smsBLL->getTpl($hql);
     $res->return($dataAndPaginator['data'], [R_PAGENATOR=>$dataAndPaginator[R_PAGENATOR]]);
-  },
-  /**
-   * @api {post} /v1/admin/sms-message 发送短信
-   * @apiGroup admin-sms
-   * 
-   * @apiHeader {string} token 鉴权
-   * 
-   * @apiParam {string} phone 手机号
-   * @apiParam {string='forgot','modify','zhuche','system','invite','cancel','refused','accepted','canceled'} type 类型
-   * @apiParam {array} params 参数数组
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: {
-   *     "result": 0,
-   *     "errmsg": "OK",
-   *     "ext": "",
-   *     "sid": "8:tk5JWxVVc33vJCsQMBz20180808",
-   *     "fee": 1
-   *   },
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
-   */
-  'post /v1/admin/sms-message' => function($req, $res) {
-    $admin = AdminBLL::auth($req);
-    $smsBLL = new SmsBLL();
-
-    $result = $smsBLL->sendMessage(input('post.'));
-    $res->return($result);
   }
 ]
 ?>

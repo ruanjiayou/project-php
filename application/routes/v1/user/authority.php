@@ -76,12 +76,13 @@ return [
    * }
    */
   'post /v1/auth/user/forgot-password' => function($req, $res) {
-    $smsBLL = new SmsBLL();
-    $smsBLL->sendMessage([
+    $smsMessageBLL = new SmsMessageBLL();
+    $code = _::random(6);
+    $smsMessageBLL->sendMessage([
       'phone' => input('post.phone'),
       'type' => 'forgot',
-      'params' => [_::random(6), 10]
-    ]);
+      'params' => [$code, 10]
+    ], $code);
     $res->success();
   },
   /**
@@ -124,12 +125,13 @@ return [
    * }
    */
   'post /v1/auth/user/message/sign-up' => function($req, $res) {
-    $smsBLL = new SmsBLL();
-    $smsBLL->sendMessage([
+    $smsMessageBLL = new SmsMessageBLL();
+    $code = _::random(6);
+    $smsMessageBLL->sendMessage([
       'phone' => input('post.phone'),
       'type' => 'zhuche',
-      'params' => [_::random(6), 10]
-    ]);
+      'params' => [$code, 10]
+    ], $code);
     $res->success();
   }
 ];

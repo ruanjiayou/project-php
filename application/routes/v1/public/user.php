@@ -67,6 +67,10 @@ return [
     });
     $res->paging($userBLL->getList($hql));
   },
+  /**
+   * @api {get} /v1/public/users/:userId/works 月工作计划列表
+   * @apiGroup public-user
+   */
   'get /v1/public/users/:userId/works' => function($req, $res) {
     $userWorkBLL = new UserWorkBLL();
 

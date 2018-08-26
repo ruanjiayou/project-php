@@ -45,7 +45,7 @@ class UserBLL extends BLL {
       thrower('user', 'phoneRegistered');
     }
     // 短信验证码,短信不够用,可以注释下面一行
-    SmsBLL::validateCode($input['phone'], $code);
+    SmsMessageBLL::validateCode($input['phone'], $code);
 
     if($input['type'] !== 'agency') {
       if($rccode === null) {
@@ -113,7 +113,7 @@ class UserBLL extends BLL {
       'password' => 'required|string|alias:newpsw'
     ]);
     $data = $validation->validate($input);
-    SmsBLL::validateCode($data['phone'], $data['code'], 'forgot');
+    SmsMessageBLL::validateCode($data['phone'], $data['code'], 'forgot');
     return $this->resetPassword($data['phone'], $data['newpsw']);
   }
   /**
