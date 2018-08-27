@@ -86,6 +86,9 @@ return [
   /**
    * @api {get} /v1/public/users/:userId/works 用户月工作计划列表
    * @apiGroup public-user
+   * 
+   * @apiParam {int} [year] 年份
+   * @apiParam {int} [month] 月份
    */
   'get /v1/public/users/:userId/works' => function($req, $res) {
     $userWorkBLL = new UserWorkBLL();
