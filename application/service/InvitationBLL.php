@@ -19,7 +19,7 @@ class InvitationBLL extends BLL {
     }
     $validation = new Validater([
       'userId' => 'required|int|alias:sellerId',
-      'price' => 'required|int',
+      'priceId' => 'required|int|alias:price',
       'x' => 'required|float',
       'y' => 'required|float',
       'address' => 'required|string',

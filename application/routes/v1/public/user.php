@@ -8,13 +8,10 @@ return [
    * @api {get} /v1/public/users 获取用户列表
    * @apiGroup public-user
    * 
-   * @apiHeader {string} token 鉴权
-   * 
    * @apiParam {int} [page] 页码
    * @apiParam {int} [limit] 每页数量默认10
    * @apiParam {string} [search] 手机号或昵称
    * @apiParam {string='servant','buyer','agency'} [type] 用户类型
-   * @apiParam {string='approved','approving','forbidden','registered'} [status] 用户状态
    * @apiParam {string='hot','recommend','normal'} [attr] 属性
    * 
    * @apiSuccessExample Success-Response:
@@ -68,7 +65,26 @@ return [
     $res->paging($userBLL->getList($hql));
   },
   /**
-   * @api {get} /v1/public/users/:userId/works 月工作计划列表
+   * @api {get} /v1/public/users/:userId 用户详情
+   * @apiGroup public-user
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * images: 用户相册
+   * prices: 邀请订单价格
+   */
+  'get /v1/public/users/:userId' => function($req, $res) {
+    $userId = $req->param('userId');
+    $userBLL = new UserBLL();
+    $user = $userBLL->getInfo($userId);
+    if(null !== $user) {
+      $user['images'] = (new UserImageBLL())->getAll(['where'=>['userId'=>$userId],'field'=>'url']);
+      $user['prices'] = (new PriceBLL())->getAll(['where'=>['userId'=>$userId], 'field'=>'id,value','order'=> 'value DESC']);
+    }
+    $res->return($user);
+  },
+  /**
+   * @api {get} /v1/public/users/:userId/works 用户月工作计划列表
    * @apiGroup public-user
    */
   'get /v1/public/users/:userId/works' => function($req, $res) {

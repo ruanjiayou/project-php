@@ -7,7 +7,7 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {int} userId 被邀请人用户id
-   * @apiParam {int} price 价格
+   * @apiParam {int} priceId 价格id
    * @apiParam {float} x 经度
    * @apiParam {float} y 纬度
    * @apiParam {string} address 邀请地址
