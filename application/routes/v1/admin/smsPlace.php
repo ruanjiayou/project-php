@@ -6,7 +6,7 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {type='sign','tpl'} 类型
+   * @apiParam {string='sign','tpl'} type 类型
    * @apiParam {int} logicId 腾讯云里的ID
    */
   'put /v1/admin/sms-place/:place' => function($req, $res) {

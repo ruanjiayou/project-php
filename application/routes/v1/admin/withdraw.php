@@ -34,7 +34,7 @@ return [
     $res->paging($result);
   },
   /**
-   * @api {get} /v1/admin/withdraw/:orderId 安排提现
+   * @api {put} /v1/admin/withdraw/:orderId 安排提现
    * @apiGroup admin-wallet
    * 
    * @apiHeader {string} token 鉴权
