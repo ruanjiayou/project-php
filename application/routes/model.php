@@ -1,6 +1,6 @@
 <?php
 /**
- * @api {get} /model/admin 管理员
+ * @api {get} /model/admin 管理员:admin
  * @apiName model-admin
  * @apiGroup model
  * 
@@ -15,7 +15,7 @@
  * @apiParam {datetime} createAt 创建时间
  */
 /**
- * @api {get} /model/admin_auth 管理员权限列表
+ * @api {get} /model/admin_auth 管理员权限列表:admin_auth
  * @apiName model-admin-auth
  * @apiGroup model
  * 
@@ -25,7 +25,7 @@
  * @apiParam {string} authorityName 权限名称
  */
 /**
- * @api {get} /model/area 区域
+ * @api {get} /model/area 区域:area
  * @apiName model-area
  * @apiGroup model
  * 
@@ -37,7 +37,7 @@
  * @apiParam {string} region 区划
  */
 /**
- * @api {get} /model/authority 权限
+ * @api {get} /model/authority 权限:authority
  * @apiName model-authority
  * @apiGroup model
  * 
@@ -45,7 +45,7 @@
  * @apiParam {string} name 权限名称
  */
 /**
- * @api {get} /model/catalog 分类
+ * @api {get} /model/catalog 分类:catalog
  * @apiName model-catalog
  * @apiGroup model
  * 
@@ -53,7 +53,7 @@
  * @apiParam {string} name 分类名称
  */
 /**
- * @api {get} /model/tag 标签
+ * @api {get} /model/tag 标签:tag
  * @apiName model-tag
  * @apiGroup model
  * 
@@ -63,7 +63,7 @@
  * @apiParam {string} cataName 分类名称
  */
 /**
- * @api {get} /model/invitation 邀请订单
+ * @api {get} /model/invitation 邀请订单:invitation
  * @apiName model-invitation
  * @apiGroup model
  * 
@@ -101,7 +101,7 @@
  * @apiParam {datetime} createdAt 创建时间
  */
 /**
- * @api {get} /model/order 充值与提现
+ * @api {get} /model/order 充值与提现:order
  * @apiName model-order
  * @apiGroup model
  * 
@@ -116,7 +116,7 @@
  * @apiParam {string} createdAt 创建时间
  */
 /**
- * @api {get} /model/price 定价
+ * @api {get} /model/price 定价:price
  * @apiName model-price
  * @apiGroup model
  * 
@@ -126,7 +126,7 @@
  * @apiParam {string='order','signin'} type 定价类型,signin:签到奖励,order:邀请订单定价
  */
 /**
- * @api {get} /model/rccode
+ * @api {get} /model/rccode 推荐码与合作关系:rccode
  * @apiName model-rccode
  * @apiGroup model
  * 
@@ -142,7 +142,7 @@
  * @apiParam {datetime} createdAt 创建时间
  */
 /**
- * @api {get} /model/signin 签到
+ * @api {get} /model/signin 签到:signin
  * @apiName model-signin
  * @apiGroup model
  * 
@@ -151,7 +151,7 @@
  * @apiParam {datetime} createdAt 创建时间
  */
 /**
- * @api {get} /model/sms 短信签名和模板
+ * @api {get} /model/sms 短信签名和模板:sms
  * @apiName model-sms
  * @apiGroup model
  * 
@@ -166,7 +166,7 @@
  * @apiParam {string} createdAt 创建时间
  */
 /**
- * @api {get} /model/sms_message 消息
+ * @api {get} /model/sms-message 消息:sms_message
  * @apiName model-sms-message
  * @apiGroup model
  * 
@@ -180,7 +180,7 @@
  * @apiParam {datetime} createdAt 创建时间
  */
 /**
- * @api {get} /model/sms-place 消息占位
+ * @api {get} /model/sms-place 消息占位:sms_place
  * @apiName model-sms-place
  * @apiGroup model
  * 
@@ -194,7 +194,7 @@
  * @apiParam {string} description 描述
  */
 /**
- * @api {get} /model/user
+ * @api {get} /model/user 用户:user
  * @apiName model-user
  * @apiGroup model
  * 
@@ -228,7 +228,7 @@
  * @apiParam {datetime} createdAt 创建时间
  */
 /**
- * @api {get} /model/user-bill
+ * @api {get} /model/user-bill 用户收支:user_bill
  * @apiName model-user-bill
  * @apiGroup model
  * 
@@ -240,16 +240,7 @@
  * @apiParam {string} createdAt 创建时间
  */
 /**
- * @api {get} /model/user-business
- * @apiName model-user-business
- * @apiGroup model
- * 
- * @apiParam {int} id id
- * @apiParam {int} userId 用户id
- * @apiParam {datetime} workAt 工作日期
- */
-/**
- * @api {get} /model/user-image
+ * @api {get} /model/user-image 用户相册:user_image
  * @apiName model-banner
  * @apiGroup model
  * 
@@ -259,7 +250,7 @@
  * @apiParam {datetime} createdAt 创建时间
  */
 /**
- * @api {get} /model/user-message
+ * @api {get} /model/user-message 用户的消息:user_message
  * @apiName model-user-message
  * @apiGroup model
  * 
