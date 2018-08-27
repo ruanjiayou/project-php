@@ -11,8 +11,8 @@ class SmsMessageBLL extends BLL {
       'title' => 'required|string',
       'content' => 'required|string',
       'type' => 'required|string|default:"system"',
-      'phone' => 'string|default:""',
-      'code' => 'required|string|default:""',
+      'phone' => 'empty|string|default:""',
+      'code' => 'required|empty|string|default:""',
       'status' => 'required|string|default:"success"',
       'createdAt' => 'required|date|default:datetime'
     ]);
