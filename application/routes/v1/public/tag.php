@@ -8,7 +8,7 @@ return [
    * @api {get} /v1/public/tags 获取全部标签
    * @apiGroup public-tag
    * 
-   * @apiParam {string='user','comment'} [type='user'] 标签类型
+   * @apiParam {string='user','seller','buyer'} [type='user'] 标签类型
    */
   'get /v1/public/tags' => function($req, $res) {
     $tagBLL = new TagBLL();

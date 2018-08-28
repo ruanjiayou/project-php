@@ -28,6 +28,22 @@ class PriceBLL extends BLL {
     return model(self::$table2)->edit(['type'=>'signin'], $input);
   }
 
+  static function getRebate() {
+    return model(self::$table2)->getInfo(['type'=>'rebate']);
+  }
+
+  static function putRebate($input) {
+    $validation = new Validater([
+      'value' => 'required|int'
+    ]);
+    $data = $validation->validate($input);
+    $limit = intval(100 - C_MONEY_PLATFOM*100);
+    if($limit <= $data['value']) {
+      throw new Exception('比例已超过100%!');
+    }
+    return model(self::$table2)->edit(['type'=>'rebate'], $data);
+  }
+
   static function getOrders() {
     return model(self::$table2)->getList(['limit'=>0,'order'=>'value DESC','where'=>['type'=>'order']]);
   }

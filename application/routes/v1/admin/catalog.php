@@ -11,20 +11,7 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {string} name 分类名称
-   * @apiParam {string='user','comment'} [type='user'] 分类类型
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: {
-   *     id: 1,
-   *     name: '18888888888',
-   *   },
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
+   * @apiParam {string='user','seller','buyer'} [type='user'] 分类类型
    */
   'post /v1/admin/catalogs' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -40,16 +27,6 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {array} id id数组,body参数
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: null,
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
    */
   'delete /v1/admin/catalogs' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -65,19 +42,6 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {string} name 分类名称
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: {
-   *     id: 1,
-   *     name: '18888888888',
-   *   },
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
    */
   'put /v1/admin/catalogs/:catalogId' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -92,36 +56,13 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string='user','comment'} [type] 类型
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: [{
-   *     id: 1,
-   *     name: '18888888888',
-   *   }],
-   *   ecode: 0,
-   *   error: '',
-   *   stack: '',
-   *   pagination: {
-   *     page: 1,
-   *     pages: 1,
-   *     limit: 0,
-   *     count: 1,
-   *     total: 1,
-   *   }
-   * }
+   * @apiParam {string='user','seller','buyer'} [type='user'] 类型
    */
   'get /v1/admin/catalogs' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     
     $catalogBLL =  new CatalogBLL();
-    $hql = ['where'=>[]];
-    if(isset($_GET['type'])) {
-      $hql['where']['type'] = $_GET['type'];
-    }
+    $hql = ['where'=>['type'=>isset($_GET['type'])?$_GET['type']:'user']];
     $result = $catalogBLL->getAll($hql);
     $res->paging($result);
   },
@@ -130,19 +71,6 @@ return [
    * @apiGroup admin-catalog
    * 
    * @apiHeader {string} token 鉴权
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: {
-   *     id: 1,
-   *     name: '18888888888',
-   *   },
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
    */
   'get /v1/admin/catalogs/:catalogId' => function($req, $res) {
     $admin = AdminBLL::auth($req);

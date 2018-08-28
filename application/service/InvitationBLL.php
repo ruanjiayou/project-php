@@ -228,12 +228,13 @@ class InvitationBLL extends BLL {
     $invitation = self::edit($data['id'], $data);
     
     if($type === 'buyer') {
+      $rebate = $PriceBLL::getRebate();
       $agency = $userBLL->getInfo($invitation['agencyId']);
       $seller = $userBLL->getInfo($invitation['sellerId']);
       // 分钱规则
-      $agencyPrice = round(C_MONEY_AGENCY*$invitation['price']);
-      $sellerPrice = round(C_MONEY_SELLER*$invitation['price']);
-      $platfmPrice = $invitation['price'] - $agencyPrice - $sellerPrice;
+      $sellerPrice = round($rebate['value']/100*$invitation['price']);
+      $platfmPrice = $invitation['price']*C_MONEY_PLATFOM;
+      $agencyPrice = $invitation['price'] - $sellerPrice - $platfmPrice;
       // 中介返利
       $userBillBLL->balance([
         'type' => 'income',

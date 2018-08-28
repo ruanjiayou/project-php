@@ -5,7 +5,7 @@ use think\Response;
 
 return [
   /**
-   * @api {post} /v1/admin/tags/:adminId 标签
+   * @api {post} /v1/admin/tags 标签
    * @apiGroup admin-tag
    * 
    * @apiHeader {string} token 鉴权
@@ -27,16 +27,6 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {array} id id数组
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: null,
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
    */
   'delete /v1/admin/tags' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -67,39 +57,16 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {int} [cataId] 分类id
-   * @apiParam {string='user','comment'} [type] 类型
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: [{
-   *     id: 1,
-   *     name: 'y',
-   *     cataId: 1,
-   *     cataName: 'x',
-   *   }],
-   *   ecode: 0,
-   *   error: '',
-   *   stack: '',
-   *   pagination: {
-   *     page: 1,
-   *     pages: 1,
-   *     limit: 0,
-   *     count: 1,
-   *     total: 1,
-   *   }
-   * }
+   * @apiParam {string='user','seller','buyer'} [type='user'] 类型
    */
   'get /v1/admin/tags' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $tagBLL = new TagBLL();
-    $hql = ['where'=>[]];
+    $hql = ['where'=>[
+      'type' => isset($_GET['type']) ? $_GET['type'] : 'user'
+    ]];
     if(isset($_GET['cataId'])) {
       $hql['where'] = ['cataId'=>intval($_GET['cataId'])];
-    }
-    if(isset($_GET['type'])) {
-      $hql['where']['type'] = $_GET['type'];
     }
     $result = $tagBLL->getAll($hql);
     $res->paging($result);

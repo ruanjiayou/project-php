@@ -51,6 +51,7 @@
  * 
  * @apiParam {int} id 分类id
  * @apiParam {string} name 分类名称
+ * @apiParam {string} type 标签类型,user:用户,comment:评论
  */
 /**
  * @api {get} /model/tag 标签:tag
@@ -61,6 +62,7 @@
  * @apiParam {string} name 标签名称
  * @apiParam {int} cataId 分类id
  * @apiParam {string} cataName 分类名称
+ * @apiParam {string} type 标签类型,user:用户标签,comment:评论标签
  */
 /**
  * @api {get} /model/invitation 邀请订单:invitation
@@ -123,7 +125,7 @@
  * @apiParam {int} id id
  * @apiParam {int=0} userId 用户id,为0类型为signin对所有人
  * @apiParam {int} value 定价
- * @apiParam {string='order','signin'} type 定价类型,signin:签到奖励,order:邀请订单定价
+ * @apiParam {string='order','signin'} type 定价类型,signin:签到奖励,order:邀请订单定价,rebate:分成比例
  */
 /**
  * @api {get} /model/rccode 推荐码与合作关系:rccode
@@ -189,8 +191,8 @@
  * @apiParam {int} sign 签名名称
  * @apiParam {int} tplId 模板id
  * @apiParam {int} tpl 模板内容
- * @apiParam {int=0,1} isSystem 是否内部消息(否则是短信)
- * @apiParam {string='forgot','modify','zhuche','system','invite','cancel','refused','accepted','canceled',} place 占位名称,forgot:忘记密码,modify:修改密码,zhuche:注册账号,system:app内部消息,invite:邀请,cancel:取消,refused:拒绝,accepted:接受,canceled:取消
+ * @apiParam {int=0,1} isSms 是否短信(否则是内部消息)
+ * @apiParam {string='forgot','modify','zhuche','invite','cancel','refused','accepted','canceled',} place 占位名称,forgot:忘记密码,modify:修改密码,zhuche:注册账号,invite:邀请,cancel:取消,refused:拒绝,accepted:接受,canceled:取消
  * @apiParam {string} description 描述
  */
 /**

@@ -22,8 +22,6 @@ define('C_AUTH_KEY', 'ssasbbs');
 define('C_AUTH_EXPIRED', 60*60*24*7);
 // 佣金比例
 define('C_MONEY_PLATFOM', 0.2);
-define('C_MONEY_AGENCY', 0.1);
-define('C_MONEY_SELLER', 0.7);
 // 取消扣钱
 define('C_PUNISHMENT1_M', 5);
 define('C_PUNISHMENT1_V', 50);
