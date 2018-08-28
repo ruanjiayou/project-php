@@ -60,7 +60,8 @@ class UserWorkBLL extends BLL {
   public function getMonthWorks($userId, $input) {
     $validation = new Validater([
       'year' => 'int',
-      'month'=> 'int'
+      'month'=> 'int',
+      'limit'=> 'int:default:"31"'
     ]);
     $query = $validation->validate($input);
     if(!isset($query['year'])) {
@@ -69,12 +70,17 @@ class UserWorkBLL extends BLL {
     if(!isset($query['month'])) {
       $query['month'] = date('m');
     }
-    $query['month'] = $query['month'] < 10 ? '0'.$query['month'] : $query['month'];
-    $where = ['userId'=>$userId, 'workAt'=>['like', $query['year'].'-'.$query['month'].'-'.'%']];
-    $result = model($this->table)->getList(['where'=>$where]);
-    return $result;
+    if($query['limit']===0) {
+      $result = model($this->table)->getList(['limit'=>0,'where'=>['workAt'=>['>',date('Y-m-d')]]]);
+      return $result;
+    } else {
+      $query['month'] = strlen($query['month']) < 2 ? '0'.$query['month'] : $query['month'];
+      $complex = [['like', $query['year'].'-'.$query['month'].'-'.'%'],['>',date('Y-m-d')]];
+      $where = ['userId'=>$userId, 'workAt'=>$complex];
+      $result = model($this->table)->getList(['where'=>$where]);
+      return $result;
+    }
   }
-
 }
 
 ?>
