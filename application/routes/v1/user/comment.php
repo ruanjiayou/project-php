@@ -1,7 +1,7 @@
 <?php
 return [
   /**
-   * @api {post} /v1/admin/invitation/:invitationId/comment 评论
+   * @api {post} /v1/user/invitation/:invitationId/comment 评论
    * @apiGroup user-invitation-comment
    * 
    * @apiHeader {string} token 鉴权
@@ -19,13 +19,12 @@ return [
    *   stack: ''
    * }
    */
-  'post /v1/admin/invitation/:invitationId/comment' => function($req, $res) {
-    $user = UserBLL()->auth($req);
+  'post /v1/user/invitation/:invitationId/comment' => function($req, $res) {
+    $user = UserBLL::auth($req);
     $invitationBLL = new InvitationBLL();
 
     $input = input('post.');
     $input['id'] = $req->param('invitationId');
-    $input['userId'] = $user['id'];
     $input['type'] = $user['type'];
     $result = $invitationBLL->comment($user, $input);
     $res->return($result);

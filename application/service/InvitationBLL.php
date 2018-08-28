@@ -207,7 +207,6 @@ class InvitationBLL extends BLL {
     $userBillBLL = new UserBillBLL();
     $validation = new Validater([
       'id' => 'required|int',
-      'userId' => 'required|int',
       'type' => 'required|enum:buyer,seller',
       'score' => 'required|int',
       'comment' => 'required|string'
@@ -218,23 +217,24 @@ class InvitationBLL extends BLL {
       thrower('common', 'notFound');
     }
     // 数据处理
-    $type = $user['type'];
+    $type = $user['type'] === 'buyer' ? 'buyer' : 'seller';
     if($invitation['isComment']!=='not') {
       $data['isComment'] = 'yes';
       $data['status'] = 'success';
     } else {
       $data['isComment'] = $type === 'buyer' ? 'bought' : 'sold';
     }
-    $data['scoreOf'+$data['type']] = $data['score'];
-    $data['commentOf'+$data['type']] = $data['comment'];
+    $data['scoreOf'.$type] = $data['score'];
+    $data['commentOf'.$type] = $data['comment'];
     unset($data['type']);
     unset($data['score']);
     unset($data['comment']);
-    $invitation = self::edit($data['id'], $data);
+    $invitation = $this->update($data, $invitation['id']);
     
     if($type === 'buyer') {
-      $rebate = $PriceBLL::getRebate();
-      $agency = $userBLL->getInfo($invitation['agencyId']);
+      $rebate = (new PriceBLL())->getRebate();
+      $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
+      $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
       $seller = $userBLL->getInfo($invitation['sellerId']);
       // 分钱规则
       $sellerPrice = round($rebate['value']/100*$invitation['price']);
@@ -243,9 +243,14 @@ class InvitationBLL extends BLL {
       // 中介返利
       $userBillBLL->balance([
         'type' => 'income',
-        'value' => $agencyPrice,
-        'detail' => 'cashback'
-      ], $agency);
+        'value' => $agencyPrice/2,
+        'detail' => 'seller-cashback'
+      ], $sellerAgency);
+      $userBillBLL->balance([
+        'type' => 'income',
+        'value' => $agencyPrice/2,
+        'detail' => 'buyer-cashback'
+      ], $buyerAgency);
       // 卖家进账
       $userBillBLL->balance([
         'type' => 'income',
@@ -255,7 +260,8 @@ class InvitationBLL extends BLL {
       // 平台收入
       $userBillBLL->balance([
         'type' => 'income',
-        'value' => $platfmPrice
+        'value' => $platfmPrice,
+        'detail' => 'platformIncome'
       ]);
     }
     return true;
