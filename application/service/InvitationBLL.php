@@ -8,10 +8,11 @@ class InvitationBLL extends BLL {
   
   /**
    * 发出邀请
-   * 1.查询卖家上级和价格数据
+   * 1.查询上级和价格数据
    * 2.邀请时间验证
    * 3.工作状态验证
    * 4.用户状态验证
+   * 5.发送消息
    */
   function invite($user, $input) {
     if($user['type']!=='buyer') {
@@ -27,8 +28,10 @@ class InvitationBLL extends BLL {
       'createdAt' => 'required|date|default:datetime'
     ]);
     $data = $validation->validate($input);
-    $rccode = (new RccodeBLL())->getInfo(['userId'=>$data['userId']]);
-    $data['agencyId'] = $agency['agencyId'];
+    $sellerrccode = (new RccodeBLL())->getInfo(['userId'=>$data['userId']]);
+    $buyerrccode = (new RccodeBLL())->getInfo(['userId'=>$user['id']]);
+    $data['sellerAgencyId'] = $sellerrccode['agencyId'];
+    $data['buyerAgencyId'] = $buyerrccode['agencyId'];
     $price = (new PriceBLL())->getInfo($data['price']);
     $data['price'] = $price['value'];
     if(false === _::isBefore(date('Y-m-d'), $data['startAt'])) {
@@ -165,8 +168,10 @@ class InvitationBLL extends BLL {
       } else {
         thrower('invitation', 'updateFail', '只能取消已接受状态的邀请!');
       }
-    } elseif('confirmed' === $status && $progress !== 'accepted') {
-      thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
+    } elseif('confirmed' === $status) {
+      if($progress !== 'accepted') {
+        thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
+      }
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
     }

@@ -100,6 +100,27 @@ return [
     $res->return($user);
   },
   /**
+   * @api {post} /v1/admin/users/:userId/money 管理员加钱接口
+   * @apiGroup admin-user
+   * 
+   * @apiHeader {string} token 鉴权
+   * 
+   * @apiParam {int} value 数量
+   */
+  'post /v1/admin/users/:userId/money' => function($req, $res) {
+    $admin = AdminBLL::auth($req);
+    $userBLL = new UserBLL();
+
+    $user = $userBLL->getInfo($req->param('userId'));
+    (new UserBillBLL())->balance([
+      'userId' => $user['id'],
+      'type' => 'income',
+      'detail' => 'adminAdd',
+      'value' => input('post.value')
+    ], $user);
+    $res->success();
+  },
+  /**
    * @api {get} /v1/admin/users 用户列表
    * @apiGroup admin-user
    * 
