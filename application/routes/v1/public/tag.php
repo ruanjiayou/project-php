@@ -8,32 +8,16 @@ return [
    * @api {get} /v1/public/tags 获取全部标签
    * @apiGroup public-tag
    * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: [{
-   *     id: 1,
-   *     name: 'y',
-   *     cataId: 1,
-   *     cataName: 'x',
-   *   }],
-   *   ecode: 0,
-   *   error: '',
-   *   stack: '',
-   *   pagination: {
-   *     page: 1,
-   *     pages: 1,
-   *     limit: 0,
-   *     count: 1,
-   *     total: 1,
-   *   }
-   * }
+   * @apiParam {string='user','comment'} [type='user'] 标签类型
    */
   'get /v1/public/tags' => function($req, $res) {
     $tagBLL = new TagBLL();
     $catalogBLL = new CatalogBLL();
-    $res->return($tagBLL->getAll(), ['catalog'=>$catalogBLL->getAll()]);
+    $type = isset($_GET['type']) ? $_GET['type']: 'user';
+    $query = ['where'=>['type'=>$type]];
+    $tags = $tagBLL->getAll($query);
+    $catas = $catalogBLL->getAll($query);
+    $res->return($tags, ['catalog'=>$catas]);
   }
 ];
 ?>

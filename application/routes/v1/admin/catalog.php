@@ -10,7 +10,8 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string} [name] 分类名称
+   * @apiParam {string} name 分类名称
+   * @apiParam {string='user','comment'} [type='user'] 分类类型
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -91,7 +92,7 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string} name 分类名称
+   * @apiParam {string='user','comment'} [type] 类型
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -117,7 +118,11 @@ return [
     $admin = AdminBLL::auth($req);
     
     $catalogBLL =  new CatalogBLL();
-    $result = $catalogBLL->getAll();
+    $hql = ['where'=>[]];
+    if(isset($_GET['type'])) {
+      $hql['where']['type'] = $_GET['type'];
+    }
+    $result = $catalogBLL->getAll($hql);
     $res->paging($result);
   },
   /**

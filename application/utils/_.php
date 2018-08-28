@@ -179,7 +179,7 @@ class _ {
   }
   
   static function isBefore($d1, $d2) {
-    return self::compare($d1, $d2) < 0 ? true : false;
+    return self::compare($d1, $d2) <= 0 ? true : false;
   }
 
   static function sortBy($cb) {

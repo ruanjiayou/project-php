@@ -31,8 +31,7 @@ class InvitationBLL extends BLL {
     $data['agencyId'] = $agency['agencyId'];
     $price = (new PriceBLL())->getInfo($data['price']);
     $data['price'] = $price['value'];
-
-    if(false === _::isBefore(date('Y-m-d H:i:s'), $data['startAt'])) {
+    if(false === _::isBefore(date('Y-m-d'), $data['startAt'])) {
       thrower('invitation', 'dateInvalid');
     }
     $isWork = (new UserWorkBLL())->isWork(['userId'=>$data['sellerId'], 'workAt'=>$data['startAt']]);
@@ -53,6 +52,11 @@ class InvitationBLL extends BLL {
     $data['sellerName'] = $seller['nickName'];
     $data['sellerAvatar'] = $seller['avatar'];
     $data['sellerPhone'] = $seller['phone'];
+    (new SmsMessageBLL())->sendMessage([
+      'phone' => $data['sellerPhone'],
+      'type' => 'invite',
+      'params' => [$data['sellerName']]
+    ]);
     return model($this->table)->add($data);
   }
 
@@ -153,6 +157,11 @@ class InvitationBLL extends BLL {
             'detail' => '取消邀请惩罚'
           ], $seller);
         }
+        (new SmsMessageBLL())->sendMessage([
+          'phone' => $buyer['phone'],
+          'type' => 'canceled',
+          'params' => [$seller['nickName']]
+        ]);
       } else {
         thrower('invitation', 'updateFail', '只能取消已接受状态的邀请!');
       }
@@ -160,6 +169,21 @@ class InvitationBLL extends BLL {
       thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
+    }
+    if(in_array($status, ['canceled','canceling','accepted','refused'])) {
+      if($status ==='canceling') {
+        (new SmsMessageBLL())->sendMessage([
+          'phone' => $seller['phone'],
+          'type' => $status,
+          'params' => [$buyer['nickName']]
+        ]);
+      } else {
+        (new SmsMessageBLL())->sendMessage([
+          'phone' => $buyer['phone'],
+          'type' => $status,
+          'params' => [$seller['nickName']]
+        ]);
+      }
     }
     return model($this->table)->edit($invitatoinId, $input);
   }

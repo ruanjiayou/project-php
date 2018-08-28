@@ -39,6 +39,11 @@ return [
     'code' => 10780,
     'status' => 200,
     'message' => '验证码已过期!'
+  ],
+  'placeNotFound' => [
+    'code' => 10790,
+    'status' => 200,
+    'message' => '没有可用的占位消息!'
   ]
 ]
 ?>

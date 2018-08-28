@@ -8,7 +8,8 @@ class CatalogBLL extends BLL {
   
   public function create($data) {
     $validation = new Validater([
-      'name' => 'required|string'
+      'name' => 'required|string',
+      'type' => 'required|enum:user,comment|default:"user"'
     ]);
     $input = $validation->validate($data);
     return model($this->table)->add($input);
