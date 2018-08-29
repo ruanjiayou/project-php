@@ -62,14 +62,10 @@ return [
   'get /v1/admin/tags' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $tagBLL = new TagBLL();
-    $hql = ['where'=>[
-      'type' => isset($_GET['type']) ? $_GET['type'] : 'user'
-    ]];
-    if(isset($_GET['cataId'])) {
-      $hql['where'] = ['cataId'=>intval($_GET['cataId'])];
-    }
+    $hql = ['where'=>['type'=>isset($_GET['type'])?$_GET['type']:'user']];
     $result = $tagBLL->getAll($hql);
-    $res->paging($result);
+    $catalogs = (new CatalogBLL())->getAll($hql);
+    $res->paging($result, ['catalog'=>$catalogs]);
   },
   /**
    * @api {get} /v1/admin/tags/:tagId 获取标签详情

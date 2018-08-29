@@ -21,10 +21,10 @@ class InvitationBLL extends BLL {
     $validation = new Validater([
       'userId' => 'required|int|alias:sellerId',
       'priceId' => 'required|int|alias:price',
-      'x' => 'required|float',
-      'y' => 'required|float',
+      'x' => 'required|float:10,5',
+      'y' => 'required|float:10,5',
       'address' => 'required|string',
-      'startAt' => 'required|dateonly',
+      'startAt' => 'required|date',
       'createdAt' => 'required|date|default:datetime'
     ]);
     $data = $validation->validate($input);
@@ -34,7 +34,7 @@ class InvitationBLL extends BLL {
     $data['buyerAgencyId'] = $buyerrccode['agencyId'];
     $price = (new PriceBLL())->getInfo($data['price']);
     $data['price'] = $price['value'];
-    if(false === _::isBefore(date('Y-m-d'), $data['startAt'])) {
+    if(false === _::isBefore($data['createdAt'], $data['startAt'])) {
       thrower('invitation', 'dateInvalid');
     }
     $isWork = (new UserWorkBLL())->isWork(['userId'=>$data['sellerId'], 'workAt'=>$data['startAt']]);

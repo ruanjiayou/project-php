@@ -92,7 +92,7 @@ Response::hook('error', function(Response $res, $e){
   $res->data($return);
 });
 
-Response::hook('paging', function(Response $res, $result) {
+Response::hook('paging', function(Response $res, $result, $params=[]) {
   $content = [
     R_STATUS => R_SUCCESS,
     R_DATA => null,
@@ -115,6 +115,7 @@ Response::hook('paging', function(Response $res, $result) {
   } else {
     $content[R_DATA] = $result;
   }
+  $content = _::assign($content, $params);
   $res->data($content);
 });
 

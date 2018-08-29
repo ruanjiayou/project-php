@@ -13,10 +13,9 @@ return [
   'get /v1/public/tags' => function($req, $res) {
     $tagBLL = new TagBLL();
     $catalogBLL = new CatalogBLL();
-    $type = isset($_GET['type']) ? $_GET['type']: 'user';
-    $query = ['where'=>['type'=>$type]];
-    $tags = $tagBLL->getAll($query);
-    $catas = $catalogBLL->getAll($query);
+    $hql = ['where'=>['type'=>isset($_GET['type'])?$_GET['type']:'user']];
+    $tags = $tagBLL->getAll($hql);
+    $catas = $catalogBLL->getAll($hql);
     $res->return($tags, ['catalog'=>$catas]);
   }
 ];

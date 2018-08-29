@@ -125,7 +125,8 @@ return [
     $res->success();
   },
   /**
-   * @api {put} /v1/admin/price/orders/:orderId 修改订单价格
+   * @api {put} /v1/admin/price/orders/:orderId 修改单个订单价格
+   * @apiName single-price
    * @apiGroup admin-price
    * 
    * @apiHeader {string} token 鉴权
@@ -138,7 +139,8 @@ return [
     $res->return($result);
   },
   /**
-   * @api {put} /v1/admin/price/orders/:orderId 修改订单价格
+   * @api {put} /v1/admin/price/orders 修改多个订单价格
+   * @apiName multi-price
    * @apiGroup admin-price
    * 
    * @apiHeader {string} token 鉴权
