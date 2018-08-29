@@ -28,7 +28,7 @@ class InvitationBLL extends BLL {
       'createdAt' => 'required|date|default:datetime'
     ]);
     $data = $validation->validate($input);
-    $sellerrccode = (new RccodeBLL())->getInfo(['userId'=>$data['userId']]);
+    $sellerrccode = (new RccodeBLL())->getInfo(['userId'=>$data['sellerId']]);
     $buyerrccode = (new RccodeBLL())->getInfo(['userId'=>$user['id']]);
     $data['sellerAgencyId'] = $sellerrccode['agencyId'];
     $data['buyerAgencyId'] = $buyerrccode['agencyId'];

@@ -210,7 +210,7 @@ class _ {
     }
     $l = strlen($chs);
     for($i=0;$i<$len;$i++) {   
-      $res .= $chs[mt_rand(0,$l)];    //生成php随机数   
+      $res .= $chs[mt_rand(0,$l-1)];    //生成php随机数   
     }   
     return $res;
   }
