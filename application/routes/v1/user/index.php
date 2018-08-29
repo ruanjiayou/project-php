@@ -138,10 +138,7 @@ return [
   'get /v1/user/self' => function($req, $res) {
     $userBLL = new UserBLL();
     $user = $userBLL->auth($req);
-
-    if($user['tags']!=='') {
-      $user['tags'] = json_decode($user['tags']);
-    }
+    $user = $userBLL->getInfo($user['id']);
     $res->return($user);
   }
 ];
