@@ -16,9 +16,23 @@ return [
    */
   'get /v1/admin/invitations' => function($req, $res) {
     $admin = AdminBLL::auth($req);
+    $validation = new validater([
+      'status' => 'enum:pending,success,fail|ignore',
+      'progress' => 'enum:inviting,refused,canceling,canceled,accepter,confirmed,expired|ignore',
+      'type' => 'string'
+    ]);
+    $query = $validation->validate(input('get.'));
     $invitationBLL = new InvitationBLL();
 
-    $hql = $req->paging();
+    $hql = $req->paging(function($h){
+      $type = $query['type'];
+      unset($query['type']);
+      if($type==='refunding') {
+        $query['isComplaint'] = 1;
+        $query['isRefund'] = 0;
+      }
+      //if($type[''])
+    });
     $result = $invitationBLL->getList($hql);
     $res->paging($result);
   },

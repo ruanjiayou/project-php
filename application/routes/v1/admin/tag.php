@@ -67,6 +67,7 @@ return [
       $hql['where']['cataId'] = $_GET['cataId'];
     }
     $result = $tagBLL->getAll($hql);
+    unset($hql['where']['cataId']);
     $catalogs = (new CatalogBLL())->getAll($hql);
     $res->paging($result, ['catalog'=>$catalogs]);
   },

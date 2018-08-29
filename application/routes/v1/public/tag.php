@@ -19,6 +19,7 @@ return [
       $hql['where']['cataId'] = $_GET['cataId'];
     }
     $tags = $tagBLL->getAll($hql);
+    unset($hql['where']['cataId']);
     $catas = $catalogBLL->getAll($hql);
     $res->return($tags, ['catalog'=>$catas]);
   }
