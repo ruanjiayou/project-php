@@ -63,6 +63,9 @@ return [
     $admin = AdminBLL::auth($req);
     $tagBLL = new TagBLL();
     $hql = ['where'=>['type'=>isset($_GET['type'])?$_GET['type']:'user']];
+    if(isset($_GET['cataId'])) {
+      $hql['where']['cataId'] = $_GET['cataId'];
+    }
     $result = $tagBLL->getAll($hql);
     $catalogs = (new CatalogBLL())->getAll($hql);
     $res->paging($result, ['catalog'=>$catalogs]);

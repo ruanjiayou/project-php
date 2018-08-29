@@ -29,8 +29,9 @@ return [
   'get /v1/admin/withdraw/:withdrawId' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $orderBLL = new OrderBLL();
-    $order = $orderBLL->getInfo();
+    $order = $orderBLL->getInfo($req->param('withdrawId'));
     if(null !== $order) {
+      // TODO: _::filter
       $order['user'] = (new UserBLL())->getInfo($order['userId']);
     }
     $res->return($order);
