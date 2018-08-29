@@ -34,10 +34,11 @@ class InvitationBLL extends BLL {
     $data['buyerAgencyId'] = $buyerrccode['agencyId'];
     $price = (new PriceBLL())->getInfo($data['price']);
     $data['price'] = $price['value'];
+    list($d,$t) = explode(' ', $data['startAt']);
     if(false === _::isBefore($data['createdAt'], $data['startAt'])) {
       thrower('invitation', 'dateInvalid');
     }
-    $isWork = (new UserWorkBLL())->isWork(['userId'=>$data['sellerId'], 'workAt'=>$data['startAt']]);
+    $isWork = (new UserWorkBLL())->isWork(['userId'=>$data['sellerId'], 'workAt'=>$d]);
     if(false === $isWork) {
       thrower('invitation', 'userDontWork');
     }
