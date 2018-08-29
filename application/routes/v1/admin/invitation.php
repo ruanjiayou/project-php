@@ -13,6 +13,7 @@ return [
    * @apiParam {string='pending', 'success', 'fail'} [status] 邀请订单状态
    * @apiParam {string='inviting','refused','canceling','canceled','accepted','confirmed','expired'} [progress] 邀请订单进度
    * @apiParam {string} [search] 卖家昵称或手机号
+   * @apiParam {string='refunding','refunded'} type,refunding:处理中,refunded:已退款
    */
   'get /v1/admin/invitations' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -23,15 +24,17 @@ return [
     ]);
     $query = $validation->validate(input('get.'));
     $invitationBLL = new InvitationBLL();
-
-    $hql = $req->paging(function($h){
+    $hql = $req->paging(function($h) use($query){
       $type = $query['type'];
       unset($query['type']);
-      if($type==='refunding') {
-        $query['isComplaint'] = 1;
-        $query['isRefund'] = 0;
+      if($type === 'refunding') {
+        $h['where']['isComplaint'] = 1;
+        $h['where']['isRefund'] = 0;
       }
-      //if($type[''])
+      if($type === 'refunded') {
+        $h['where']['isRefund'] =1;
+      }
+      return $h;
     });
     $result = $invitationBLL->getList($hql);
     $res->paging($result);
