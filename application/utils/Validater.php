@@ -106,7 +106,7 @@
     function filter($data) {
       $res = array();
       foreach($data as $k => $v) {
-        if($this->rules[$k]) {
+        if(isset($this->rules[$k])) {
             $rule = $this->rules[$k];
             if($rule['boolean']) {
               $res[$k] = in_array($data[$k], self::$bools) ? true : false;
