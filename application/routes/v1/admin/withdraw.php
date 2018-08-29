@@ -9,18 +9,6 @@ return [
    * @apiGroup admin-wallet
    * 
    * @apiHeader {string} token 鉴权
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: {
-   *     
-   *   },
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
    */
   'get /v1/admin/withdraw' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -32,6 +20,20 @@ return [
     });
     $result = $orderBLL->getList($hql);
     $res->paging($result);
+  },
+  /**
+   * @api {get} /v1/admin/withdraw/:withdrawId 提现详情
+   * @apiGroup admin-wallet
+   * @apiHeader {string} token 鉴权
+   */
+  'get /v1/admin/withdraw/:withdrawId' => function($req, $res) {
+    $admin = AdminBLL::auth($req);
+    $orderBLL = new OrderBLL();
+    $order = $orderBLL->getInfo();
+    if(null !== $order) {
+      $order['user'] = (new UserBLL())->getInfo($order['userId']);
+    }
+    $res->return($order);
   },
   /**
    * @api {put} /v1/admin/withdraw/:orderId 安排提现

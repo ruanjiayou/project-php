@@ -226,11 +226,6 @@ return [
 
     $userId = $req->param('userId');
     $user = $userBLL->getInfo($userId);
-    if(null !== $user) {
-      $user['images'] = (new UserImageBLL())->getAll(['where'=>['userId'=>$userId],'field'=>'url']);
-      $user['prices'] = (new PriceBLL())->getAll(['where'=>['userId'=>$userId], 'field'=>'id,value','order'=> 'value DESC']);
-      $user['tags'] = json_decode($user['tags']);
-    }
     $res->return($user);
   }
 ];

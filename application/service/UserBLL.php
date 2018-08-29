@@ -241,5 +241,17 @@ class UserBLL extends BLL {
     return model($this->table)->getList($hql);
   }
 
+  function getInfo($condition, $opts=[]) {
+    $result = model($this->table)->getInfo($condition, $opts);
+    if($this->strict === true && null === $result) {
+      thrower('common', 'notFound');
+    }
+    if(null !== $result) {
+      $result['pictures'] = (new UserImageBLL())->getAll(['where'=>['userId'=>$result['id']],'field'=>'url']);
+      $result['prices'] = (new PriceBLL())->getAll(['where'=>['userId'=>$result['id']], 'field'=>'id,value','order'=> 'value DESC']);
+      $result['tags'] = json_decode($result['tags']);
+    }
+    return $result;
+  }
 }
 ?>
