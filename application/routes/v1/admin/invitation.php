@@ -25,6 +25,9 @@ return [
     $query = $validation->validate(input('get.'));
     $invitationBLL = new InvitationBLL();
     $hql = $req->paging(function($h) use($query){
+      if(isset($query['status'])) {
+        $h['where']['status'] = $query['status'];
+      }
       if(isset($query['progress'])) {
         $h['where']['progress'] = $query['progress'];
       }
@@ -33,6 +36,9 @@ return [
       }
       return $h;
     });
+    if(isset($hql['search'])&&$hql['search']!=='') {
+      $hql['where']['buyerPhone|sellerPhone'] = ['like', '%'.$hql['search'].'%'];
+    }
     $result = $invitationBLL->getList($hql);
     $res->paging($result);
   },

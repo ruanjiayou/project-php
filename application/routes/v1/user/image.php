@@ -10,20 +10,7 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   edata: [{
-   *     id: 1,
-   *     userId: 1,
-   *     url: '',
-   *     createdAt: "2018-07-31 17:43:48"
-   *   }],
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
+   * @apiParam {array} images 图片url数组
    */
   'post /v1/user/images' => function($req, $res) {
     $userBLL = new UserBLL();
