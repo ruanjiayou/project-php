@@ -61,7 +61,7 @@ class UserWorkBLL extends BLL {
     $validation = new Validater([
       'year' => 'int',
       'month'=> 'int',
-      'limit'=> 'int:default:"31"'
+      'limit'=> 'int|default:"31"'
     ]);
     $query = $validation->validate($input);
     if(!isset($query['year'])) {
