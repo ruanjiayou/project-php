@@ -71,7 +71,7 @@ class UserWorkBLL extends BLL {
       $query['month'] = date('m');
     }
     if($query['limit']===0) {
-      $result = model($this->table)->getList(['limit'=>0,'where'=>['workAt'=>['>',date('Y-m-d')]]]);
+      $result = model($this->table)->getList(['limit'=>0,'where'=>['userId'=>$userId, 'workAt'=>['>',date('Y-m-d')]]]);
       return $result;
     } else {
       $query['month'] = strlen($query['month']) < 2 ? '0'.$query['month'] : $query['month'];
