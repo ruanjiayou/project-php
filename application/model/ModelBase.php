@@ -49,7 +49,7 @@ class ModelBase extends Model {
     if(is_integer($condition) || is_string($condition)) {
       $condition = [$this->primaryKey=>$condition];
     }
-    $results = $this->where($condition)->field($field, $exclude)->order($order)->select();
+    $results = $this->where($condition)->field($field, $exclude)->order($order)->find();
     return $this->tran_scope($results, $scopes);
   }
 
