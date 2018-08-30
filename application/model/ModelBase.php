@@ -6,6 +6,9 @@ class ModelBase extends Model {
   public $primaryKey = 'id';
 
   private function tran_scope($results, $scopes) {
+    if(gettype($results)==='object') {
+      return $results;
+    }
     for($i=0;$i<count($scopes);$i++) {
       $scope = $scopes[$i];
       foreach($results as $result) {

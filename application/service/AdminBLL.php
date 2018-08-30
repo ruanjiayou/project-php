@@ -40,7 +40,7 @@ class AdminBLL extends BLL {
       'password' => 'required|string|minlength:6|maxlength:18'
     ]);
     $input = $validation->validate($data);
-    $result = model($this->table)->getInfo(['phone'=>$input['phone']]);
+    $result = model($this->table)->getInfo(['phone'=>$input['phone']],['scopes'=>['AdminAuth']]);
     $password = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$result['salt']]);
     if(empty($result)) {
       thrower('user', 'userNotFound');
@@ -48,7 +48,7 @@ class AdminBLL extends BLL {
       thrower('user', 'passwordError');
     }
     $token = $result['token'];
-    $data = ['token'=>$token];
+    $data = ['token'=>$token,'AdminAuth'=>$result['AdminAuth']];
     if($token!=='') {
       try {
         $token = (array)JWT::decode($data['token'], C_AUTH_KEY, array('HS256'));
@@ -63,7 +63,6 @@ class AdminBLL extends BLL {
       model($this->table)->edit(['phone'=>$input['phone']], $data);
     }
     $data['isSA'] = $result['isSA'];
-    $data['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId,authorityName','where'=>['adminId'=>$result['id']]]);
     return $data;
   }
 
