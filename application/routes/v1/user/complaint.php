@@ -10,7 +10,7 @@ return [
     $user = UserBLL::auth($req);
     $invitationBLL = new InvitationBLL();
 
-    $result = $invitationBLL->complaint($req->param('invitationId'), input('post.money'));
+    $result = $invitationBLL->complaint($req->param('invitationId'), input('post.complaint'));
     $res->return($result);
   }
 ];
