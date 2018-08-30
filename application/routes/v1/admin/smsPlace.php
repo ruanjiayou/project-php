@@ -1,7 +1,7 @@
 <?php
 return [
   /**
-   * @api {put} /v1/admin/sms-place/:place 更改占位信息:将模板设为使用状态
+   * @api {put} /v1/admin/sms-place/:place 更改占位信息:将模板设为使用状态,place变量从占位列表中取
    * @apiGroup admin-sms
    * 
    * @apiHeader {string} token 鉴权
