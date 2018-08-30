@@ -5,19 +5,6 @@ use think\Model;
 class ModelBase extends Model {
   public $primaryKey = 'id';
 
-	protected function _after_select(&$resultSet, $options)
-  {
-    foreach ($resultSet as &$result) {
-      $this->_after_find($result, $options);
-    }
-  }
-  protected function _after_find(&$result, $options)
-  {
-    foreach ($result as $field => $value) {
-      $this->_parseType($result, $field);
-    }
-	}
-	
   function add($data) {
     $id = db($this->name)->insertGetId($data);
     $condition = array();

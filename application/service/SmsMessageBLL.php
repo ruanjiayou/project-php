@@ -46,12 +46,12 @@ class SmsMessageBLL extends BLL {
     for($i=0;$i<count($data['params']);$i++) {
       $content = _::replace($content, '{'.($i+1).'}', $data['params'][$i]);
     }
-    if($place['isSms'] === 0) {
+    if($place['isSms'] == 0) {
       $data['title'] = $place['sign'];
       $data['content'] = $content;
       $result = $this->create($data);
       return $result;
-    } else if($place['signId'] === 0 || $place['tplId'] === 0) {
+    } else if($place['signId'] == 0 || $place['tplId'] == 0) {
       thrower('sms', 'placeNotFound');
     } else {
       $message = $this->create([
