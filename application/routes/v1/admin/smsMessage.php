@@ -11,22 +11,6 @@ return [
    * @apiParam {array} params 参数数组
    * @apiParam {string} [title] type为system时的标题
    * @apiParam {string} [content] type为system时的内容
-   * 
-   * @apiSuccessExample Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   state: 'success',
-   *   rdata: {
-   *     "result": 0,
-   *     "errmsg": "OK",
-   *     "ext": "",
-   *     "sid": "8:tk5JWxVVc33vJCsQMBz20180808",
-   *     "fee": 1
-   *   },
-   *   ecode: 0,
-   *   error: '',
-   *   stack: ''
-   * }
    */
   'post /v1/admin/sms-message' => function($req, $res) {
     $admin = AdminBLL::auth($req);

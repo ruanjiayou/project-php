@@ -101,13 +101,13 @@ Response::hook('paging', function(Response $res, $result, $params=[]) {
     R_STACK => ''
   ];
   if($result!==null && 'object' === _::type($result)) {
-    $content[R_DATA] = $result->items();
+    $content[R_DATA] = $result['data'];
     $content[R_PAGENATOR] = [
-      R_PAGENATOR_PAGE =>$result->currentPage(),
-      R_PAGENATOR_PAGES =>$result->lastPage(),
-      R_PAGENATOR_LIMIT =>$result->listRows(),
-      R_PAGENATOR_COUNT =>$result->count(),
-      R_PAGENATOR_TOTAL=>$result->total(),
+      R_PAGENATOR_PAGE =>$result['page'],
+      R_PAGENATOR_PAGES =>$result['pages'],
+      R_PAGENATOR_LIMIT =>$result['limit'],
+      R_PAGENATOR_COUNT =>$result['count'],
+      R_PAGENATOR_TOTAL=>$result['total'],
     ];
     if($content[R_PAGENATOR][R_PAGENATOR_LIMIT]===0) {
       unset($content[R_PAGENATOR]);

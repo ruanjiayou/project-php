@@ -125,6 +125,7 @@ return [
       $h['where']['isSA'] = 0;
       $h['field'] = '!password,token,salt';
       $h['scopes'] = ['AdminAuth'];
+      return $h;
     });
     $admins = $adminBLL->getList($hql);
     $res->paging($admins);
@@ -159,8 +160,7 @@ return [
     $adminBLL = new AdminBLL();
     $admin = $adminBLL::auth($req);
     
-    $nAdmin = $adminBLL->getInfo($req->param('adminId'), ['field'=>'!password,token,salt']);
-    $nAdmin['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId,authorityName','where'=>['adminId'=>$nAdmin['id']]]);
+    $nAdmin = $adminBLL->getInfo($req->param('adminId'), ['field'=>'!password,token,salt','scopes'=>['AdminAuth']]);
     $res->return($nAdmin);
   }
 ];

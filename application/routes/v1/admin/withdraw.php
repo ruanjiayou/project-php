@@ -9,6 +9,7 @@ return [
    * @apiGroup admin-wallet
    * 
    * @apiHeader {string} token 鉴权
+   * @param User 合伙人详情
    */
   'get /v1/admin/withdraw' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -18,6 +19,7 @@ return [
       $q['where'] = ['type'=>'withdraw'];
       return $q;
     });
+    $hql['scopes'] = ['User'];
     $result = $orderBLL->getList($hql);
     $res->paging($result);
   },

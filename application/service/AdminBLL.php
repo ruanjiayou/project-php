@@ -99,10 +99,6 @@ class AdminBLL extends BLL {
     return $admin;
   }
 
-  function getList($hql) {
-    return model($this->table)->getList($hql);
-  }
-
   function changeRight($adminId, $data) {
     $validation = new Validater([
       'rights' => 'required|array'

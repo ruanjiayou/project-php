@@ -44,6 +44,11 @@ return [
     'code' => 10790,
     'status' => 200,
     'message' => '没有可用的占位消息!'
+  ],
+  'smsNotFound' => [
+    'code' => 10791,
+    'status' => 200,
+    'message' => '短信签名或短信模板不可用!'
   ]
 ]
 ?>

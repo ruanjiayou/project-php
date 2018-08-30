@@ -1,29 +1,22 @@
 <?php
 return [
   /**
-   * @api {put} /v1/admin/sms-place/:place 更改签名或模板
+   * @api {put} /v1/admin/sms-place/:place 更改占位信息:将模板设为使用状态
    * @apiGroup admin-sms
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string='sign','tpl'} type 类型
    * @apiParam {int} logicId 腾讯云里的ID
    */
   'put /v1/admin/sms-place/:place' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $smsPlaceBLL = new SmsPlaceBLL();
 
-    $place = $req->param('place');
-    $data = input('put.');
-    if($data['type'] === 'sign') {
-      $smsPlaceBLL->setSign($place, $data['logicId']);
-    } else {
-      $smsPlaceBLL->setTpl($place, $data['logicId']);
-    }
+    $smsPlaceBLL->setTpl($req->param('place'),input('put.logicId'));
     $res->success();
   },
   /**
-   * @api {get} /v1/admin/sms-place 获取短信列表
+   * @api {get} /v1/admin/sms-place 获取占位信息列表
    * @apiGroup admin-sms
    * 
    * @apiHeader {string} token 鉴权

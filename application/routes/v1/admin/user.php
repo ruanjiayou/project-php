@@ -227,6 +227,21 @@ return [
     $userId = $req->param('userId');
     $user = $userBLL->getInfo($userId);
     $res->return($user);
+  },
+  /**
+   * @api {get} /v1/admin/users/:userId(\d+)/partners 用户详情
+   * @apiGroup admin-user
+   * 
+   * @apiHeader {string} token 鉴权
+   */
+  'get /v1/admin/users/:userId/partners' => function($req, $res) {
+    $admin = AdminBLL::auth($req);
+    $rccodeBLL = new RccodeBLL();
+    $hql = $req->paging();
+    $hql['where']['userId'] = ['NEQ','NULL'];
+    $hql['where']['agencyId'] = $req->param('userId');
+    $users = $rccodeBLL->getList($hql);
+    $res->paging($users);
   }
 ];
 ?>

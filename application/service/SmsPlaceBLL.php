@@ -32,6 +32,7 @@ class SmsPlaceBLL extends BLL {
   }
 
   function setTpl($place, $tplId) {
+    $smsBLL = new SmsBLL();
     // 1.模板不存在或不可用,报错
     $tpl = $smsBLL->getInfo(['logicId'=>$tplId, 'type'=>'tpl']);
     if($tpl === null || $tpl['status']==='pending' || $tpl['status']==='fail') {

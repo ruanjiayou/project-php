@@ -110,7 +110,7 @@ class SmsBLL extends BLL {
       $result = model($this->table)->add([
         'logicId' => $tpl['data']['id'],
         'text' => $input['text'],
-        'type' => 'common',
+        'type' => 'tpl',
         'status' => 'pending',
         'createdAt' => date('Y-m-d H:i:s')
       ]);
@@ -142,8 +142,10 @@ class SmsBLL extends BLL {
    * 获取所有目标并刷新审核状态
    */
   function getTpl($hql) {
-    $dataset = model($this->table)->getList($hql);
-    $results = $dataset->items();
+    $hql['where']['type'] = 'tpl';
+    $hql['limit'] = 0;
+    $dataset = $this->getList($hql);
+    $results = $dataset['data'];
     $ids = [];
     for($n=0;$n<count($results);$n++) {
       if($results[$n]['status'] === 'pending') {
@@ -154,13 +156,6 @@ class SmsBLL extends BLL {
     if(count($ids)!==0) {
       $tpls = wxHelper::getSmsTpl($ids);
     }
-    $paginator = [
-      R_PAGENATOR_PAGE =>$dataset->currentPage(),
-      R_PAGENATOR_PAGES =>$dataset->lastPage(),
-      R_PAGENATOR_LIMIT =>$dataset->listRows(),
-      R_PAGENATOR_COUNT =>$dataset->count(),
-      R_PAGENATOR_TOTAL=>$dataset->total(),
-    ];
     $res = [];
     for($i=0;$i<count($results);$i++) {
       $result = $results[$i];
@@ -178,7 +173,7 @@ class SmsBLL extends BLL {
       }
       array_push($res, $result);
     }
-    return ['data'=>$res, R_PAGENATOR=>$paginator];
+    return $res;
   }
 }
 ?>
