@@ -2,7 +2,7 @@
 return [
   /**
    * @api {post} /v1/user/invitation/:invitationId/comment 评论
-   * @apiGroup user-invitation-comment
+   * @apiGroup user-invitation
    * 
    * @apiHeader {string} token 鉴权
    * 

@@ -2,7 +2,7 @@
 return [
   /**
    * @api {post} /v1/user/invitation/:invitationId/complaint 投诉
-   * @apiGroup admin-refund
+   * @apiGroup user-refund
    * 
    * @apiHeader {string} token 鉴权
    */
