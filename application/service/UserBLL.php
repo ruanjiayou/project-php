@@ -64,6 +64,12 @@ class UserBLL extends BLL {
     $input['password'] = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$input['salt']]);
 
     $result = model($this->table)->add($input);
+    if($input['type']==='servant') {
+      $priceBLL = new PriceBLL();
+      $priceBLL->create(['type'=>'order','userId'=>$result['id'],'value'=>100]);
+      $priceBLL->create(['type'=>'order','userId'=>$result['id'],'value'=>200]);
+      $priceBLL->create(['type'=>'order','userId'=>$result['id'],'value'=>300]);
+    }
     model('rccode')->edit(['rccode'=>$rccode], ['userId'=>$result['id'], 'userName'=>$result['nickName'], 'userAvatar'=>$result['avatar'], 'type'=>$result['type']]);
     $result = model($this->table)->edit($result['id'], ['rccode'=>$rccode]);
     return $result;

@@ -25,7 +25,7 @@ class SmsMessageBLL extends BLL {
    * 2.内部消息发送给指定人: 所需字段,phone/type/params
    * 3.短信消息则进行短信发送: 所需字段,phone/type/params
    */
-  function sendMessage($input, $code = '') {
+  function sendMessage($input, $code = '', $hidden = false) {
     $validation = new Validater([
       'phone' => 'empty|string|default:""',
       'type' => 'required|string',
@@ -61,12 +61,12 @@ class SmsMessageBLL extends BLL {
         'code' => $code,
         'phone' => $data['phone'],
       ]);
-      $result = wxHelper::sendSmsMessage($data['phone'], $place['sign'], $place['tplId'], $data['params']);
+      $result = $hidden === false ? ['result'=>0] : wxHelper::sendSmsMessage($data['phone'], $place['sign'], $place['tplId'], $data['params']);
       if($result['result']!==0) {
         $this->update(['status'=>'fail'], ['id'=>$message['id']]);
         thrower('sms', 'smsSendFail', $result['errmsg']);
       }
-      return $result;
+      return $message;
     }
   }
 
@@ -74,7 +74,7 @@ class SmsMessageBLL extends BLL {
    * 验证手机的验证码: zhuche/forgot/
    */
   static function validateCode($phone, $code, $type = 'zhuche') {
-    $sms = (new SmsPlaceBLL())->getInfo(['type'=>$type,'phone'=>$phone], ['order'=>'id DESC']);
+    $sms = (new SmsMessageBLL())->getInfo(['type'=>$type,'phone'=>$phone], ['order'=>'id DESC']);
     if($sms === null) {
       thrower('sms', 'codeError');
     } else {

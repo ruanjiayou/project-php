@@ -124,8 +124,8 @@ return [
       $h['where'] = input('get.');
       $h['where']['isSA'] = 0;
       $h['field'] = '!password,token,salt';
+      $h['scopes'] = ['AdminAuth'];
     });
-    //TODO: 关联查询 权限表
     $admins = $adminBLL->getList($hql);
     $res->paging($admins);
   },

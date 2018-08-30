@@ -127,12 +127,12 @@ return [
   'post /v1/auth/user/message/sign-up' => function($req, $res) {
     $smsMessageBLL = new SmsMessageBLL();
     $code = _::random(6);
-    $smsMessageBLL->sendMessage([
+    $result = $smsMessageBLL->sendMessage([
       'phone' => input('post.phone'),
       'type' => 'zhuche',
       'params' => [$code, 10]
-    ], $code);
-    $res->success();
+    ], $code, isset($_GET['hidden']) ? true : false);
+    $res->return($result);
   }
 ];
 
