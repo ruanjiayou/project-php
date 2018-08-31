@@ -5,15 +5,16 @@ use think\Response;
 
 return [
   /**
-   * @api {get} /v1/admin/invitations 邀请订单列表
+   * @api {get} /v1/admin/invitations 邀请订单列表,评论列表
    * @apiGroup admin-invitation
    * 
    * @apiParam {int} [page] 页码
    * @apiParam {int} [limit] 每页数量
+   * @apiParam {int} [userId] 用户id
    * @apiParam {string='pending', 'success', 'fail'} [status] 邀请订单状态
    * @apiParam {string='inviting','refused','canceling','canceled','accepted','confirmed','expired','refund','refunding','refunded'} [progress] 邀请订单进度
    * @apiParam {string} [search] 卖家昵称或手机号
-   * @apiParam {string} [type] 全部退款,type=redund等同progress=[refund,refunding,refunded]
+   * @apiParam {string='refund','sellerComment','buyerComment} [type] 全部退款,type=redund等同progress=[refund,refunding,refunded]
    */
   'get /v1/admin/invitations' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -25,14 +26,25 @@ return [
     $query = $validation->validate(input('get.'));
     $invitationBLL = new InvitationBLL();
     $hql = $req->paging(function($h) use($query){
+      if(isset($query['userId'])) {
+        $h['where']['userId'] = $query['userId'];
+      }
       if(isset($query['status'])) {
         $h['where']['status'] = $query['status'];
       }
       if(isset($query['progress'])) {
         $h['where']['progress'] = $query['progress'];
       }
-      if(isset($query['type'])&&$query['type']==='refund') {
-        $h['where']['progress'] = ['in', ['refund','refunding','refunded']];
+      if(isset($query['type'])) {
+        if($query['type']==='refund') {
+          $h['where']['progress'] = ['in', ['refund','refunding','refunded']];
+        }
+        if($query['type']==='sellerComment') {
+          $h['where']['isComment'] = ['in', ['yes','sold']];
+        }
+        if($query['type']==='buyerComment') {
+          $h['where']['isComment'] = ['in', ['yes','bought']];
+        }
       }
       return $h;
     });
