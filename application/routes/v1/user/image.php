@@ -22,8 +22,9 @@ return [
     $images = $req->file('images');
     $info = $images->move(ROOT_PATH.'public/images/');
     $filepath = _::replace(ROOT_PATH.'public/images/'.$info->getSaveName(), '\\', '/');
-    $cos = wxHelper::addFile(date('Y-m-d H:i:s').'-'._::random(16, 'imix'), fopen($filepath, 'rb'));
+    $cos = wxHelper::addFile('project/'.date('Y-m-d H:i:s').'-'._::random(16, 'imix'), fopen($filepath, 'rb'));
     if($imageNum < 9) {
+      $userImageBLL->create(['userId'=>$user['id'],'url'=>$cos['ObjectURL'], 'createdAt'=>date('Y-m-d H:i:s')]);
       $user = $userBLL->update(['images'=>++$imageNum], ['id'=>$user['id']]);
     } else {
       thrower('image', 'overLimit');
@@ -56,7 +57,7 @@ return [
     $res->return(['url'=>$cos['ObjectURL']]);
   },
   /**
-   * @api {delete} /v1/user/images 删除图片
+   * @api {delete} /v1/user/images 删除多张图片
    * @apiGroup user-images
    * 
    * @apiHeader {string} token 鉴权
@@ -91,6 +92,19 @@ return [
     } else {
       thrower('common', 'validation');
     }
+    $res->success();
+  },
+  /**
+   * @api {delete} /v1/user/images/:imageId 删除一张图片
+   * @apiGroup user-images
+   * 
+   * @apiHeader {string} token 鉴权
+   */
+  'delete /v1/user/images/:imageId' => function($req, $res) {
+    $userBLL = new UserBLL();
+    $userImageBLL = new UserImageBLL();
+    $user = $userBLL->auth($req);
+    $userImageBLL->destroy($req->param('imageId'));
     $res->success();
   },
   /**
