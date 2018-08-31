@@ -9,6 +9,8 @@ return [
    * @apiGroup admin-wallet
    * 
    * @apiHeader {string} token 鉴权
+   * @apiParam {string='pending','success','fail'} [status] 状态
+   * @apiParam {string} [search] 手机号
    * @param User 合伙人详情
    */
   'get /v1/admin/withdraw' => function($req, $res) {
@@ -17,8 +19,14 @@ return [
 
     $hql = $req->paging(function($q) {
       $q['where'] = ['type'=>'withdraw'];
+      if(isset($_GET['status'])) {
+        $q['where']['status'] = $_GET['status'];
+      }
       return $q;
     });
+    if(isset($hql['search']) && $hql['search']!=='') {
+      $hql['where']['phone'] = ['like', '%'.$hql['search'].'%'];
+    }
     $hql['scopes'] = ['User'];
     $result = $orderBLL->getList($hql);
     $res->paging($result);

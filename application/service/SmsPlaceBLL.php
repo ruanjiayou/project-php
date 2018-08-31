@@ -15,7 +15,7 @@ class SmsPlaceBLL extends BLL {
     }
     // 2.签名设为使用中,不可被删除
     if($sign['status'] === 'success') {
-      $smsBLL->edit(['logicId'=>$signId], ['status'=>'using']);
+      $smsBLL->edit(['status'=>'using'], ['logicId'=>$signId]);
     }
     // 3.更改占位短信的签名
     $place = $this->getInfo(['place'=>$place]);
@@ -25,7 +25,7 @@ class SmsPlaceBLL extends BLL {
     if($oldId !==0 && $oldId !== $signId) {
       $one = $this->getInfo(['signId'=>$oldId]);
       if($one === null) {
-        $smsBLL->edit(['logicId'=>$oldId], ['status'=>'success']);
+        $smsBLL->edit(['status'=>'success'], ['logicId'=>$oldId]);
       }
     }
     return true;
@@ -40,7 +40,7 @@ class SmsPlaceBLL extends BLL {
     }
     // 2.模板设为使用中,不可被删除
     if($tpl['status'] === 'success') {
-      $smsBLL->edit(['logicId'=>$signId], ['status'=>'success']);
+      $smsBLL->update(['status'=>'success'], ['logicId'=>$signId]);
     }
     // 3.更改占位短信的模板
     $place = $this->getInfo(['place'=>$place]);
@@ -50,7 +50,7 @@ class SmsPlaceBLL extends BLL {
     if($oldId !== 0 && $oldId !== $tplId) {
       $one = $this->getInfo(['tplId'=>$oldId]);
       if($one === null) {
-        $smsBLL->edit(['logicId'=>$oldId], ['status'=>'success']);
+        $smsBLL->edit(['status'=>'success'], ['logicId'=>$oldId]);
       }
     }
     return true;

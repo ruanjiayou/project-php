@@ -9,6 +9,7 @@ class OrderBLL extends BLL {
   function create($input) {
     $validation = new Validater([
       'userId' => 'required|int',
+      'phone' => 'string',
       'price' => 'required|int',
       'type' => 'required|enum:recharge,withdraw',
       'status' => 'enum:pending,success,fail|default:"pending"',

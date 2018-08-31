@@ -24,7 +24,7 @@ return [
     $user = UserBLL::auth($req);
     $orderBLL = new OrderBLL();
     
-    $order = $orderBLL->create(['type'=>'recharge', 'userId'=>$user['id'], 'price'=>input('post.money'),]);
+    $order = $orderBLL->create(['type'=>'recharge', 'phone'=>$user['phone'], 'userId'=>$user['id'], 'price'=>input('post.money'),]);
     $res->return($order);
   },
   /**
@@ -51,7 +51,7 @@ return [
     $user = UserBLL::auth($req);
     $orderBLL = new OrderBLL();
     
-    $order = $orderBLL->create(['type'=>'withdraw', 'userId'=>$user['id'], 'price'=>input('post.money'),]);
+    $order = $orderBLL->create(['type'=>'withdraw', 'phone'=>$user['phone'], 'userId'=>$user['id'], 'price'=>input('post.money'),]);
     $res->return($order);
   },
   /**
