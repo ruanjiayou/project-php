@@ -255,7 +255,9 @@ class UserBLL extends BLL {
     if(null !== $result) {
       $result['pictures'] = (new UserImageBLL())->getAll(['where'=>['userId'=>$result['id']],'field'=>'id,url']);
       $result['prices'] = (new PriceBLL())->getAll(['where'=>['userId'=>$result['id']], 'field'=>'id,value','order'=> 'value DESC']);
-      $result['tags'] = json_decode($result['tags']);
+      if(isset($result['tags'])) {
+        $result['tags'] = json_decode($result['tags']);
+      }
     }
     return $result;
   }

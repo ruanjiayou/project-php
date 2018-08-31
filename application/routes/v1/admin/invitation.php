@@ -54,11 +54,12 @@ return [
   'get /v1/admin/invitations/:invitationId' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $invitationBLL = new InvitationBLL();
+    $userBLL = new UserBLL();
 
     $result = $invitationBLL->getInfo($req->param('invitationId'));
     if(null !== $result) {
-      $result['buyerAgency'] = (new UserBLL())->getInfo(['id'=>$result['agencyId']], ['field'=>'nickName,phone']);
-      $result['sellerAgency'] = (new UserBLL())->getInfo(['id'=>$result['agencyId']], ['field'=>'nickName,phone']);
+      $result['buyerAgency'] = $userBLL->getInfo(['id'=>$result['buyerAgencyId']], ['field'=>'id,nickName,phone']);
+      $result['sellerAgency'] = $userBLL->getInfo(['id'=>$result['sellerAgencyId']], ['field'=>'id,nickName,phone']);
     }
     $res->return($result);
   },
