@@ -71,7 +71,7 @@ return [
     if(_::isArray($param)) {
       $condition = ['id'=>['in', $param], 'userId'=>$user['id']];
       $imagesData = $userImageBLL->getList(['where'=>$condition]);
-      $images = $user['images'] - $imagesData->count();
+      $images = $user['images'] - $imagesData['count'];
       $userImageBLL->destroy($condition);
       if($images < 0) {
         $images = 0;
