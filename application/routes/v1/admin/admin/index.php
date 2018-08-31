@@ -121,7 +121,9 @@ return [
     $admin = $adminBLL::auth($req);
     
     $hql = $req->paging(function($h){
-      $h['where'] = input('get.');
+      if(isset($_GET['search']) && $_GET['search']!=='') {
+        $h['where']['phone|nickName'] = ['like', '%'.$_GET['search'].'%'];
+      }
       $h['where']['isSA'] = 0;
       $h['field'] = '!password,token,salt';
       $h['scopes'] = ['AdminAuth'];
