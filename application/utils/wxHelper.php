@@ -178,7 +178,7 @@ class wxHelper {
     return $result['data'];
   }
 
-  static function addFile() {
+  static function addFile($key, $file) {
     $cosClient = new Qcloud\Cos\Client([
       'region' => self::$cosRegion,
       'credentials' => [
@@ -187,10 +187,11 @@ class wxHelper {
       ]
     ]);
     $result = $cosClient->putObject([
-      'Bucket' => self::$cosBucket,
-      'Key' => '',
-      'Body' => ''
+      'Bucket' => self::$cosBucket.'-'.self::$cosAppId,
+      'Key' => $key,
+      'Body' => $file
     ]);
+    return $result;
   }
 }
 

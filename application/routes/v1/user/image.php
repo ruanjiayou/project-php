@@ -18,16 +18,27 @@ return [
     $user = $userBLL->auth($req);
     $imageNum = intval($user['images']);
 
-    // 上传文件
+    // 1.cos上传
     $images = $req->file('images');
+    $info = $images->move(ROOT_PATH.'public/images/');
+    $filepath = _::replace(ROOT_PATH.'public/images/'.$info->getSaveName(), '\\', '/');
+    $cos = wxHelper::addFile(date('Y-m-d H:i:s').'-'._::random(16, 'imix'), fopen($filepath, 'rb'));
     if($imageNum < 9) {
       $user = $userBLL->update(['images'=>++$imageNum], ['id'=>$user['id']]);
     } else {
       thrower('image', 'overLimit');
     }
-    $info = $images->move(ROOT_PATH.'public/images/');
-    $url = _::replace('/images/'.$info->getSaveName(), '\\', '/');
-    $result = $userImageBLL->create(['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
+    // 2.文件上传
+    // $images = $req->file('images');
+    // if($imageNum < 9) {
+    //   $user = $userBLL->update(['images'=>++$imageNum], ['id'=>$user['id']]);
+    // } else {
+    //   thrower('image', 'overLimit');
+    // }
+    // $info = $images->move(ROOT_PATH.'public/images/');
+    // $url = _::replace('/images/'.$info->getSaveName(), '\\', '/');
+    // $result = $userImageBLL->create(['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
+    // 3.字符串上传
     // $images = input('post.images/a');
     // $result = [];
     // if(_::type($images)==='array') {
@@ -42,7 +53,7 @@ return [
     // if($imageNum!==intval($user['images'])) {
     //   $user = $userBLL->update(['images'=>$imageNum], ['id'=>$user['id']]);
     // }
-    $res->return($result);
+    $res->return(['url'=>$cos['ObjectURL']]);
   },
   /**
    * @api {delete} /v1/user/images 删除图片
