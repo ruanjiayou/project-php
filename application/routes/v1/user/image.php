@@ -16,32 +16,32 @@ return [
     $userBLL = new UserBLL();
     $userImageBLL = new UserImageBLL();
     $user = $userBLL->auth($req);
+    $imageNum = intval($user['images']);
 
     // 上传文件
-    // $images = $req->file('images');
-    // if($user['images'] < 9) {
-    //   $user = $userBLL->update(['images'=>++$user['images']], ['id'=>$user['id']]);
-    // } else {
-    //   thrower('image', 'overLimit');
+    $images = $req->file('images');
+    if($imageNum < 9) {
+      $user = $userBLL->update(['images'=>++$imageNum], ['id'=>$user['id']]);
+    } else {
+      thrower('image', 'overLimit');
+    }
+    $info = $images->move(ROOT_PATH.'public/images/');
+    $url = _::replace('/images/'.$info->getSaveName(), '\\', '/');
+    $result = $userImageBLL->create(['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
+    // $images = input('post.images/a');
+    // $result = [];
+    // if(_::type($images)==='array') {
+    //   foreach($images as $index => $url) {
+    //     if($imageNum<9) {
+    //       $url = $userImageBLL->create(['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
+    //       array_push($result, $url);
+    //       $imageNum++;
+    //     }
+    //   }
     // }
-    // $info = $images->move(ROOT_PATH.'public/images/');
-    // $url = _::replace('/images/'.$info->getSaveName(), '\\', '/');
-    // $result = $userImageBLL->create(['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
-    $images = input('post.images/a');
-    $imageNum = intval($user['images']);
-    $result = [];
-    if(_::type($images)==='array') {
-      foreach($images as $index => $url) {
-        if($imageNum<9) {
-          $url = $userImageBLL->create(['userId'=>$user['id'],'url'=>$url, 'createdAt'=>date('Y-m-d H:i:s')]);
-          array_push($result, $url);
-          $imageNum++;
-        }
-      }
-    }
-    if($imageNum!==intval($user['images'])) {
-      $user = $userBLL->update(['images'=>$imageNum], ['id'=>$user['id']]);
-    }
+    // if($imageNum!==intval($user['images'])) {
+    //   $user = $userBLL->update(['images'=>$imageNum], ['id'=>$user['id']]);
+    // }
     $res->return($result);
   },
   /**

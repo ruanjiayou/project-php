@@ -203,6 +203,7 @@ class UserBLL extends BLL {
     if($user['tags']!=='') {
       $user['tags'] = json_decode($user['tags']);
     }
+    $type = $user['type'];
     if($type!=='buyer') {
       $type = $user['type'];
       $query = [];
