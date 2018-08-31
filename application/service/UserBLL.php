@@ -70,7 +70,7 @@ class UserBLL extends BLL {
       $priceBLL->create(['type'=>'order','userId'=>$result['id'],'value'=>200]);
       $priceBLL->create(['type'=>'order','userId'=>$result['id'],'value'=>300]);
     }
-    model('rccode')->edit(['rccode'=>$rccode], ['userId'=>$result['id'], 'userName'=>$result['nickName'], 'userAvatar'=>$result['avatar'], 'type'=>$result['type']]);
+    model('rccode')->edit(['rccode'=>$rccode], ['userId'=>$result['id'], 'userName'=>$result['nickName'], 'userAvatar'=>$result['avatar'], 'userPhone' => $result['phone'], 'type'=>$result['type']]);
     $result = model($this->table)->edit($result['id'], ['rccode'=>$rccode]);
     return $result;
   }
