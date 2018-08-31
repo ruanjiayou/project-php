@@ -105,6 +105,9 @@ return [
     $userImageBLL = new UserImageBLL();
     $user = $userBLL->auth($req);
     $userImageBLL->destroy($req->param('imageId'));
+    $condition = ['userId'=>$user['id']];
+    $imagesData = $userImageBLL->getAll(['where'=>$condition]);
+    $user = $userBLL->update(['images'=>count($imagesData)], $user['id']);
     $res->success();
   },
   /**
