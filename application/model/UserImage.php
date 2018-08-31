@@ -1,4 +1,4 @@
 <?php
 namespace app\model;
 use think\Model;
-class Order extends ModelBase {}
+class UserImage extends ModelBase {}

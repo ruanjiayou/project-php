@@ -8,6 +8,7 @@ return [
    * 
    * @apiParam {string} [nickName] 昵称
    * @apiParam {string} [phone] 手机号
+   * @apiParam {string} [password] 密码
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -78,7 +79,7 @@ return [
     $adminBLL = new AdminBLL();
     $admin = $adminBLL::auth($req);
     
-    $adminBLL::changeRight($req->param('adminId'), input('put.'));
+    $adminBLL->changeRight($req->param('adminId'), input('put.'));
     $res->success();
   },
   /**
@@ -120,11 +121,14 @@ return [
     $admin = $adminBLL::auth($req);
     
     $hql = $req->paging(function($h){
-      $h['where'] = input('get.');
+      if(isset($_GET['search']) && $_GET['search']!=='') {
+        $h['where']['phone|nickName'] = ['like', '%'.$_GET['search'].'%'];
+      }
       $h['where']['isSA'] = 0;
       $h['field'] = '!password,token,salt';
+      $h['scopes'] = ['AdminAuth'];
+      return $h;
     });
-    //TODO: 关联查询 权限表
     $admins = $adminBLL->getList($hql);
     $res->paging($admins);
   },
@@ -158,7 +162,7 @@ return [
     $adminBLL = new AdminBLL();
     $admin = $adminBLL::auth($req);
     
-    $nAdmin = $adminBLL->getInfo($req->param('adminId'), ['field'=>'!password,token,salt']);
+    $nAdmin = $adminBLL->getInfo($req->param('adminId'), ['field'=>'!password,token,salt','scopes'=>['AdminAuth']]);
     $res->return($nAdmin);
   }
 ];

@@ -43,8 +43,8 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string} password 新密码
-   * @apiParam {string} code 验证码
+   * @apiParam {string} oldpsw 旧密码
+   * @apiParam {string} newpsw 新密码
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -65,8 +65,9 @@ return [
    */
   'put /v1/admin/password' => function($req, $res) {
     $admin = AdminBLL::auth($req);
-    //TODO:
-    return 'admin-self';
+    $adminBLL = new AdminBLL();
+    $adminBLL->changePassword($admin, input('put.oldpsw'), input('put.newpsw'));
+    $res->success();
   },
   /**
    * @api {get} /v1/admin/self 获取个人资料
@@ -93,6 +94,7 @@ return [
    */
   'get /v1/admin/self' => function($req, $res) {
     $admin = AdminBLL::auth($req);
+    $admin['auths'] = model('admin_auth')->getList(['limit'=>0,'field'=>'authorityId,authorityName','where'=>['adminId'=>$admin['id']]]);
     $res->return(_::filter($admin, ['password', 'token', 'salt']));
   }
 ];

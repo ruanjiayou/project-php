@@ -1,6 +1,10 @@
 <?php
 use think\Log;
 return [
+  /**
+   * @api {post} /v1/public/alipay-cb 支付
+   * @apiGroup public-alipay
+   */
   'post /v1/public/alipay-cb' => function($req, $res) {
     /*
     {
@@ -32,10 +36,18 @@ return [
     }
     */
     $data = input('post.');
-    // TODO: 根据out-trade_no查询order,验证订单.并修改订单状态
-    $order = null;
-
-    return null===$order ? 'fail' : 'success';
+    $orderBLL = new OrderBLL();
+    $userBillBLL = new UserBillBLL();
+    $order = $orderBLL->getInfo(['order_no'=>$data['out_trade_no']]);
+    //$flag = alipayHelper::appPayCb($data);
+    if(null === $order || $order['status']!=='pending') {
+      return 'fail';
+    } else {
+      $user = (new UserBLL())->getInfo($order['userId']);
+      $orderBLL->update(['trade_no'=>$data['trade_no'],'status'=>'success'], ['id'=>$order['id']]);
+      $userBillBLL->balance(['type'=>'income','value'=>intval($order['price']/100),'detail'=>'recharge'], $user);
+      return 'success';
+    }
   }
 ];
 ?>

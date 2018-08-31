@@ -76,8 +76,14 @@ return [
    * }
    */
   'post /v1/auth/user/forgot-password' => function($req, $res) {
-    //TODO:
-    return 'user-forgot-password';
+    $smsMessageBLL = new SmsMessageBLL();
+    $code = _::random(6);
+    $smsMessageBLL->sendMessage([
+      'phone' => input('post.phone'),
+      'type' => 'forgot',
+      'params' => [$code, 10]
+    ], $code);
+    $res->success();
   },
   /**
    * @api {post} /v1/auth/user/reset-password 验证码重置密码
@@ -119,14 +125,14 @@ return [
    * }
    */
   'post /v1/auth/user/message/sign-up' => function($req, $res) {
-    $userBLL = new UserBLL();
-    $smsBLL = new SmsBLL();
-    $smsBLL->sendMessage([
+    $smsMessageBLL = new SmsMessageBLL();
+    $code = _::random(6);
+    $result = $smsMessageBLL->sendMessage([
       'phone' => input('post.phone'),
       'type' => 'zhuche',
-      'params' => [_::random(6, 'imix'), 10]
-    ]);
-    $res->success();
+      'params' => [$code, 10]
+    ], $code, isset($_GET['hidden']) ? true : false);
+    $res->return($result);
   }
 ];
 

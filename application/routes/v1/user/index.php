@@ -11,6 +11,8 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {string} [trueName] 真实姓名
+   * @apiParam {string} [alipay] 支付宝账号
+   * @apiParam {string} [creditCard] 银行卡
    * @apiParam {string} [nickName] 昵称
    * @apiParam {string} [avatar] 头像
    * @apiParam {int} [age] 年龄
@@ -20,6 +22,7 @@ return [
    * @apiParam {float} [y] 纬度
    * @apiParam {string} [address] 籍贯
    * @apiParam {string} [city] 所在城市
+   * @apiParam {int} [cityId] 所在城市
    * @apiParam {string} [identity] 身份证
    * @apiParam {string} [introduce] 简介
    * @apiParam {array} [tags] 个性标签
@@ -48,6 +51,7 @@ return [
    *     money: 888,
    *     address: "",
    *     city: '武汉',
+   *     cityId: 77,
    *     type: "servant",
    *     createdAt: "2018-07-31 17:43:48"
    *   },
@@ -65,7 +69,7 @@ return [
     if($user['status'] === 'registered') {
       $data['status'] = $user['type'] === 'servant' ? 'approving' : 'approved';
     }
-    $result = $userBLL->update(_::filter($data, ['money', 'status', 'attr', 'images']), $user['id']);
+    $result = $userBLL->update(_::filter($data, ['money', 'attr', 'images']), $user['id']);
     $res->return($result);
   },
   /**
@@ -124,6 +128,7 @@ return [
    *     money: 888,
    *     address: "",
    *     city: '武汉',
+   *     cityId: 77,
    *     type: "servant",
    *     createdAt: "2018-07-31 17:43:48"
    *   },
@@ -135,10 +140,7 @@ return [
   'get /v1/user/self' => function($req, $res) {
     $userBLL = new UserBLL();
     $user = $userBLL->auth($req);
-
-    if($user['tags']!=='') {
-      $user['tags'] = json_decode($user['tags']);
-    }
+    $user = $userBLL->getInfo($user['id']);
     $res->return($user);
   }
 ];

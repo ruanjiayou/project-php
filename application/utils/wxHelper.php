@@ -2,9 +2,13 @@
 use Qcloud\Sms\SmsSingleSender;
 
 class wxHelper {
-  static public $appId = '1400120461';
-  static public $appKey = 'ce80ec5dc84a0e03bc4ee0b74f53f4fa';
-
+  static public $smsAppId = C_TX_SMS_APPID;
+  static public $smsAppKey = C_TX_SMS_APPKEY;
+  static public $cosAppId = C_TX_COS_APPID;
+  static public $cosSecretId = C_TX_COS_SECRETID;
+  static public $cosSecretKey = C_TX_COS_SECRETKEY;
+  static public $cosBucket = C_TX_COS_BUCKET;
+  static public $cosRegion = C_TX_COS_REGION;
   /**
    * 传入手机号生成的是模板的sign,不然就是签名的sign
    */
@@ -14,7 +18,7 @@ class wxHelper {
     if($phone!=='') {
       $phone = '&mobile='.$phone;
     }
-    $str = sprintf('appkey=%s&random=%s&time=%s%s', self::$appKey, $random, $time, $phone);
+    $str = sprintf('appkey=%s&random=%s&time=%s%s', self::$smsAppKey, $random, $time, $phone);
     return [
       'random' => $random,
       'time' => $time,
@@ -33,7 +37,7 @@ class wxHelper {
   static function sendSmsMessage($phone, $sign, $tplId, $params, $county = '86') {
     $signature = self::getSignature($phone);
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/sendsms')
-      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->query(['sdkappid'=>self::$smsAppId,'random'=>$signature['random']])
       ->send([
         'ext' => '',
         'extend' => '',
@@ -56,14 +60,14 @@ class wxHelper {
     $validation = new Validater([
       'image' => 'text|alias:pic',
       'remark' => 'string',
-      'title' => 'required|string|alias:text'
+      'text' => 'required|string'
     ]);
     $data = $validation->validate($input);
     $signature = self::getSignature();
     $data['sig'] = $signature['sign'];
     $data['time'] = $signature['time'];
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/add_sign')
-      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->query(['sdkappid'=>self::$smsAppId,'random'=>$signature['random']])
       ->send($data)
       ->end();
     return $result;
@@ -74,7 +78,7 @@ class wxHelper {
   static function delSmsSign($arr) {
     $signature = self::getSignature();
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/del_sign')
-      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->query(['sdkappid'=>self::$smsAppId,'random'=>$signature['random']])
       ->send(['sign_id'=>$arr,'sig'=>$signature['sign'],'time'=>$signature['time']])
       ->end();
     return $result;
@@ -94,7 +98,7 @@ class wxHelper {
     $data['sig'] = $signature['sign'];
     $data['time'] = $signature['time'];
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/mod_sign')
-      ->query(['sdkappid'=>self::$appId,'time'=>$signature['time'],'random'=>$signature['random']])
+      ->query(['sdkappid'=>self::$smsAppId,'time'=>$signature['time'],'random'=>$signature['random']])
       ->send($data)
       ->end();
     return $result;
@@ -105,7 +109,7 @@ class wxHelper {
   static function getSmsSign($arr) {
     $signature = self::getSignature();
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/get_sign')
-      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->query(['sdkappid'=>self::$smsAppId,'random'=>$signature['random']])
       ->send(['sig'=>$signature['sign'],'sign_id'=>$arr,'time'=>$signature['time']])
       ->end();
     return $result['result'] === 0 ? $result['data'] : [];
@@ -116,7 +120,6 @@ class wxHelper {
    */
   static function addSmsTpl($input) {
     $validation = new Validater([
-      'title' => 'required|string',
       'text' => 'required|string',
       'remark' => 'string',
       'type' => 'required|string|default:0'
@@ -128,7 +131,7 @@ class wxHelper {
     // $url = 'http://'.$_SERVER['HTTP_HOST'].'/test/shttp/post';
     $url = 'https://yun.tim.qq.com/v5/tlssmssvr/add_template';
     $result = shttp::post($url)
-      ->query(['sdkappid'=>self::$appId,'random'=>$sign['random']])
+      ->query(['sdkappid'=>self::$smsAppId,'random'=>$sign['random']])
       ->send($data)
       ->end();
     return $result;
@@ -136,7 +139,7 @@ class wxHelper {
   static function delSmsTpl($arr) {
     $signature = self::getSignature();
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/del_template')
-      ->query(['sdkappid'=>self::$appId,'random'=>$signature['random']])
+      ->query(['sdkappid'=>self::$smsAppId,'random'=>$signature['random']])
       ->send(['sig'=>$signature['sign'],'time'=>$signature['time'],'tpl_id'=>$arr])
       ->end();
     return $result;
@@ -166,13 +169,29 @@ class wxHelper {
       ];
     }
     $result = shttp::post('https://yun.tim.qq.com/v5/tlssmssvr/get_template')
-      ->query(['sdkappid'=>self::$appId,'random'=>$sign['random']])
+      ->query(['sdkappid'=>self::$smsAppId,'random'=>$sign['random']])
       ->send($query)
       ->end();
     if($result['result']!==0) {
       thrower('common', 'thirdApiFail', $result['msg']);
     }
     return $result['data'];
+  }
+
+  static function addFile($key, $file) {
+    $cosClient = new Qcloud\Cos\Client([
+      'region' => self::$cosRegion,
+      'credentials' => [
+        'secretId' => self::$cosSecretId,
+        'secretKey' => self::$cosSecretKey
+      ]
+    ]);
+    $result = $cosClient->putObject([
+      'Bucket' => self::$cosBucket.'-'.self::$cosAppId,
+      'Key' => $key,
+      'Body' => $file
+    ]);
+    return $result;
   }
 }
 

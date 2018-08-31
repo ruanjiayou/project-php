@@ -33,7 +33,7 @@ Request::hook('paging', function(Request $req, $cb = null){
   if(!empty($query[R_ORDER])) {
     $condition[R_ORDER] = str_replace('-', ' ', $query[R_ORDER]);
   }
-  if(isset($query[R_SEARCH]) && $query[R_SEARCH]!=='') {
+  if(!empty($query[R_SEARCH])) {
     $condition[R_SEARCH] = $query[R_SEARCH];
   }
   if(!empty($cb)) {
@@ -92,7 +92,7 @@ Response::hook('error', function(Response $res, $e){
   $res->data($return);
 });
 
-Response::hook('paging', function(Response $res, $result) {
+Response::hook('paging', function(Response $res, $result, $params=[]) {
   $content = [
     R_STATUS => R_SUCCESS,
     R_DATA => null,
@@ -101,13 +101,13 @@ Response::hook('paging', function(Response $res, $result) {
     R_STACK => ''
   ];
   if($result!==null && 'object' === _::type($result)) {
-    $content[R_DATA] = $result->items();
+    $content[R_DATA] = $result['data'];
     $content[R_PAGENATOR] = [
-      R_PAGENATOR_PAGE =>$result->currentPage(),
-      R_PAGENATOR_PAGES =>$result->lastPage(),
-      R_PAGENATOR_LIMIT =>$result->listRows(),
-      R_PAGENATOR_COUNT =>$result->count(),
-      R_PAGENATOR_TOTAL=>$result->total(),
+      R_PAGENATOR_PAGE =>$result['page'],
+      R_PAGENATOR_PAGES =>$result['pages'],
+      R_PAGENATOR_LIMIT =>$result['limit'],
+      R_PAGENATOR_COUNT =>$result['count'],
+      R_PAGENATOR_TOTAL=>$result['total'],
     ];
     if($content[R_PAGENATOR][R_PAGENATOR_LIMIT]===0) {
       unset($content[R_PAGENATOR]);
@@ -115,6 +115,7 @@ Response::hook('paging', function(Response $res, $result) {
   } else {
     $content[R_DATA] = $result;
   }
+  $content = _::assign($content, $params);
   $res->data($content);
 });
 
@@ -159,15 +160,6 @@ class CustomRoute {
   static function loadAll($opt) {
     self::scanner($opt);
     $pattern = [];
-    Route::rule('/:all([\w\W]+)', function(Request $req, Response $res){
-      header('Access-Control-Allow-Origin: *');
-      //header('Access-Control-Allow-Credentials: false;');
-      //header('Access-Control-Allow-Headers: token;');
-      //header("Access-Control-Max-Age: 86400");
-      header("Access-Control-Allow-Headers: Content-Type, token");
-      header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT');
-      return $res->getData();
-    }, 'OPTIONS');
     foreach(self::$routes as $k => $v) {
       $info = explode(' ', $k);
       $method = strtolower($info[0]);
@@ -183,8 +175,17 @@ class CustomRoute {
             $route = str_replace('('.$value.')', '', $route);
           }
         }
+        Route::rule($route.'$', function(Request $req, Response $res){
+          header('Access-Control-Allow-Origin: *');
+          //header('Access-Control-Allow-Credentials: false;');
+          //header('Access-Control-Allow-Headers: token;');
+          header("Access-Control-Max-Age: 86400");
+          header("Access-Control-Allow-Headers: Content-Type, token");
+          header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE, PUT');
+          return $res->getData();
+        }, 'OPTIONS');
         Route::rule($route.'$', function(Request $req, Response $res) use($v){
-          //header('Access-Control-Allow-Origin: *');
+          header('Access-Control-Allow-Origin: *');
           $result = '';
           try {
             $result = $v($req, $res);

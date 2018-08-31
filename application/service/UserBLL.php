@@ -44,8 +44,8 @@ class UserBLL extends BLL {
     if(!empty($result)) {
       thrower('user', 'phoneRegistered');
     }
-    // FIXME: 短信验证码,短信不够用,暂时注释
-    SmsBLL::validateCode($input['phone'], $code);
+    // 短信验证码,短信不够用,可以注释下面一行
+    SmsMessageBLL::validateCode($input['phone'], $code);
 
     if($input['type'] !== 'agency') {
       if($rccode === null) {
@@ -86,7 +86,7 @@ class UserBLL extends BLL {
       thrower('user', 'passwordError');
     }
     $token = $result['token'];
-    $data = ['token'=>$token, 'type' => $result['type']];
+    $data = ['token'=>$token, 'type' => $result['type'], 'status' => $result['status']];
     if($token!=='') {
       try {
         $token = (array)JWT::decode($data['token'], C_AUTH_KEY, array('HS256'));
@@ -106,14 +106,14 @@ class UserBLL extends BLL {
   /**
    * 忘记密码,短信重置
    */
-  function forgotPassword($phone, $code, $newpsw) {
+  function forgotPassword($input) {
     $validation = new Validater([
       'phone' => 'required|string',
       'code' => 'required|string',
       'password' => 'required|string|alias:newpsw'
     ]);
     $data = $validation->validate($input);
-    SmsBLL::validateCode($data['phone'], $data['code'], 'forgot');
+    SmsMessageBLL::validateCode($data['phone'], $data['code'], 'forgot');
     return $this->resetPassword($data['phone'], $data['newpsw']);
   }
   /**
@@ -125,7 +125,7 @@ class UserBLL extends BLL {
       thrower('user', 'userNotFound');
     }
     $salt = _::random(24, 'mix');
-    $newpsw = password_hash($newpsw, PASSWORD_BCRYPT, ['salt'=>$user['salt']]);
+    $newpsw = password_hash($newpsw, PASSWORD_BCRYPT, ['salt'=>$salt]);
     model($this->table)->edit(['phone'=>$phone], ['password'=>$newpsw, 'salt'=>$salt, 'token'=>'']);
     return true;
   }
@@ -153,6 +153,7 @@ class UserBLL extends BLL {
       'nickName' => 'required|string',
       'type' => 'required|enum:servant,buyer,agency',
       'password' => 'required|string|default:"123456"',
+      'status' => 'required|enum:registered,approving,approved,forbidden|default:"approved"',
       'createdAt' => 'required|date|default:datetime'
     ]);
     $data = $validation->validate($input);
@@ -165,26 +166,29 @@ class UserBLL extends BLL {
     return model($this->table)->add($data);
   }
   /**
-   * TODO: 同步 rccode表的 name和avatar字段
+   * 业务逻辑: 同步 rccode表的 name和avatar字段
    */
   function update($data, $condition) {
     $validation = new Validater([
       'identity' => 'string',
       'trueName' => 'string|maxlength:18',
+      'alipay' => 'string',
+      'creditCard' => 'string',
       'nickName' => 'string|minlength:3|maxlength:18',
       'avatar' => 'string|maxlength:255',
       'introduce' => 'string|maxlength:255',
       'address' => 'string|maxlength:255',
       'city' => 'string|maxlength:255',
+      'cityId' => 'int|nonzero',
       'age' => 'nonzero|int|min:0|max:100',
       'money' => 'int',
       'height' => 'int',
       'weight' => 'int',
-      'x' => 'float',
-      'y' => 'float',
+      'x' => 'float:10,6',
+      'y' => 'float:10,6',
       'images' => 'int',
       'status' => 'string|enum:approving,approved,forbidden',
-      'attr' => 'string|enum:normal,hot',
+      'attr' => 'string|enum:normal,hot,recommend',
       'tags' => 'object|default:(toString)'
     ]);
     $input = $validation->validate($data);
@@ -202,15 +206,14 @@ class UserBLL extends BLL {
     $validation = new Validater([
       'type' => 'enum:servant,buyer,agency|ignore',
       'status' => 'enum:approved,approving,forbidden,registered|ignore',
-      'attr' => 'enum:hot,recommend,normal|ignore',
-      'search' => 'empty|string|default:""'
+      'attr' => 'enum:hot,recommend,normal|ignore'
     ]);
     $hql['field'] = '!password,token,salt';
     $where = $validation->validate($hql['where']);
-    if($where['search']!=='') {
-      $where['phone|nickName'] = ['like', '%'.$where['search'].'%'];
+    if($hql['search']!=='') {
+      $where['phone|nickName'] = ['like', '%'.$hql['search'].'%'];
     }
-    unset($where['search']);
+    unset($hql['search']);
     $hql['where'] = $where;
     return model($this->table)->getList($hql);
   }

@@ -5,7 +5,7 @@ use think\Response;
 
 return [
   /**
-   * @api {post} /v1/admin/users
+   * @api {post} /v1/admin/users 添加用户
    * @apiGroup admin-user
    * 
    * @apiHeader {string} token 鉴权
@@ -203,7 +203,8 @@ return [
     $admin = AdminBLL::auth($req);
     $userBLL = new UserBLL();
 
-    $user = $userBLL->getInfo($req->param('userId'));
+    $userId = $req->param('userId');
+    $user = $userBLL->getInfo($userId);
     $res->return($user);
   }
 ];
