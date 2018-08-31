@@ -40,7 +40,7 @@ class SmsPlaceBLL extends BLL {
     }
     // 2.模板设为使用中,不可被删除
     if($tpl['status'] === 'success') {
-      $smsBLL->update(['status'=>'success'], ['logicId'=>$signId]);
+      $smsBLL->update(['status'=>'using'], ['logicId'=>$tpl['logicId']]);
     }
     // 3.更改占位短信的模板
     $place = $this->getInfo(['place'=>$place]);
