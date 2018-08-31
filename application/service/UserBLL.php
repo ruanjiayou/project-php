@@ -178,6 +178,8 @@ class UserBLL extends BLL {
     $validation = new Validater([
       'identity' => 'string',
       'trueName' => 'string|maxlength:18',
+      'alipay' => 'string',
+      'creditCard' => 'string',
       'nickName' => 'string|minlength:3|maxlength:18',
       'avatar' => 'string|maxlength:255',
       'introduce' => 'string|maxlength:255',

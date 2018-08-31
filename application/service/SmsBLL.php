@@ -125,7 +125,7 @@ class SmsBLL extends BLL {
    */
   function delTpl($smsId) {
     $smsModel = model($this->table);
-    $query = [$smsModel->primaryKey=>$smsId, 'type'=>'common'];
+    $query = [$smsModel->primaryKey=>$smsId, 'type'=>'tpl'];
     $tpl = $smsModel->getInfo($query);
     if($tpl !== null && $tpl['status'] === 'using') {
       thrower('sms', 'smsSignUsing');

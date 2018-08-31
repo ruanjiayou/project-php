@@ -51,7 +51,7 @@
  * 
  * @apiParam {int} id 分类id
  * @apiParam {string} name 分类名称
- * @apiParam {string} type 标签类型,user:用户,comment:评论
+ * @apiParam {string} type 标签类型,user:用户资料,buyer:买家,seller:卖家
  */
 /**
  * @api {get} /model/tag 标签:tag
@@ -62,7 +62,7 @@
  * @apiParam {string} name 标签名称
  * @apiParam {int} cataId 分类id
  * @apiParam {string} cataName 分类名称
- * @apiParam {string} type 标签类型,user:用户标签,comment:评论标签
+ * @apiParam {string} type 标签类型,user:用户标签,buyer:买家标签,seller:卖家标签
  */
 /**
  * @api {get} /model/invitation 邀请订单:invitation
@@ -85,7 +85,7 @@
  * @apiParam {string} sellerName 卖家昵称
  * @apiParam {string} sellerPhone 卖家手机号
  * @apiParam {int} price 邀请订单价格
- * @apiParam {string='inviting','refused','canceling','canceled','accepted','confirmed','expired'} progress 订单详细进行态,inviting:邀请中,refused:邀请被拒绝,canceling:买家主动取消,canceled:卖家取消,accepted,卖家已接受,confirmed:买家已确认,expired:邀请订单过期
+ * @apiParam {string='inviting','refused','canceling','canceled','accepted','confirmed','expired','refund',refunding','refunded'} progress 订单详细进行态,inviting:邀请中,refused:邀请被拒绝,canceling:买家主动取消,canceled:卖家取消,accepted,卖家已接受,confirmed:买家已确认,expired:邀请订单过期,refund:待处理退款,refunding:进行中的退款,refunded:已处理的退款
  * @apiParam {string='pending','success','fail'} status 订单状态
  * @apiParam {int=0,1} isComplaint 是否投诉了
  * @apiParam {string} complaint 投诉内容
@@ -125,7 +125,7 @@
  * @apiParam {int} id id
  * @apiParam {int=0} userId 用户id,为0类型为signin对所有人
  * @apiParam {int} value 定价
- * @apiParam {string='order','signin'} type 定价类型,signin:签到奖励,order:邀请订单定价,rebate:分成比例
+ * @apiParam {string='order','signin','rebate} type 定价类型,signin:签到奖励,order:邀请订单定价,rebate:分成比例
  */
 /**
  * @api {get} /model/rccode 推荐码与合作关系:rccode
@@ -139,6 +139,7 @@
  * @apiParam {int} userId 用户id
  * @apiParam {string} userName 用户昵称
  * @apiParam {string} userAvatar 用户头像
+ * @apiParam {string} userPhone 用户手机号
  * @apiParam {string} rccode 推荐码
  * @apiParam {string='pending','buyer','servant'} type 类型,pending:待接受,buyer:买家类型,servant: 卖家类型
  * @apiParam {datetime} createdAt 创建时间
@@ -208,6 +209,8 @@
  * @apiParam {string} identity 身份证
  * @apiParam {string} rccode 推荐码
  * @apiParam {string} trueName 真实姓名
+ * @apiParam {string} alipay 支付宝账号
+ * @apiParam {string} creditCard 银行卡
  * @apiParam {string} nickName 昵称
  * @apiParam {string} age 年龄
  * @apiParam {string} avatar 头像

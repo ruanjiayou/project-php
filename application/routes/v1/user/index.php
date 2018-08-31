@@ -11,6 +11,8 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {string} [trueName] 真实姓名
+   * @apiParam {string} [alipay] 支付宝账号
+   * @apiParam {string} [creditCard] 银行卡
    * @apiParam {string} [nickName] 昵称
    * @apiParam {string} [avatar] 头像
    * @apiParam {int} [age] 年龄
