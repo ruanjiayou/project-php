@@ -144,8 +144,7 @@ class SmsBLL extends BLL {
   function getTpl($hql) {
     $hql['where']['type'] = 'tpl';
     $hql['limit'] = 0;
-    $dataset = $this->getList($hql);
-    $results = $dataset['data'];
+    $results = $this->getList($hql);
     $ids = [];
     for($n=0;$n<count($results);$n++) {
       if($results[$n]['status'] === 'pending') {
