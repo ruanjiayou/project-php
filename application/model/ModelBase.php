@@ -12,7 +12,9 @@ class ModelBase extends Model {
     for($i=0;$i<count($scopes);$i++) {
       $scope = $scopes[$i];
       foreach($results as $result) {
-        $result[$scope] = collection($result[$scope])->toArray();
+        // 下面一句就可以
+        $temp = collection($result[$scope])->toArray();
+        //$result[$scope] = $temp['data'];
       }
     }
     return $results;
@@ -53,7 +55,7 @@ class ModelBase extends Model {
       $condition = [$this->primaryKey=>$condition];
     }
     $results = $this->where($condition)->field($field, $exclude)->order($order)->find();
-    return $this->tran_scope($results, $scopes);
+    return $results;
   }
 
   function getList($opts=array()) {
@@ -76,15 +78,18 @@ class ModelBase extends Model {
       unset($where['limit']);
       $total = $this->where($where)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->count();
       $results = $this->where($where)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->select();
-      
-      return [
-        'data'=>$this->tran_scope($results, $scopes),
-        'total'=>$total,
-        'limit'=>$limit,
-        'page'=>$page,
-        'pages'=> $limit==0 ? 1 : ceil($total/$limit),
-        'count'=>count($results)
-      ];
+      if($limit === 0) {
+        return $this->tran_scope($results, $scopes);
+      } else {
+        return [
+          'data'=>$this->tran_scope($results, $scopes),
+          'total'=>$total,
+          'limit'=>$limit,
+          'page'=>$page,
+          'pages'=> $limit==0 ? 1 : ceil($total/$limit),
+          'count'=>count($results)
+        ];
+      }
   }
 }
 
