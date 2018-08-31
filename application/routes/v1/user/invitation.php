@@ -60,6 +60,24 @@ return [
     });
     $result = $invitationBLL->getList($opt);
     $res->paging($result);
+  },
+  /**
+   * @api {get} /v1/user/invitation/:invitationId 邀请详情
+   * @apiGroup user-invitation
+   * 
+   * @apiHeader {string} token 鉴权
+   */
+  'get /v1/user/invitation/:invitationId' => function($req, $res) {
+    $user = UserBLL::auth($req);
+    $invitationBLL = new InvitationBLL();
+    $query = ['id'=> $req->param('invitationId')];
+    if($user['type']==='buyer') {
+      $query['buyerId'] = $user['id'];
+    } else {
+      $query['sellerId'] = $user['id'];
+    }
+    $result = $invitationBLL->getInfo($query);
+    $res->return($result);
   }
 ];
 ?>
