@@ -55,8 +55,13 @@ class _ {
     return 'float' === $t || 'double' === $t;
   }
   
-  static function isNumber($o) {
-    return preg_match("/^\d+$/",$o);
+  static function isNumber() {
+    $t = _::type($o);
+    return 'integer' === $t || 'float' === $t || 'double' === $t;
+  }
+
+  static function isNumbric($o) {
+    return preg_match("/^\d+(\.\d+)?$/",$o);
   }
   
   static function isBoolean($o) {
