@@ -34,6 +34,7 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {int} money 金额
+   * @apiParam {int} type 类型,银行卡或支付宝(creditCard/alipay)
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -50,8 +51,8 @@ return [
   'post /v1/user/wallet/withdraw' => function($req, $res) {
     $user = UserBLL::auth($req);
     $orderBLL = new OrderBLL();
-    
-    $order = $orderBLL->create(['type'=>'withdraw', 'phone'=>$user['phone'], 'userId'=>$user['id'], 'price'=>input('post.money'),]);
+    $input = input('post.');
+    $order = $orderBLL->create(['type'=>'withdraw', 'phone'=>$user['phone'], 'userId'=>$user['id'], 'price'=>input('post.money'), 'origin'=> isset($input['type'])? $input['type']:'']);
     $res->return($order);
   },
   /**

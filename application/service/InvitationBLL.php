@@ -214,7 +214,6 @@ class InvitationBLL extends BLL {
     $validation = new Validater([
       'id' => 'required|int',
       'type' => 'required|enum:buyer,seller',
-      'score' => 'required|int',
       'comment' => 'required|string'
     ]);
     $data = $validation->validate($input);
@@ -230,10 +229,10 @@ class InvitationBLL extends BLL {
     } else {
       $data['isComment'] = $type === 'buyer' ? 'bought' : 'sold';
     }
-    $data['scoreOf'.$type] = $data['score'];
+    //$data['scoreOf'.$type] = $data['score'];
+    $data['scoreOf'.$type] = 5;
     $data['commentOf'.$type] = $data['comment'];
     unset($data['type']);
-    unset($data['score']);
     unset($data['comment']);
     $invitation = $this->update($data, $invitation['id']);
     

@@ -11,6 +11,7 @@ class OrderBLL extends BLL {
       'userId' => 'required|int',
       'phone' => 'string',
       'price' => 'required|int',
+      'origin' => 'empty|string|default:""',
       'type' => 'required|enum:recharge,withdraw',
       'status' => 'enum:pending,success,fail|default:"pending"',
       'trade_no' => 'string|default:""',
