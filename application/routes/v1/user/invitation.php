@@ -22,19 +22,19 @@ return [
     $res->return($result);
   },
   /**
-   * @api {put} /v1/user/invitation/:invitationId 修改邀请订单状态
+   * @api {post} /v1/user/invitation/:invitationId 修改邀请订单状态
    * @apiGroup user-invitation
    * 
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {string='canceling','refused','canceled','accepted','comfirmed'} type 状态类型,只有buyer能传canceling,其他是servant的
    */
-  'put /v1/user/invitation/:invitationId' => function($req, $res) {
+  'post /v1/user/invitation/:invitationId' => function($req, $res) {
     $userBLL = new UserBLL();
     $invitationBLL = new InvitationBLL();
     $user = $userBLL->auth($req);
 
-    $invitationBLL->changeProgress($req->param('invitationId'), input('put.type'), $user);
+    $invitationBLL->changeProgress($req->param('invitationId'), input('post.type'), $user);
     $res->success();
   },
   /**

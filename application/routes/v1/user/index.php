@@ -60,11 +60,11 @@ return [
    *   stack: ''
    * }
    */
-  'put /v1/user/self' => function($req, $res) {
+  'post /v1/user/self' => function($req, $res) {
     $userBLL = new UserBLL();
     $user = $userBLL->auth($req);
 
-    $data = input('put.');
+    $data = input('post.');
     unset($data['status']);
     if($user['status'] === 'registered') {
       $data['status'] = $user['type'] === 'servant' ? 'approving' : 'approved';
@@ -73,7 +73,7 @@ return [
     $res->return($result);
   },
   /**
-   * @api {put} /v1/user/password 修改密码
+   * @api {post} /v1/user/password 修改密码
    * @apiGroup user-self
    * 
    * @apiHeader {string} token 鉴权
@@ -91,11 +91,11 @@ return [
    *   stack: ''
    * }
    */
-  'put /v1/user/password' => function($req, $res) {
+  'post /v1/user/password' => function($req, $res) {
     $userBLL = new UserBLL();
     $user = $userBLL->auth($req);
 
-    $userBLL->changePassword($user, input('put.'));
+    $userBLL->changePassword($user, input('post.'));
     $res->success();
   },
   /**
