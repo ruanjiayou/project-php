@@ -61,7 +61,7 @@ class SmsMessageBLL extends BLL {
         'code' => $code,
         'phone' => $data['phone'],
       ]);
-      $result = $hidden === false ? ['result'=>0] : wxHelper::sendSmsMessage($data['phone'], $place['sign'], $place['tplId'], $data['params']);
+      $result = $hidden === true ? ['result'=>0] : wxHelper::sendSmsMessage($data['phone'], $place['sign'], $place['tplId'], $data['params']);
       if($result['result']!==0) {
         $this->update(['status'=>'fail'], ['id'=>$message['id']]);
         thrower('sms', 'smsSendFail', $result['errmsg']);
