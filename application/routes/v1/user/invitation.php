@@ -55,6 +55,11 @@ return [
       $status = input('get.status');
       if(in_array($status, ['pending', 'success', 'fail'])) {
         $hql['where']['status'] = $status;
+        if($user['type'] === 'servant') {
+          $hql['where']['sellerId'] = $user['id'];
+        } elseif($user['type'] === 'buyer') {
+          $hql['where']['buyerId'] = $user['id'];
+        }
       }
       return $hql;
     });
