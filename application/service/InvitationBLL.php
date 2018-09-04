@@ -149,6 +149,11 @@ class InvitationBLL extends BLL {
     } elseif('canceled' === $status) {
       $input['status']='fail';
       if($progress === 'accepted') {
+        $user->balance([
+          'type' => 'income',
+          'value'=> $invitation['price'],
+          'detail'=> 'canceled'
+        ], $buyer);
         // 按时间扣钱
         $current = time();
         $t = strtotime($invitation['createdAt']);

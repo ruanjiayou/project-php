@@ -13,6 +13,7 @@ return [
    * @apiParam {string} [search] 手机号或昵称
    * @apiParam {string='servant','buyer','agency'} [type] 用户类型
    * @apiParam {string='hot','recommend','normal'} [attr] 属性
+   * @apiParam {string} distance 按距离排序,如:distance=114.21498,30.58145
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -62,7 +63,21 @@ return [
       $h['where']['status'] = 'approved';
       return $h;
     });
-    $res->paging($userBLL->getList($hql));
+    if(isset($_GET['distance']) && preg_match('/^\d+\.\d+[,]\d+.\d+$/', $_GET['distance'])) {
+      $count = model('user')->count();
+      $data = model('user')->query('select *,(st_distance (point (x, y),point('.$_GET['distance'].')) / 0.0111) AS distance from user order by distance limit '.($hql['page']-1)*$hql['limit'].','.$hql['limit']);//.($hql['page']-1)*$hql['limit'].','.$hql['limit']
+      $res->return($data, [
+        'paginator' => [
+          'total' => $count,
+          'count' => count($data),
+          'page' => $hql['page'],
+          'limit'=> $hql['limit'],
+          'pages'=> ceil($count/$hql['limit'])
+        ]
+      ]);
+    } else {
+      $res->paging($userBLL->getList($hql));
+    }
   },
   /**
    * @api {get} /v1/public/users/:userId 用户详情

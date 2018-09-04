@@ -24,12 +24,8 @@ Request::hook('auth', function($req){
 Request::hook('paging', function(Request $req, $cb = null){
   $query = $req->get();
   $condition = ['where'=>[]];
-  if(isset($query[R_PAGENATOR_PAGE]) && is_numeric($query[R_PAGENATOR_PAGE])) {
-    $condition[R_PAGENATOR_PAGE] = intval($query[R_PAGENATOR_PAGE]);
-  }
-  if(isset($query[R_PAGENATOR_LIMIT]) && is_numeric($query[R_PAGENATOR_LIMIT])) {
-    $condition[R_PAGENATOR_LIMIT] = intval($query[R_PAGENATOR_LIMIT]);
-  }
+  $condition[R_PAGENATOR_PAGE] = isset($query[R_PAGENATOR_PAGE]) && is_numeric($query[R_PAGENATOR_PAGE]) ? intval($query[R_PAGENATOR_PAGE]) : 1;
+  $condition[R_PAGENATOR_LIMIT] = isset($query[R_PAGENATOR_LIMIT]) && is_numeric($query[R_PAGENATOR_LIMIT]) ? intval($query[R_PAGENATOR_LIMIT]) : 20;
   if(!empty($query[R_ORDER])) {
     $condition[R_ORDER] = str_replace('-', ' ', $query[R_ORDER]);
   }
