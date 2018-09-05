@@ -13,7 +13,8 @@ return [
    * @apiParam {string} [search] 手机号或昵称
    * @apiParam {string='servant','buyer','agency'} [type] 用户类型
    * @apiParam {string='hot','recommend','normal'} [attr] 属性
-   * @apiParam {string} distance 按距离排序,如:distance=114.21498,30.58145
+   * @apiParam {string} [distance] 按距离排序,如:distance=114.21498,30.58145
+   * @apiParam {int} [cityId] 城市id搜索
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK

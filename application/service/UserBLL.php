@@ -238,7 +238,8 @@ class UserBLL extends BLL {
     $validation = new Validater([
       'type' => 'enum:servant,buyer,agency|ignore',
       'status' => 'enum:approved,approving,forbidden,registered|ignore',
-      'attr' => 'enum:hot,recommend,normal|ignore'
+      'attr' => 'enum:hot,recommend,normal|ignore',
+      'cityId' => 'int'
     ]);
     $hql['field'] = '!password,token,salt';
     $where = $validation->validate($hql['where']);
