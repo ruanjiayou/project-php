@@ -40,27 +40,28 @@ class AdminBLL extends BLL {
       'password' => 'required|string|minlength:6|maxlength:18'
     ]);
     $input = $validation->validate($data);
-    $result = model($this->table)->getInfo(['phone'=>$input['phone']],['scopes'=>['AdminAuth']]);
-    $password = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$result['salt']]);
+    $result = $this->getInfo(['phone'=>$input['phone']],['scopes'=>['AdminAuth']]);
     if(empty($result)) {
       thrower('user', 'userNotFound');
-    } else if($result['password']!==$password) {
+    }
+    $password = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$result['salt']]);
+    if($result['password']!==$password) {
       thrower('user', 'passwordError');
     }
     $token = $result['token'];
-    $data = ['token'=>$token,'AdminAuth'=>$result['AdminAuth']];
+    $data = ['token'=>$token,'AdminAuth'=>isset($result['AdminAuth']) ? $result['AdminAuth'] : []];
     if($token!=='') {
       try {
         $token = (array)JWT::decode($data['token'], C_AUTH_KEY, array('HS256'));
       } catch(Exception $e) {
         $token = JWT::encode(['exp'=>time()+C_AUTH_EXPIRED, 'uid'=>$result['id'], 'type'=>'admin'], C_AUTH_KEY);
         $data['token'] = $token;
-        model($this->table)->edit(['phone'=>$input['phone']], $data);
+        model($this->table)->edit(['phone'=>$input['phone']], ['token'=>$data['token']]);
       }
     } else {
       $token = JWT::encode(['exp'=>time()+C_AUTH_EXPIRED, 'uid'=>$result['id'], 'type'=>'admin'], C_AUTH_KEY);
       $data['token'] = $token;
-      model($this->table)->edit(['phone'=>$input['phone']], $data);
+      model($this->table)->edit(['phone'=>$input['phone']], ['token'=>$data['token']]);
     }
     $data['isSA'] = $result['isSA'];
     return $data;

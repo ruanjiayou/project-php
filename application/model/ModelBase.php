@@ -6,15 +6,18 @@ class ModelBase extends Model {
   public $primaryKey = 'id';
 
   private function tran_scope($results, $scopes) {
-    if(gettype($results)==='object') {
-      return $results;
-    }
     for($i=0;$i<count($scopes);$i++) {
       $scope = $scopes[$i];
-      foreach($results as $result) {
-        // 下面一句就可以
-        $temp = collection($result[$scope])->toArray();
-        //$result[$scope] = $temp['data'];
+      if(gettype($results) === 'array') {
+        foreach($results as $result) {
+          // 下面一句就可以
+          $temp = collection($result[$scope])->toArray();
+          //$result[$scope] = $temp['data'];
+        }
+      } else {
+        $temp = collection($results[$scope])->toArray();
+        $results = $results->getData();
+        $results[$scope] = $temp;
       }
     }
     return $results;
@@ -55,7 +58,8 @@ class ModelBase extends Model {
       $condition = [$this->primaryKey=>$condition];
     }
     $results = $this->where($condition)->field($field, $exclude)->order($order)->find();
-    return $results;
+    //return $results;
+    return $this->tran_scope($results, $scopes);
   }
 
   function getList($opts=array()) {
