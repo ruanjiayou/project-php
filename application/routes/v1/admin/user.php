@@ -49,7 +49,10 @@ return [
     $admin = AdminBLL::auth($req);
     $userBLL = new UserBLL();
 
-    $user = $userBLL->create(input('post.'));
+    $input = input('post.');
+    $input['rebate'] = 10;
+    $input['status'] = 'approved';
+    $user = $userBLL->create($input);
     $res->return($user);
   },
   /**
@@ -59,6 +62,7 @@ return [
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {string='hot','recommend'} [attr] 设置属性
+   * @apiParam {int} [rebate] 佣金比例.只能设置servant的
    * @apiParam {string='approved','forbidden'} [status] 审核
    * 
    * @apiSuccessExample Success-Response:

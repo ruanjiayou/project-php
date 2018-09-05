@@ -32,9 +32,13 @@ class UserBLL extends BLL {
       'nickName' => 'required|string',
       'code' => 'required|string',
       'rccode' => 'required|string',
-      'createdAt' => 'string|default:datetime'
+      'createdAt' => 'string|default:datetime',
+      'rebate' => 'int|default:0'
     ]);
     $input = $validation->validate($data);
+    if($input['type'] === 'servant') {
+      $input['rebate'] = 60;
+    }
     $input['salt'] = _::random(24, 'mix');
     $rccode = $input['rccode'];
     $code = $input['code'];
@@ -159,8 +163,9 @@ class UserBLL extends BLL {
       'nickName' => 'required|string',
       'type' => 'required|enum:servant,buyer,agency',
       'password' => 'required|string|default:"123456"',
-      'status' => 'required|enum:registered,approving,approved,forbidden|default:"approved"',
-      'createdAt' => 'required|date|default:datetime'
+      'status' => 'required|enum:registered,approving,approved,forbidden|default:"registered"',
+      'createdAt' => 'required|date|default:datetime',
+      'rebate' => 'int|default:0'
     ]);
     $data = $validation->validate($input);
     $user = $this->getInfo(['phone'=>$data['phone']]);
@@ -195,17 +200,22 @@ class UserBLL extends BLL {
       'images' => 'int',
       'status' => 'string|enum:approving,approved,forbidden',
       'attr' => 'string|enum:normal,hot,recommend',
-      'tags' => 'object|default:(toString)'
+      'tags' => 'object|default:(toString)',
+      'rebate' => 'int|min:60|max:75'
     ]);
     $input = $validation->validate($data);
     if(is_string($condition) || is_integer($condition)) {
       $condition = ['id'=>$condition];
     }
+    $type = $user['type'];
+    // 只能设置秘书的佣金比例 60-75之间
+    if($type !== 'servant') {
+      unset($input['rebate']);
+    }
     $user = model($this->table)->edit($condition, $input);
     if($user['tags']!=='') {
       $user['tags'] = json_decode($user['tags']);
     }
-    $type = $user['type'];
     if($type!=='buyer') {
       $type = $user['type'];
       $query = [];

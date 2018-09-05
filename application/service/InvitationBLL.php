@@ -49,6 +49,9 @@ class InvitationBLL extends BLL {
     if(null === $seller || $seller['status']!=='approved') {
       thrower('user', 'userNotFound');
     }
+    // 佣金计算
+    $data['rebate'] = round($seller['rebate']*$data['price']/100);
+    $data['rebateAgency'] = round($data['price']/10);
     $data['buyerId'] = $user['id'];
     $data['buyerName'] = $user['nickName'];
     $data['buyerAvatar'] = $user['avatar'];
@@ -242,35 +245,27 @@ class InvitationBLL extends BLL {
     $invitation = $this->update($data, $invitation['id']);
     
     if($type === 'buyer') {
-      $rebate = (new PriceBLL())->getRebate();
-      $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
-      $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
-      $seller = $userBLL->getInfo($invitation['sellerId']);
-      // 分钱规则
-      $sellerPrice = round($rebate['value']/100*$invitation['price']);
-      $platfmPrice = $invitation['price']*C_MONEY_PLATFOM;
-      $agencyPrice = $invitation['price'] - $sellerPrice - $platfmPrice;
       // 中介返利
       $userBillBLL->balance([
         'type' => 'income',
-        'value' => $agencyPrice/2,
+        'value' => $invitation['rebateAgency'],
         'detail' => 'seller-cashback'
       ], $sellerAgency);
       $userBillBLL->balance([
         'type' => 'income',
-        'value' => $agencyPrice/2,
+        'value' => $invitation['rebateAgency'],
         'detail' => 'buyer-cashback'
       ], $buyerAgency);
       // 卖家进账
       $userBillBLL->balance([
         'type' => 'income',
-        'value' => $sellerPrice,
+        'value' => $invitation['rebate'],
         'detail' => 'invitation'
       ], $user);
       // 平台收入
       $userBillBLL->balance([
         'type' => 'income',
-        'value' => $platfmPrice,
+        'value' => $invitation['price']-$invitation['rebateAgency']*2-$invitation['rebate'],
         'detail' => 'platformIncome'
       ]);
     }
