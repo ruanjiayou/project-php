@@ -99,8 +99,7 @@ return [
   'put /v1/admin/users/:userId' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $userBLL = new UserBLL();
-
-    $user = $userBLL->update(_::pick(input('put.'), ['status', 'attr']), ['id'=>$req->param('userId')]);
+    $user = $userBLL->update(_::pick(input('put.'), ['status', 'attr', 'rebate']), ['id'=>$req->param('userId')]);
     $res->return($user);
   },
   /**
