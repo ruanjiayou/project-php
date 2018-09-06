@@ -27,7 +27,7 @@ return [
    * 
    * @apiHeader {string} token 鉴权
    * 
-   * @apiParam {string='canceling','refused','canceled','accepted','comfirmed'} type 状态类型,只有buyer能传canceling,其他是servant的
+   * @apiParam {string='canceling','refused','canceled','accepted','confirmed'} type 状态类型,只有buyer能传canceling,其他是servant的
    */
   'post /v1/user/invitation/:invitationId' => function($req, $res) {
     $userBLL = new UserBLL();
@@ -51,15 +51,15 @@ return [
     $user = UserBLL::auth($req);
     $invitationBLL = new InvitationBLL();
 
-    $opt = $req->paging(function($hql) {
+    $opt = $req->paging(function($hql) use($user) {
       $status = input('get.status');
+      if($user['type'] === 'servant') {
+        $hql['where']['sellerId'] = $user['id'];
+      } elseif($user['type'] === 'buyer') {
+        $hql['where']['buyerId'] = $user['id'];
+      }
       if(in_array($status, ['pending', 'success', 'fail'])) {
         $hql['where']['status'] = $status;
-        if($user['type'] === 'servant') {
-          $hql['where']['sellerId'] = $user['id'];
-        } elseif($user['type'] === 'buyer') {
-          $hql['where']['buyerId'] = $user['id'];
-        }
       }
       return $hql;
     });
