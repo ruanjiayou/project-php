@@ -21,8 +21,8 @@ class InvitationBLL extends BLL {
     $validation = new Validater([
       'userId' => 'required|int|alias:sellerId',
       'priceId' => 'required|int|alias:price',
-      'x' => 'required|float:10,5',
-      'y' => 'required|float:10,5',
+      'x' => 'required|float:10,6',
+      'y' => 'required|float:10,6',
       'address' => 'required|string',
       'startAt' => 'required|date',
       'createdAt' => 'required|date|default:datetime'
