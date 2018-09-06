@@ -63,7 +63,7 @@ return [
    * 
    * @apiParam {string='hot','recommend'} [attr] 设置属性
    * @apiParam {int} [rebate] 佣金比例.只能设置servant的
-   * @apiParam {string='approved','forbidden'} [status] 审核
+   * @apiParam {string='approved','forbidden','refused'} [status] 审核与封号
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK

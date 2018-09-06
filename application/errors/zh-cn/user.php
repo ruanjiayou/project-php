@@ -29,6 +29,11 @@ return [
     'code' => 10260,
     'status' =>  200,
     'message' => '余额不足!'
+  ],
+  'forbidden' => [
+    'code' => 10270,
+    'status' =>  200,
+    'message' => '账号已被锁定!'
   ]
 ];
 ?>

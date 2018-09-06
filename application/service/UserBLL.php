@@ -12,6 +12,9 @@ class UserBLL extends BLL {
     if(empty($user)) {
       thrower('user', 'userNotFound');
     }
+    if($user['status'] === 'forbidden') {
+      thrower('user', 'forbidden');
+    }
     return $user;
   }
 
@@ -38,6 +41,9 @@ class UserBLL extends BLL {
     $input = $validation->validate($data);
     if($input['type'] === 'servant') {
       $input['rebate'] = 60;
+    }
+    if($input['type'] === 'buyer') {
+      $input['status'] = 'approved';
     }
     $input['salt'] = _::random(24, 'mix');
     $rccode = $input['rccode'];
@@ -89,10 +95,11 @@ class UserBLL extends BLL {
     ]);
     $input = $validation->validate($data);
     $result = model($this->table)->getInfo(['phone'=>$input['phone']]);
-    $password = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$result['salt']]);
     if(empty($result)) {
       thrower('user', 'userNotFound');
-    } else if($result['password']!==$password) {
+    }
+    $password = password_hash($input['password'], PASSWORD_BCRYPT, ['salt'=>$result['salt']]);
+    if($result['password']!==$password) {
       thrower('user', 'passwordError');
     }
     $token = $result['token'];
@@ -195,6 +202,7 @@ class UserBLL extends BLL {
       'money' => 'int',
       'height' => 'int',
       'weight' => 'int',
+      'popular' => 'int',
       'x' => 'float:10,6',
       'y' => 'float:10,6',
       'images' => 'int',
@@ -206,6 +214,10 @@ class UserBLL extends BLL {
     $input = $validation->validate($data);
     if(is_string($condition) || is_integer($condition)) {
       $condition = ['id'=>$condition];
+    }
+    $user = $this->getInfo($condition);
+    if($user===null) {
+      thrower('user', 'userNotFound');
     }
     $type = $user['type'];
     // 只能设置秘书的佣金比例 60-75之间

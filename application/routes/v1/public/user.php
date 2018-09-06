@@ -62,6 +62,10 @@ return [
       $h['where'] = input('get.');
       $h['where']['type'] = 'servant';
       $h['where']['status'] = 'approved';
+      if(isset($h['where']['attr']) && $h['where']['attr']==='hot') {
+        $h['order'] = 'popular DESC';
+        unset($h['where']['attr']);
+      }
       return $h;
     });
     if(isset($_GET['distance']) && preg_match('/^\d+\.\d+[,]\d+.\d+$/', $_GET['distance'])) {
@@ -93,6 +97,8 @@ return [
     $userId = $req->param('userId');
     $userBLL = new UserBLL();
     $user = $userBLL->getInfo($userId);
+    $user['popular'] += 1;
+    $userBLL->update(['popular'=>$user['popular']], $userId);
     $res->return($user);
   },
   /**

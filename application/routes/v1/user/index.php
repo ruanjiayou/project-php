@@ -66,7 +66,7 @@ return [
 
     $data = input('post.');
     unset($data['status']);
-    if($user['status'] === 'registered') {
+    if($user['status'] === 'registered' || $user['status'] === 'refused') {
       $data['status'] = $user['type'] === 'servant' ? 'approving' : 'approved';
     }
     $result = $userBLL->update(_::filter($data, ['money', 'attr', 'images']), $user['id']);
