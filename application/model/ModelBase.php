@@ -76,8 +76,8 @@ class ModelBase extends Model {
     $order = isset($opts['order']) ? $opts['order'] : $pk.' DESC';
     $limit = isset($opts['limit']) ? $opts['limit'] : 10;
     $page = isset($opts['page']) ? $opts['page'] : 1;
-    $total = $this->where($where)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->count();
-    $results = $this->where($where)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->select();
+    $total = $this->where($where)->whereOr($whereOr)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->count();
+    $results = $this->where($where)->whereOr($whereOr)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->select();
     if($limit === 0) {
       return $this->tran_scope($results, $scopes);
     } else {
