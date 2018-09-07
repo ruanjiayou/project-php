@@ -52,7 +52,10 @@ return [
     $user = UserBLL::auth($req);
     $orderBLL = new OrderBLL();
     $input = input('post.');
-    $order = $orderBLL->create(['type'=>'withdraw', 'phone'=>$user['phone'], 'userId'=>$user['id'], 'price'=>input('post.money'), 'origin'=> isset($input['type'])? $input['type']:'']);
+    if($input['money'] > $user['money']) {
+      thrower('order', 'moneyLess');
+    }
+    $order = $orderBLL->create(['type'=>'withdraw', 'phone'=>$user['phone'], 'userId'=>$user['id'], 'price'=>$input['money'], 'origin'=> isset($input['type'])? $input['type']:'']);
     $res->return($order);
   },
   /**

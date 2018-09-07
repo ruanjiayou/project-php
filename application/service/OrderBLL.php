@@ -33,8 +33,8 @@ class OrderBLL extends BLL {
       } while($isFound);
       $data['order_no'] = $order_no;
       $payInfo = alipayHelper::appPay([
-        'body' => '测试充值',
-        'subject' => '测试APP支付',
+        'body' => '充值',
+        'subject' => '商务之星平台充值',
         'out_trade_no' => $data['order_no'],
         'total_amount' => $data['price']
       ]);
