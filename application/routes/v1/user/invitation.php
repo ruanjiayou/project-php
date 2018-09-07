@@ -61,6 +61,7 @@ return [
       if(in_array($status, ['pending', 'success', 'fail'])) {
         $hql['where']['status'] = $status;
       }
+      $hql['where']['progress'] = ['not in', ['refused','expired']];
       return $hql;
     });
     $result = $invitationBLL->getList($opt);
