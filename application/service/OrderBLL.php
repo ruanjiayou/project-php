@@ -20,9 +20,9 @@ class OrderBLL extends BLL {
       'createdAt' => 'required|string|default:datetime'
     ]);
     $data = $validation->validate($input);
-    if($data['price'] === 0 || fmod($data['price'],100)!==0) {
-      thrower('order', 'not100x');
-    }
+    // if($data['price'] === 0 || fmod($data['price'],100)!=0) {
+    //   thrower('order', 'not100x');
+    // }
     if($data['type']==='recharge') {
       $isFound = false;
       $order_no = '';
