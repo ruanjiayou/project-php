@@ -80,8 +80,8 @@ class ModelBase extends Model {
       $page = isset($opts['page']) ? $opts['page'] : 1;
       unset($where['page']);
       unset($where['limit']);
-      $total = $this->where($where)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->count();
-      $results = $this->where($where)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->select();
+      $total = $this->where($where)->whereOr($whereOr)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->count();
+      $results = $this->where($where)->whereOr($whereOr)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->select();
       if($limit === 0) {
         return $this->tran_scope($results, $scopes);
       } else {

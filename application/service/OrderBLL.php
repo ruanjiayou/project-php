@@ -20,6 +20,7 @@ class OrderBLL extends BLL {
       'createdAt' => 'required|string|default:datetime'
     ]);
     $data = $validation->validate($input);
+    // TODO: 乘100? 100整数倍限制
     // if($data['price'] === 0 || fmod($data['price'],100)!=0) {
     //   thrower('order', 'not100x');
     // }

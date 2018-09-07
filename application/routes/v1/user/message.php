@@ -41,8 +41,7 @@ return [
     $smsMessageBLL = new SmsMessageBLL();
 
     $hql = $req->paging(function($h) use($user){
-      $h['where']['phone'] = $user['phone'];
-      $h['whereOr'] = ['type'=> 'system'];
+      $h['whereOr'] = ['type'=> 'system','phone'=>$user['phone']];
       return $h;
     });
     $result = $smsMessageBLL->getList($hql);
