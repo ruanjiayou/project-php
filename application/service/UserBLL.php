@@ -130,6 +130,10 @@ class UserBLL extends BLL {
       'password' => 'required|string|alias:newpsw'
     ]);
     $data = $validation->validate($input);
+    $user = model($this->table)->getInfo(['phone'=>$data['phone']]);
+    if($user === null) {
+      thrower('user', 'userNotFound');
+    }
     SmsMessageBLL::validateCode($data['phone'], $data['code'], 'forgot');
     return $this->resetPassword($data['phone'], $data['newpsw']);
   }
