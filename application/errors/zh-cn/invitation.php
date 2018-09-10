@@ -14,6 +14,11 @@ return [
     'code' => 10830,
     'status' => 200,
     'message' => '请选择大于当前的日期进行预约!'
+  ],
+  'userWorking' => [
+    'code' => 10840,
+    'status' => 200,
+    'message' => '用户正在工作中!'
   ]
 ];
 ?>

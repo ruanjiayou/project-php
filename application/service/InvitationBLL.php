@@ -28,6 +28,13 @@ class InvitationBLL extends BLL {
       'createdAt' => 'required|date|default:datetime'
     ]);
     $data = $validation->validate($input);
+    $lastInvitation = $this->getInfo(['sellerId'=>$data['sellerId']],['order'=> 'id DESC']);
+    // 最后一单: pending中或success但没超过2小时 表示在工作中
+    if($lastInvitation['status'] === 'pending') {
+      thrower('invitation', 'userWorking');
+    } elseif($lastInvitation['status'] === 'success' && time() > strtotime($lastInvitation['confirmedAt']) + 7200) {
+      thrower('invitation', 'userWorking');
+    }
     $sellerrccode = (new RccodeBLL())->getInfo(['userId'=>$data['sellerId']]);
     $buyerrccode = (new RccodeBLL())->getInfo(['userId'=>$user['id']]);
     $data['sellerAgencyId'] = $sellerrccode['agencyId'];
@@ -186,6 +193,7 @@ class InvitationBLL extends BLL {
       if($progress !== 'accepted') {
         thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
       }
+      $input['confirmedAt'] = date('Y-m-d H:i:s');
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
     }
