@@ -290,15 +290,29 @@ class InvitationBLL extends BLL {
    * 1.记录存在.投诉过或评论过.不能进行投诉!
    * 2.金额判断
    */
-  function complaint($invitationId, $complaint) {
-    $invitation = self::getInfo($invitationId);
+  function complaint($input) {
+    $invitation = self::getInfo($input['id']);
     if(null === $invitation) {
       thrower('common', 'notFound');
     }
-    if($invitation['isComplaint'] == 1 || $invitation['isComment'] === 'yes' || $invitation['isComment']==='bought') {
-      thrower('invitation', 'cantComplaint');
+    // if($invitation['isComment'] === 'yes' || $invitation['isComment']==='bought') {
+    //   thrower('invitation', 'cantComplaint');
+    // }
+    // return self::update(['isComplaint'=>true, 'progress'=>'refund', 'complaint'=>$complaint], $invitationId);
+    $complaint = 'not';
+    $type = $input['type'] === 'servant' ? 'seller' : 'buyer';
+    if($invitation['isComplaint'] === 'not') {
+      $complaint = $input['type'];
+    } elseif($invitation['isComplaint']=='yes' && $invitation['type']===$type) {
+      thrower('invitation', 'complainted');
+    } else {
+      $complaint = 'yes';
     }
-    return self::update(['isComplaint'=>true, 'progress'=>'refund', 'complaint'=>$complaint], $invitationId);
+    if($type === 'seller') {
+      return self::update(['isComplaint'=> $complaint, 'sellerComplaint' => $input['complaint']]);
+    } else {
+      return self::update(['isComplaint'=> $complaint, 'buyerComplaint' => $input['complaint']]);
+    }
   }
 
   /**
