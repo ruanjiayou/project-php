@@ -19,6 +19,11 @@ return [
     'code' => 10840,
     'status' => 200,
     'message' => '用户正在工作中!'
+  ],
+  'complainted' => [
+    'code' => 10850,
+    'status' => 200,
+    'message' => '您已投诉!'
   ]
 ];
 ?>
