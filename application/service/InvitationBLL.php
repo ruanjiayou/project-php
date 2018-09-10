@@ -131,6 +131,7 @@ class InvitationBLL extends BLL {
       }
     } elseif('canceling' === $status) {
       $input['status']='fail';
+      $input['canceledAt'] = date('Y-m-d H:i:s');
       if($progress === 'accepted') {
         $userBillBLL->balance([
           'type' => 'income',
@@ -148,9 +149,9 @@ class InvitationBLL extends BLL {
         }
         if($punishment_money!==0) {
           $userBillBLL->balance([
-            'type' => 'expent',
-            'value' => $punishment_money,
-            'detail' => '取消邀请惩罚'
+            'type' => 'income',
+            'value' => $invitation['price'] - $punishment_money,
+            'detail' => '取消邀请,返回(已按时间扣钱惩罚)'
           ], $buyer);
         }
       } elseif($progress !== 'inviting') {
@@ -158,38 +159,40 @@ class InvitationBLL extends BLL {
       }
     } elseif('canceled' === $status) {
       $input['status']='fail';
+      $input['canceledAt'] = date('Y-m-d H:i:s');
       if($progress === 'accepted') {
         $user->balance([
           'type' => 'income',
           'value'=> $invitation['price'],
           'detail'=> 'canceled'
         ], $buyer);
-        // 按时间扣钱
-        $current = time();
-        $t = strtotime($invitation['createdAt']);
-        $punishment_money = 0;
-        if($current > 60*C_PUNISHMENT2_M + $t) {
-          $punishment_money = C_PUNISHMENT2_V;
-        } elseif($current>60*C_PUNISHMENT1_M+$t) {
-          $punishment_money = C_PUNISHMENT1_V;
-        }
-        if($punishment_money!==0) {
-          $userBillBLL->balance([
-            'type' => 'expent',
-            'value' => $punishment_money,
-            'detail' => '取消邀请惩罚'
-          ], $seller);
-        }
-        (new SmsMessageBLL())->sendMessage([
-          'phone' => $buyer['phone'],
-          'type' => 'canceled',
-          'params' => [$seller['nickName']]
-        ]);
+        // 按时间扣钱 -> 卖家不扣钱
+        // $current = time();
+        // $t = strtotime($invitation['createdAt']);
+        // $punishment_money = 0;
+        // if($current > 60*C_PUNISHMENT2_M + $t) {
+        //   $punishment_money = C_PUNISHMENT2_V;
+        // } elseif($current>60*C_PUNISHMENT1_M+$t) {
+        //   $punishment_money = C_PUNISHMENT1_V;
+        // }
+        // if($punishment_money!==0) {
+        //   $userBillBLL->balance([
+        //     'type' => 'expent',
+        //     'value' => $punishment_money,
+        //     'detail' => '取消邀请惩罚'
+        //   ], $seller);
+        // }
+        // (new SmsMessageBLL())->sendMessage([
+        //   'phone' => $buyer['phone'],
+        //   'type' => 'canceled',
+        //   'params' => [$seller['nickName']]
+        // ]);
       } else {
         thrower('invitation', 'updateFail', '只能取消已接受状态的邀请!');
       }
     } elseif('confirmed' === $status) {
       $input['status']='success';
+      $input['confirmedAt'] = date('Y-m-d H:i:s');
       if($progress !== 'accepted') {
         thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
       }
@@ -253,6 +256,8 @@ class InvitationBLL extends BLL {
     $invitation = $this->update($data, $invitation['id']);
     
     if($type === 'buyer') {
+      $sellerAgency = $user->getInfo($invitation['sellerAgencyId']);
+      $buyerAgency = $user->getInfo($invitation['buyerAgencyId']);
       // 中介返利
       $userBillBLL->balance([
         'type' => 'income',
