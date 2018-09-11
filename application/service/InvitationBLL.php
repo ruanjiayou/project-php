@@ -303,15 +303,15 @@ class InvitationBLL extends BLL {
     $type = $input['type'] === 'servant' ? 'seller' : 'buyer';
     if($invitation['isComplaint'] === 'not') {
       $complaint = $input['type'];
-    } elseif($invitation['isComplaint']=='yes' && $invitation['type']===$type) {
+    } elseif($invitation['isComplaint']=='yes' && $invitation['isComplaint']===$type) {
       thrower('invitation', 'complainted');
     } else {
       $complaint = 'yes';
     }
     if($type === 'seller') {
-      return self::update(['isComplaint'=> $complaint, 'sellerComplaint' => $input['complaint']]);
+      return self::update(['isComplaint'=> $complaint, 'sellerComplaint' => $input['complaint']], $input['id']);
     } else {
-      return self::update(['isComplaint'=> $complaint, 'buyerComplaint' => $input['complaint']]);
+      return self::update(['isComplaint'=> $complaint, 'buyerComplaint' => $input['complaint']], $input['id']);
     }
   }
 
