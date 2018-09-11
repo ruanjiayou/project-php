@@ -32,7 +32,7 @@ class InvitationBLL extends BLL {
     // 最后一单: pending中或success但没超过2小时 表示在工作中
     if($lastInvitation['status'] === 'pending') {
       thrower('invitation', 'userWorking');
-    } elseif($lastInvitation['status'] === 'success' && time() > strtotime($lastInvitation['confirmedAt']) + 7200) {
+    } elseif($lastInvitation['status'] === 'success' && time() < strtotime($lastInvitation['confirmedAt']) + 7200) {
       thrower('invitation', 'userWorking');
     }
     $sellerrccode = (new RccodeBLL())->getInfo(['userId'=>$data['sellerId']]);
