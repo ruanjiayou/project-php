@@ -21,7 +21,7 @@ class OrderBLL extends BLL {
     ]);
     $data = $validation->validate($input);
     // 支付宝乘100 微信呢?
-    $data['price'] *= 100;
+    $realMoney = $data['price'] * 100;
     // if($data['price'] === 0 || fmod($data['price'],100)!=0) {
     //   thrower('order', 'not100x');
     // }
@@ -38,7 +38,7 @@ class OrderBLL extends BLL {
         'body' => '充值',
         'subject' => '商务之星平台充值',
         'out_trade_no' => $data['order_no'],
-        'total_amount' => $data['price']
+        'total_amount' => $realMoney
       ]);
       $order = model($this->table)->add($data);
       $order['prepay'] = $payInfo;
