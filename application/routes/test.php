@@ -336,7 +336,7 @@ return [
 
     $igt = new IGeTui($HOST,$APPKEY,$MASTERSECRET);
     //定义透传模板，设置透传内容，和收到消息是否立即启动启用
-    $template = IGtNotificationTemplateDemo();
+    $template = IGtNotificationTemplateDemo($APPID, $APPKEY);
     //$template = IGtLinkTemplateDemo();
     // 定义"AppMessage"类型消息对象，设置消息内容模板、发送的目标App列表、是否支持离线发送、以及离线消息有效期(单位毫秒)
     $message = new IGtAppMessage();
