@@ -12,7 +12,8 @@ class InvitationBLL extends BLL {
    * @param $workAt 工作日期
    */
   function canInvited($sellerId, $date) {
-    $isWork = (new UserWorkBLL())->isWork(['userId'=>$sellerId, 'workAt'=>$date]);
+    list($d,$t) = explode(' ', $date);
+    $isWork = (new UserWorkBLL())->isWork(['userId'=>$sellerId, 'workAt'=>$d]);
     if(false === $isWork) {
       return false;
     }
@@ -54,8 +55,8 @@ class InvitationBLL extends BLL {
     $data['buyerAgencyId'] = $buyerrccode['agencyId'];
     $price = (new PriceBLL())->getInfo($data['price']);
     $data['price'] = $price['value'];
-    list($d,$t) = explode(' ', $data['startAt']);
-    if(false === _::isBefore($data['createdAt'], $data['startAt'])) {
+    list($d,$t) = explode(' ', $data['createdAt']);
+    if(false === _::isBefore($d.' 00:00:00', $data['startAt'])) {
       thrower('invitation', 'dateInvalid');
     }
     
