@@ -13,7 +13,7 @@ return [
    * @apiParam {int} [userId] 用户id
    * @apiParam {string='pending', 'success', 'fail'} [status] 邀请订单状态
    * @apiParam {string='inviting','refused','canceling','canceled','accepted','confirmed','expired'} [progress] 邀请订单进度
-   * @apiParam {string='no','refunding','yes'} isRefund 退款状态
+   * @apiParam {string='no','refunding','yes', 'all'} isRefund 退款状态
    * @apiParam {int=0,1} isComplaint 投诉邀请订单
    * @apiParam {string} [search] 卖家昵称或手机号
    * @apiParam {string='sellerComment','buyerComment} [type] 评论
@@ -38,7 +38,7 @@ return [
         $h['where']['progress'] = $query['progress'];
       }
       if(isset($query['isRefund'])) {
-        $h['where']['isRefund'] = $query['isRefund'];
+        $h['where']['isRefund'] = $query['isRefund'] == 'all'? ['in',['yes','refunding']] : $query['isRefund'];
       }
       if(isset($query['isComplaint'])) {
         $h['where']['isComplaint'] = $query['isComplaint'];
