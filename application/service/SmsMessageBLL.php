@@ -34,6 +34,10 @@ class SmsMessageBLL extends BLL {
       'content' => 'empty|string|default:""'
     ]);
     $data = $validation->validate($input);
+    $one = model('user')->where(['phone'=>$data['phone']])->count();
+    if($one===0) {
+      thrower('user', 'phoneNotFound');
+    }
     if($data['type'] === 'system') {
       $result = $this->create($data);
       return $result;

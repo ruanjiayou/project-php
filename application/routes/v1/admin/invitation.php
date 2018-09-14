@@ -23,7 +23,12 @@ return [
     $validation = new validater([
       'status' => 'enum:pending,success,fail|ignore',
       'progress' => 'enum:inviting,refused,canceling,canceled,accepter,confirmed,expired|ignore',
-      'type' => 'string'
+      'type' => 'string',
+      'isComplaint' => 'int|ignore',
+      'status' => 'enum:pending,success,fail|ignore',
+      'userId' => 'int|ignore',
+      'isRefund' => 'int|ignore',
+      'search' => 'string'
     ]);
     $query = $validation->validate(input('get.'));
     $invitationBLL = new InvitationBLL();
@@ -38,10 +43,10 @@ return [
         $h['where']['progress'] = $query['progress'];
       }
       if(isset($query['isRefund'])) {
-        $h['where']['isRefund'] = $query['isRefund'] == 'all'? ['in',['yes','refunding']] : $query['isRefund'];
+        $h['where']['isRefund'] = $query['isRefund'] == '1'? 1 : 0;
       }
       if(isset($query['isComplaint'])) {
-        $h['where']['isComplaint'] = $query['isComplaint'];
+        $h['where']['isComplaint'] = $query['isComplaint'] == '1' ? 1 : 0;
       }
       if(isset($query['type'])) {
         if($query['type']==='sellerComment') {

@@ -85,7 +85,10 @@ class ModelBase extends Model {
         $field = substr($field, 1);
       }
       $regstr = '/^([0-9]+)$/';
-      preg_match($regstr, $where, $mn);
+      $mn = [];
+      if($this->type($where) === 'string') {
+        preg_match($regstr, $where, $mn);
+      }
       if(!empty($mn)) {
         $where = [$this->primaryKey=>$where];
       }

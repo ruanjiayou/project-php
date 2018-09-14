@@ -69,7 +69,8 @@ class InvitationBLL extends BLL {
     }
     // 佣金计算
     $data['rebate'] = round($seller['rebate']*$data['price']/100);
-    $data['rebateAgency'] = round($data['price']/10);
+    $rebatePrice = (new PriceBLL())->getInfo(['type'=>'rebate']);
+    $data['rebateAgency'] = round($data['price']*intval($rebatePrice['value'])/100);
     $data['buyerId'] = $user['id'];
     $data['buyerName'] = $user['nickName'];
     $data['buyerAvatar'] = $user['avatar'];

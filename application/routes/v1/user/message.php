@@ -8,7 +8,7 @@ return [
    * 
    * @apiParam {int} [page] 页码
    * @apiParam {int} [limit] 每页数量默认10
-   * @apiParam {int=0,1} read 已读/未读
+   * @apiParam {int=0,1} [isRead] 已读/未读
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -42,7 +42,7 @@ return [
     $smsMessageBLL = new SmsMessageBLL();
 
     $hql = $req->paging(function($h) use($user){
-      $isRead = isset($_GET['read']) && $_GET['read'] == '1' ? 1 : 0;
+      $isRead = isset($_GET['isRead']) && $_GET['isRead'] == '1' ? 1 : 0;
       $phone = $user['phone'];
       $h['where'] = "isDeleted = 0 AND isRead = ".$isRead." AND (type='system' OR phone= '".$phone."')";
       return $h;

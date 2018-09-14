@@ -38,15 +38,15 @@ return [
     $res->success();
   },
   /**
-   * @api {post} /v1/user/invitation/:invitationId/refund 申请退款
+   * @api {post} /v1/user/invitation/:invitationId/refund 申请退款(接口不存在)
    * @apiGroup user-invitation
    */
-  'post /v1/user/invitation/:invitationId/refund' => function($req, $res) {
-    $invitationBLL = new InvitationBLL();
-    $user = UserBLL::auth($req);
-    $invitationBLL->applyRefund($req->param('invitationId'));
-    $res->success();
-  },
+  // 'post /v1/user/invitation/:invitationId/refund' => function($req, $res) {
+  //   $invitationBLL = new InvitationBLL();
+  //   $user = UserBLL::auth($req);
+  //   $invitationBLL->applyRefund($req->param('invitationId'));
+  //   $res->success();
+  // },
   /**
    * @api {get} /v1/user/invitation 邀请列表
    * @apiGroup user-invitation

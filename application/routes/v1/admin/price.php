@@ -53,7 +53,7 @@ return [
     $res->return(PriceBLL::putSignin(input('put.')));
   },
   /**
-   * @api {get} /v1/admin/price/rebate 获取用户分成比例,与中介的和固定为80.
+   * @api {get} /v1/admin/price/rebate 获取中介分成比例.
    * @apiGroup admin-price
    * 
    * @apiHeader {string} token 鉴权
@@ -63,7 +63,7 @@ return [
     $res->return(PriceBLL::getRebate());
   },
   /**
-   * @api {put} /v1/admin/price/rebate 修改户分成比例,与中介的和固定为80.
+   * @api {put} /v1/admin/price/rebate 修改户分成比例.
    * @apiGroup admin-price
    * 
    * @apiHeader {string} token 鉴权
