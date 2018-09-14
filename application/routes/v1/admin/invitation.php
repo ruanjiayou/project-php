@@ -86,20 +86,29 @@ return [
     $res->return($result);
   },
   /**
-   * @api {put} /v1/admin/invitations/:invitationId/refund 接受退款/退款成功
+   * @api {put} /v1/admin/invitations/:invitationId/refund 接受退款/退款成功(api不存在)
    * @apiGroup admin-invitation
    * @apiParam {int} [money] 玫瑰数额,没传就是接受退款
    */
-  'put /v1/admin/invitations/:invitationId/refund' => function($req, $res) {
+  // 'put /v1/admin/invitations/:invitationId/refund' => function($req, $res) {
+  //   $admin = AdminBLL::auth($req);
+  //   $data = input('put.');
+  //   if(isset($data['money'])) {
+  //     $result = (new InvitationBLL())->refund($req->param('invitationId'),input('put.money'));
+  //     $res->return($result);
+  //   } else {
+  //     $result = (new InvitationBLL())->acceptRefund($req->param('invitationId'));
+  //     $res->return($result);
+  //   }
+  // }
+  /**
+   * @api {put} /v1/admin/invitations/:invitationId 处理投诉邀请订单
+   * @apiGroup admin-invitation
+   */
+  'put /v1/admin/invitations/:invitationId' => function($req, $res) {
     $admin = AdminBLL::auth($req);
-    $data = input('put.');
-    if(isset($data['money'])) {
-      $result = (new InvitationBLL())->refund($req->param('invitationId'),input('put.money'));
-      $res->return($result);
-    } else {
-      $result = (new InvitationBLL())->acceptRefund($req->param('invitationId'));
-      $res->return($result);
-    }
+    $result = (new InvitationBLL())->update(['isRefund'=>1], $req->param('invitationId'));
+    $res->success();
   }
 ];
 
