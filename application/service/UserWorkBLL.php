@@ -70,16 +70,11 @@ class UserWorkBLL extends BLL {
     if(!isset($query['month'])) {
       $query['month'] = date('m');
     }
-    if($query['limit']===0) {
-      $result = model($this->table)->getList(['limit'=>0,'where'=>['userId'=>$userId, 'workAt'=>['>',date('Y-m-d')]]]);
-      return $result;
-    } else {
-      $query['month'] = strlen($query['month']) < 2 ? '0'.$query['month'] : $query['month'];
-      $complex = [['like', $query['year'].'-'.$query['month'].'-'.'%'],['>',date('Y-m-d')]];
-      $where = ['userId'=>$userId, 'workAt'=>$complex];
-      $result = model($this->table)->getList(['where'=>$where, 'limit'=>0]);
-      return $result;
-    }
+    $query['month'] = strlen($query['month']) < 2 ? '0'.$query['month'] : $query['month'];
+    $complex = [['like', $query['year'].'-'.$query['month'].'-'.'%'],['>=',date('Y-m-d').' 00:00:00']];
+    $where = ['userId'=>$userId, 'workAt'=>$complex];
+    $result = model($this->table)->getList(['where'=>$where, 'limit'=>0]);
+    return $result;
   }
 }
 

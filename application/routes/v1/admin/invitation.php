@@ -12,15 +12,17 @@ return [
    * @apiParam {int} [limit] 每页数量
    * @apiParam {int} [userId] 用户id
    * @apiParam {string='pending', 'success', 'fail'} [status] 邀请订单状态
-   * @apiParam {string='inviting','refused','canceling','canceled','accepted','confirmed','expired','refund','refunding','refunded'} [progress] 邀请订单进度
+   * @apiParam {string='inviting','refused','canceling','canceled','accepted','confirmed','expired'} [progress] 邀请订单进度
+   * @apiParam {string='no','refunding','yes'} isRefund 退款状态
+   * @apiParam {int=0,1} isComplaint 投诉邀请订单
    * @apiParam {string} [search] 卖家昵称或手机号
-   * @apiParam {string='refund','sellerComment','buyerComment} [type] 全部退款,type=redund等同progress=[refund,refunding,refunded]
+   * @apiParam {string='sellerComment','buyerComment} [type] 评论
    */
   'get /v1/admin/invitations' => function($req, $res) {
     $admin = AdminBLL::auth($req);
     $validation = new validater([
       'status' => 'enum:pending,success,fail|ignore',
-      'progress' => 'enum:inviting,refused,canceling,canceled,accepter,confirmed,expired,refund,refunding,refunded|ignore',
+      'progress' => 'enum:inviting,refused,canceling,canceled,accepter,confirmed,expired|ignore',
       'type' => 'string'
     ]);
     $query = $validation->validate(input('get.'));
@@ -35,10 +37,13 @@ return [
       if(isset($query['progress'])) {
         $h['where']['progress'] = $query['progress'];
       }
+      if(isset($query['isRefund'])) {
+        $h['where']['isRefund'] = $query['isRefund'];
+      }
+      if(isset($query['isComplaint'])) {
+        $h['where']['isComplaint'] = $query['isComplaint'];
+      }
       if(isset($query['type'])) {
-        if($query['type']==='refund') {
-          $h['where']['progress'] = ['in', ['refund','refunding','refunded']];
-        }
         if($query['type']==='sellerComment') {
           $h['where']['isComment'] = ['in', ['yes','sold']];
         }
@@ -85,14 +90,20 @@ return [
     $res->return($result);
   },
   /**
-   * @api {put} /v1/admin/invitations/:invitationId/refund 退款
+   * @api {put} /v1/admin/invitations/:invitationId/refund 接受退款/退款成功
    * @apiGroup admin-invitation
-   * @apiParam {int} money 玫瑰数额
+   * @apiParam {int} [money] 玫瑰数额,没传就是接受退款
    */
   'put /v1/admin/invitations/:invitationId/refund' => function($req, $res) {
     $admin = AdminBLL::auth($req);
-    $result = (new InvitationBLL())->refund($req->param('invitationId'),input('put.money'));
-    $res->return($result);
+    $data = input('put.');
+    if(isset($data['money'])) {
+      $result = (new InvitationBLL())->refund($req->param('invitationId'),input('put.money'));
+      $res->return($result);
+    } else {
+      $result = (new InvitationBLL())->acceptRefund($req->param('invitationId'));
+      $res->return($result);
+    }
   }
 ];
 

@@ -7,11 +7,27 @@ class InvitationBLL extends BLL {
   public $table = 'invitation';
   
   /**
-   * 发出邀请
+   * 卖家是否可以被邀请,最后一单要被买家评价或过了2小时,在工作日内
+   * @param $sellerId 卖家id
+   * @param $workAt 工作日期
+   */
+  function canInvited($sellerId, $date) {
+    $isWork = (new UserWorkBLL())->isWork(['userId'=>$sellerId, 'workAt'=>$date]);
+    if(false === $isWork) {
+      return false;
+    }
+    $lastInvitation = $this->getInfo(['sellerId'=>$sellerId],['order'=> 'id DESC']);
+    // 最后一单: 成功但没success(confirmed) 表示在工作中
+    if(!empty($lastInvitation) && $lastInvitation['status'] === 'success' && $lastInvitation['progress'] === 'confirmed') {
+      return false;
+    }
+    return true;
+  }
+  /**
+   * 发出邀请 TODO: 一键休息,邀请时间段
    * 1.查询上级和价格数据
-   * 2.邀请时间验证
-   * 3.工作状态验证
-   * 4.用户状态验证
+   * 2.卖家可以被邀请
+   * 4.买家钱够
    * 5.发送消息
    */
   function invite($user, $input) {
@@ -28,12 +44,9 @@ class InvitationBLL extends BLL {
       'createdAt' => 'required|date|default:datetime'
     ]);
     $data = $validation->validate($input);
-    $lastInvitation = $this->getInfo(['sellerId'=>$data['sellerId']],['order'=> 'id DESC']);
-    // 最后一单: pending中或success但没超过2小时 表示在工作中
-    if($lastInvitation['status'] === 'pending') {
-      thrower('invitation', 'userWorking');
-    } elseif($lastInvitation['status'] === 'success' && time() < strtotime($lastInvitation['confirmedAt']) + 7200) {
-      thrower('invitation', 'userWorking');
+    $canWork = $this->canInvited($data['sellerId'], $data['startAt']);
+    if($canWork === false) {
+      thrower('invitation', 'userDontWork');
     }
     $sellerrccode = (new RccodeBLL())->getInfo(['userId'=>$data['sellerId']]);
     $buyerrccode = (new RccodeBLL())->getInfo(['userId'=>$user['id']]);
@@ -45,10 +58,7 @@ class InvitationBLL extends BLL {
     if(false === _::isBefore($data['createdAt'], $data['startAt'])) {
       thrower('invitation', 'dateInvalid');
     }
-    $isWork = (new UserWorkBLL())->isWork(['userId'=>$data['sellerId'], 'workAt'=>$d]);
-    if(false === $isWork) {
-      thrower('invitation', 'userDontWork');
-    }
+    
     if($data['price'] > $user['money']) {
       thrower('user', 'moneyLess');
     }
@@ -77,8 +87,8 @@ class InvitationBLL extends BLL {
   /**
    * 1.判断角色的操作是否符合
    * 2.记录存在
-   * 3.refused/accepted/canceling/canceled/comfirmed
-   * 4.取消邀请,超过指定时间则扣钱
+   * 3.进度:refused/accepted/canceling/canceled/comfirmed/success(定时器或评论中有此状态)
+   * 4.取消邀请,超过指定时间则扣钱给卖家.卖家是不扣钱的,顶多限时接单
    */
   public function changeProgress($invitatoinId, $status, $user) {
     $userBillBLL = new UserBillBLL();
@@ -133,11 +143,6 @@ class InvitationBLL extends BLL {
       $input['status']='fail';
       $input['canceledAt'] = date('Y-m-d H:i:s');
       if($progress === 'accepted') {
-        $userBillBLL->balance([
-          'type' => 'income',
-          'value' => $invitation['price'],
-          'detail' => '取消邀请'
-        ], $buyer);
         // 按时间扣钱
         $current = time();
         $t = strtotime($invitation['createdAt']);
@@ -152,6 +157,17 @@ class InvitationBLL extends BLL {
             'type' => 'income',
             'value' => $invitation['price'] - $punishment_money,
             'detail' => '取消邀请,返回(已按时间扣钱惩罚)'
+          ], $buyer);
+          $userBillBLL->balance([
+            'type' => 'income',
+            'value' => $punishment_money,
+            'detail' => 'C取消订单,补偿给A'
+          ], $seller);
+        } else {
+          $userBillBLL->balance([
+            'type' => 'income',
+            'value' => $invitation['price'],
+            'detail' => '取消邀请'
           ], $buyer);
         }
       } elseif($progress !== 'inviting') {
@@ -221,7 +237,7 @@ class InvitationBLL extends BLL {
   /**
    * 评论
    * 1.验证数据有效性
-   * 2.邀请记录存在
+   * 2.邀请记录存在 
    * 3.isComment状态变化处理(yes就交易成功),其他字段处理
    * 4.如果是买家评论,则交易成功,分钱
    * @param {object} $user
@@ -253,6 +269,9 @@ class InvitationBLL extends BLL {
     $data['commentOf'.$type] = $data['comment'];
     unset($data['type']);
     unset($data['comment']);
+    if($type === 'buyer') {
+      $data['progress'] = 'success';
+    }
     $invitation = $this->update($data, $invitation['id']);
     
     if($type === 'buyer') {
@@ -287,34 +306,27 @@ class InvitationBLL extends BLL {
 
   /**
    * 投诉
-   * 1.记录存在.投诉过或评论过.不能进行投诉!
-   * 2.金额判断
+   * 1.记录不存在/投诉过,不能进行投诉!
    */
-  function complaint($input) {
-    $invitation = self::getInfo($input['id']);
-    if(null === $invitation) {
+  function complaint($invitationId, $type, $complaint) {
+    $invitation = self::getInfo($invitationId);
+    if(null === $invitation || $invitation['isComplaint'] == 1) {
       thrower('common', 'notFound');
     }
-    // if($invitation['isComment'] === 'yes' || $invitation['isComment']==='bought') {
-    //   thrower('invitation', 'cantComplaint');
-    // }
-    // return self::update(['isComplaint'=>true, 'progress'=>'refund', 'complaint'=>$complaint], $invitationId);
-    $complaint = 'not';
-    $type = $input['type'] === 'servant' ? 'seller' : 'buyer';
-    if($invitation['isComplaint'] === 'not') {
-      $complaint = $input['type'];
-    } elseif($invitation['isComplaint']=='yes' && $invitation['isComplaint']===$type) {
-      thrower('invitation', 'complainted');
-    } else {
-      $complaint = 'yes';
-    }
-    if($type === 'seller') {
-      return self::update(['isComplaint'=> $complaint, 'sellerComplaint' => $input['complaint']], $input['id']);
-    } else {
-      return self::update(['isComplaint'=> $complaint, 'buyerComplaint' => $input['complaint']], $input['id']);
-    }
+    return self::update(['isComplaint'=> 1, 'complaint' => $complaint, 'complaintType'=>$type], $invitationId);
   }
 
+  /**
+   * 申请退款
+   */
+  function applyRefund($invitationId) {
+    $invitation = self::getInfo($invitationId);
+    if(null === $invitation || $invitation['isComplaint'] != 1) {
+      thrower('common', 'notFound');
+    }
+    $invitation = self::update(['isRefund'=>'refunding','progress'=>'refund'], $invitationId);
+    return $invitation;
+  }
   /**
    * 接受退款
    */
@@ -323,7 +335,7 @@ class InvitationBLL extends BLL {
     if(null === $invitation) {
       thrower('common', 'notFound');
     }
-    if($invitation['isComplaint']==1 && $invitation['progress'] == 'refund') {
+    if($invitation['isComplaint']==1 && $invitation['isRefund'] == 'no') {
       $invitation = self::update(['progress'=>'refunding'], $invitationId);
     }
     return $invitation;
@@ -344,15 +356,16 @@ class InvitationBLL extends BLL {
     if($invitation['price']<$money) {
       thrower('invitation', 'refundFail', '返现金额大于单价!');
     }
-    self::update(['isRefund'=>true, 'refund'=>$money, 'progress'=>'refunded'], $invitationId);
-
-    $buyer = $userBLL->getInfo($invitation['buyerId']);
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $money,
-      'detail' => 'refund'
-    ], $buyer);
-    return true;
+    self::update(['refund'=>$money, 'isRefund'=>'yes'], $invitationId);
+    if($money!==0) {
+      $buyer = $userBLL->getInfo($invitation['buyerId']);
+      $userBillBLL->balance([
+        'type' => 'income',
+        'value' => $money,
+        'detail' => 'refund'
+      ], $buyer);
+      return true;
+    }
   }
 }
 

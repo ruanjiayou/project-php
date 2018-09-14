@@ -113,6 +113,20 @@ return [
 
     $results = $userWorkBLL->getMonthWorks($req->param('userId'), input('get.'));
     $res->paging($results);
+  },
+  /**
+   * @api {get} /v1/public/users/:userId/canInvited 用户是否可以被邀请
+   * @apiGroup public-user
+   * @apiParam {string} date 邀请日期.2019-08-12
+   */
+  'get /v1/public/users/:userId/canInvited' => function($req, $res) {
+    $invitationBLL = new InvitationBLL();
+    $can = $invitationBLL->canInvited($req->param('userId'), input('get.date'));
+    if($can) {
+      $res->success();
+    } else {
+      $res->fail();
+    }
   }
 ];
 ?>

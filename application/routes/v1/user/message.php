@@ -8,6 +8,7 @@ return [
    * 
    * @apiParam {int} [page] 页码
    * @apiParam {int} [limit] 每页数量默认10
+   * @apiParam {int=0,1} read 已读/未读
    * 
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -41,11 +42,37 @@ return [
     $smsMessageBLL = new SmsMessageBLL();
 
     $hql = $req->paging(function($h) use($user){
-      $h['whereOr'] = ['type'=> 'system','phone'=>$user['phone']];
+      $h['where'] = ['type'=> 'system','phone'=>$user['phone'],'isDeleted'=>0];
+      if(isset($_GET['read'])) {
+        $h['where']['read'] = $_GET['read'] == '1' ? 1 : 0;
+      }
       return $h;
     });
     $result = $smsMessageBLL->getList($hql);
     $res->paging($result);
+  },
+  /**
+   * @api {post} /v1/user/message/:messageId 修改消息
+   * @apiGroup user-messages
+   * 
+   * @apiHeader {string} token 鉴权
+   * 
+   * @apiParam {int=1} [isRead] 已读
+   * @apiParam {int=1} [isDeleted] 已删除
+   */
+  'post /v1/user/message/:messageId' => function($req, $res) {
+    $user = UserBLL::auth($req);
+    $smsMessageBLL = new SmsMessageBLL();
+    $input = input('post.');
+    $data = [];
+    if(isset($input['isRead'])) {
+      $data['isRead'] = 1;
+    }
+    if(isset($input['isDeleted'])) {
+      $data['isDeleted'] = 1;
+    }
+    $smsMessageBLL->update($data, ['id'=>$req->param('messageId')]);
+    $res->success();
   }
 ];
 ?>
