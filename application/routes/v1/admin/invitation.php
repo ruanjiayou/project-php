@@ -81,15 +81,6 @@ return [
     $res->return($result);
   },
   /**
-   * @api {put} /v1/admin/invitations/:invitationId/complaint 接受投诉
-   * @apiGroup admin-invitation
-   */
-  'put /v1/admin/invitations/:invitationId/complaint' => function($req, $res) {
-    $admin = AdminBLL::auth($req);
-    $result = (new InvitationBLL())->acceptRefund($req->param('invitationId'));
-    $res->return($result);
-  },
-  /**
    * @api {put} /v1/admin/invitations/:invitationId/refund 接受退款/退款成功
    * @apiGroup admin-invitation
    * @apiParam {int} [money] 玫瑰数额,没传就是接受退款

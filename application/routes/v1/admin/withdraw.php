@@ -11,7 +11,6 @@ return [
    * @apiHeader {string} token 鉴权
    * @apiParam {string='pending','success','fail'} [status] 状态
    * @apiParam {string} [search] 手机号
-   * @param User 合伙人详情
    */
   'get /v1/admin/withdraw' => function($req, $res) {
     $admin = AdminBLL::auth($req);
