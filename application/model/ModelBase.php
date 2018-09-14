@@ -61,7 +61,19 @@ class ModelBase extends Model {
     //return $results;
     return $this->tran_scope($results, $scopes);
   }
-
+  function type($o) {
+    $t = gettype($o);
+    if($t === 'NULL') {
+      $t = 'null';
+    }
+    if($t === 'object' && is_callable($o)) {
+      $t = 'function';
+    }
+    if($t === 'array' && array_diff_assoc(array_keys($o), range(0, sizeof($o)))) {
+      $t = 'object';
+    }
+    return $t;
+  }
   function getList($opts=array()) {
       $where = isset($opts['where']) ? $opts['where'] : [];
       $field = isset($opts['field']) ? $opts['field'] : '*';
@@ -72,14 +84,14 @@ class ModelBase extends Model {
         $exclude = true;
         $field = substr($field, 1);
       }
-      if(is_integer($where) || is_string($where)) {
+      $regstr = '/^([0-9]+)$/';
+      preg_match($regstr, $where, $mn);
+      if(!empty($mn)) {
         $where = [$this->primaryKey=>$where];
       }
       $order = isset($opts['order']) ? $opts['order'] : $this->primaryKey.' DESC';
       $limit = isset($opts['limit']) ? $opts['limit'] : 10;
       $page = isset($opts['page']) ? $opts['page'] : 1;
-      unset($where['page']);
-      unset($where['limit']);
       $total = $this->where($where)->whereOr($whereOr)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->count();
       $results = $this->where($where)->whereOr($whereOr)->field($field, $exclude)->order($order)->limit(($page-1)*$limit,$limit)->select();
       if($limit === 0) {
