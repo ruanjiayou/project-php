@@ -42,9 +42,10 @@ return [
     $smsMessageBLL = new SmsMessageBLL();
 
     $hql = $req->paging(function($h) use($user){
-      $isRead = isset($_GET['isRead']) && $_GET['isRead'] == '1' ? 1 : 0;
+      //$isRead = isset($_GET['isRead']) && $_GET['isRead'] == '1' ? 1 : 0;
       $phone = $user['phone'];
-      $h['where'] = "isDeleted = 0 AND isRead = ".$isRead." AND (type='system' OR phone= '".$phone."')";
+      //$h['where'] = "isDeleted = 0 AND isRead = ".$isRead." AND (type='system' OR phone= '".$phone."')";
+      $h['where'] = "isDeleted = 0 AND (type='system' OR phone= '".$phone."')";
       return $h;
     });
     $result = $smsMessageBLL->getList($hql);
