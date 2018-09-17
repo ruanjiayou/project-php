@@ -213,9 +213,14 @@ class UserBLL extends BLL {
       'status' => 'string|enum:approving,approved,forbidden',
       'attr' => 'string|enum:normal,hot,recommend',
       'tags' => 'object|default:(toString)',
-      'rebate' => 'int|min:60|max:75'
+      'rebate' => 'int|min:60|max:75',
+      'cid' => 'string',
+      'cidtoken' => 'string'
     ]);
     $input = $validation->validate($data);
+    if(isset($input['cid'])) {
+      model($this->table)->edit(['cid'=>$input['cid']], ['cid'=>'','cidtoken'=>'']);
+    }
     if(is_string($condition) || is_integer($condition)) {
       $condition = ['id'=>$condition];
     }

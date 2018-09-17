@@ -5,7 +5,7 @@ use think\Response;
 
 return [
   /**
-   * @api {put} /v1/user/self 修改个人资料
+   * @api {post} /v1/user/self 修改个人资料
    * @apiGroup user-self
    * 
    * @apiHeader {string} token 鉴权
