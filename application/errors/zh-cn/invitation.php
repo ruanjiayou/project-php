@@ -24,6 +24,16 @@ return [
     'code' => 10850,
     'status' => 200,
     'message' => '您已投诉!'
+  ],
+  'canceledTooMany' => [
+    'code' => 10860,
+    'status' => 200,
+    'message' => '该用户,24小时内取消邀请超过2次,无法接受邀请!'
+  ],
+  'willless' => [
+    'code' => 10870,
+    'status' => 200,
+    'message' => '用户现在有事,暂时无法接受邀请!'
   ]
 ];
 ?>

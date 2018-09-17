@@ -17,7 +17,7 @@ return [
     $userBLL = new UserBLL();
     $invitationBLL = new InvitationBLL();
     $user = $userBLL->auth($req);
-
+    
     $result = $invitationBLL->invite($user, input('post.'));
     $res->return($result);
   },
@@ -33,7 +33,7 @@ return [
     $userBLL = new UserBLL();
     $invitationBLL = new InvitationBLL();
     $user = $userBLL->auth($req);
-
+    
     $invitationBLL->changeProgress($req->param('invitationId'), input('post.')['type'], $user);
     $res->success();
   },

@@ -215,7 +215,8 @@ class UserBLL extends BLL {
       'tags' => 'object|default:(toString)',
       'rebate' => 'int|min:60|max:75',
       'cid' => 'string',
-      'cidtoken' => 'string'
+      'cidtoken' => 'string',
+      'willless' => 'boolean'
     ]);
     $input = $validation->validate($data);
     if(isset($input['cid'])) {
@@ -237,29 +238,41 @@ class UserBLL extends BLL {
     if($user['tags']!=='') {
       $user['tags'] = json_decode($user['tags']);
     }
-    if($type!=='buyer') {
-      $type = $user['type'];
-      $query = [];
-      $syncData = [];
-      if($type==='servant') {
-        $query['userId'] = $user['id'];
-        if(isset($input['nickName'])) {
-          $syncData['userName'] = $input['nickName'];
-        }
-        if(isset($input['avatar'])) {
-          $syncData['userAvatar'] = $input['avatar'];
-        }
-      } else {
-        $query['agencyId'] = $user['id'];
-        if(isset($input['nickName'])) {
-          $syncData['agencyName'] = $input['nickName'];
-        }
-        if(isset($input['avatar'])) {
-          $syncData['agencyAvatar'] = $input['avatar'];
-        }
+    if($type === 'buyer') {
+      if(isset($input['nickName']) || isset($input['avatar'])) {
+        // 同步invitation表买家 name/avatar
+        model('invitation')->edit(['buyerId'=>$user['id']], [
+          'buyerName' => isset($input['nickName']) ? $input['nickName'] : $user['nickName'],
+          'buyerAvatar' => isset($input['avatar']) ? $input['avatar'] : $user['avatar']
+        ]);
+        // 同步rccode表 buyer用户 name/avatar
+        model('rccode')->edit(['userId'=>$user['id']], [
+          'userName' => isset($input['nickName']) ? $input['nickName'] : $user['nickName'],
+          'userAvatar' => isset($input['avatar']) ? $input['avatar'] : $user['avatar']
+        ]);
       }
-      if(!_::isEmptyObject($syncData)) {
-        model('rccode')->edit($query, $syncData);
+    }
+    if($type === 'servant') {
+      if(isset($input['nickName']) || isset($input['avatar'])) {
+        // 同步invitation表买家 name/avatar
+        model('invitation')->edit(['sellerId'=>$user['id']], [
+          'sellerName' => isset($input['nickName']) ? $input['nickName'] : $user['nickName'],
+          'sellerAvatar' => isset($input['avatar']) ? $input['avatar'] : $user['avatar']
+        ]);
+        // 同步rccode表 seller用户 name/avatar
+        model('rccode')->edit(['userId'=>$user['id']], [
+          'userName' => isset($input['nickName']) ? $input['nickName'] : $user['nickName'],
+          'userAvatar' => isset($input['avatar']) ? $input['avatar'] : $user['avatar']
+        ]);
+      }
+    }
+    if($type === 'agency') {
+      if(isset($input['nickName']) || isset($input['avatar'])) {
+        // 同步rccode表 agency用户 name/avatar
+        model('rccode')->edit(['userId'=>$user['id']], [
+          'agencyName' => isset($input['nickName']) ? $input['nickName'] : $user['nickName'],
+          'agencyAvatar' => isset($input['avatar']) ? $input['avatar'] : $user['avatar']
+        ]);
       }
     }
     return $user;

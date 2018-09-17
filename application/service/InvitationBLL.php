@@ -17,10 +17,23 @@ class InvitationBLL extends BLL {
     if(false === $isWork) {
       return false;
     }
+    $user = (new UserBLL())->getInfo($sellerId);
+    if($user['workWill'] == 0) {
+      thrower('invitation', 'willless');
+    }
     $lastInvitation = $this->getInfo(['sellerId'=>$sellerId],['order'=> 'id DESC']);
     // 最后一单: 成功但没success(confirmed) 表示在工作中
     if(!empty($lastInvitation) && $lastInvitation['status'] === 'success' && $lastInvitation['progress'] === 'confirmed') {
       return false;
+    }
+    $now = time();
+    $yet = $now - 68400;
+    $hql = ['where'=>[
+      'sellerId'=>$sellerId, 'progress'=>'canceling', 'canceledAt'=>['between',[date('Y-m-d H:i:s', $yet),date('Y-m-d H:i:s', $now)]]
+    ]];
+    $lastTwo = $this->getList($hql);
+    if($lastTwo['count']>2) {
+      thrower('invitation', 'canceledTooMany');
     }
     return true;
   }
@@ -98,11 +111,14 @@ class InvitationBLL extends BLL {
       throw new Exception('本用户类型没有此项权限!');
     }
     $invitation = self::getInfo($invitatoinId);
+    if(null === $invitation) {
+      thrower('common', 'notFound');
+    }
     $buyer = null;
     $seller = null;
     if($user['type'] === 'buyer') {
       $buyer = $user;
-      $selller = (new UserBLL())->getInfo($invitation['sellerId']);
+      $seller = (new UserBLL())->getInfo($invitation['sellerId']);
     } else {
       $seller = $user;
       $buyer = (new UserBLL())->getInfo($invitation['buyerId']);
@@ -110,9 +126,6 @@ class InvitationBLL extends BLL {
     // accepted状态保持pending,confirmed改为success,其他都是fail
     $input = ['progress'=>$status];
     $progress = $invitation['progress'];
-    if(null === $invitation) {
-      thrower('common', 'notFound');
-    }
     // pending: inviting accepted
     // success: comfirmed
     // fail: refused canceling canceled expired 
@@ -269,6 +282,7 @@ class InvitationBLL extends BLL {
     //$data['scoreOf'.$type] = $data['score'];
     $data['scoreOf'.$type] = 5;
     $data['commentOf'.$type] = $data['comment'];
+    $data['commentOf'.$type.'At'] = date('Y-m-d H:i:s');
     unset($data['type']);
     unset($data['comment']);
     if($type === 'buyer') {

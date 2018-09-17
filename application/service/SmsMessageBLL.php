@@ -48,7 +48,7 @@ class SmsMessageBLL extends BLL {
     }
     $content = $place['tpl'];
     for($i=0;$i<count($data['params']);$i++) {
-      $content = _::replace($content, '{'.($i+1).'}', $data['params'][$i]);
+      $content = _::replace($content, '{'.($i+1).'}', count($data['params']) > $i ? $data['params'][$i] : '');
     }
     if($place['isSms'] == 0) {
       $data['title'] = $place['sign'];
