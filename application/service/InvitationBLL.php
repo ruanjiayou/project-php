@@ -23,18 +23,18 @@ class InvitationBLL extends BLL {
     }
     $lastInvitation = $this->getInfo(['sellerId'=>$sellerId],['order'=> 'id DESC']);
     // 最后一单: 成功但没success(confirmed) 表示在工作中
-    if(!empty($lastInvitation) && $lastInvitation['status'] === 'success' && $lastInvitation['progress'] === 'confirmed') {
-      return false;
-    }
-    $now = time();
-    $yet = $now - 68400;
-    $hql = ['where'=>[
-      'sellerId'=>$sellerId, 'progress'=>'canceling', 'canceledAt'=>['between',[date('Y-m-d H:i:s', $yet),date('Y-m-d H:i:s', $now)]]
-    ]];
-    $lastTwo = $this->getList($hql);
-    if($lastTwo['count']>2) {
-      thrower('invitation', 'canceledTooMany');
-    }
+    // if(!empty($lastInvitation) && $lastInvitation['status'] === 'success' && $lastInvitation['progress'] === 'confirmed') {
+    //   return false;
+    // }
+    // $now = time();
+    // $yet = $now - 68400;
+    // $hql = ['where'=>[
+    //   'sellerId'=>$sellerId, 'progress'=>'canceling', 'canceledAt'=>['between',[date('Y-m-d H:i:s', $yet),date('Y-m-d H:i:s', $now)]]
+    // ]];
+    // $lastTwo = $this->getList($hql);
+    // if($lastTwo['count']>2) {
+    //   thrower('invitation', 'canceledTooMany');
+    // }
     return true;
   }
   /**

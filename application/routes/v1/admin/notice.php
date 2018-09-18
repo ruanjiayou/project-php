@@ -34,7 +34,9 @@ return [
     $smsMessageBLL = new SmsMessageBLL();
     $admin = $adminBLL::auth($req);
 
+    $data = input('post.');
     $result = $smsMessageBLL->create(input('post.'));
+    (new GeTui())->sendMass(['title'=>'[商务之星]'.$data['title'], 'content'=> $data['content'], 'payload'=> $data['content']]);
     $res->return($result);
   },
   /**

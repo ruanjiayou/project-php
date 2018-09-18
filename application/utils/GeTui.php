@@ -18,8 +18,47 @@ class GeTui {
     $this->igt = new IGeTui($this->HOST, $this->APPKEY, $this->MASTERSECRET);
   }
 
-  function sendMass() {
+  function sendMass($data) {
+    $template = new IGtTransmissionTemplate();
+    $template->set_appId($this->APPID);//应用appid
+    $template->set_appkey($this->APPKEY);//应用appkey
+    $template->set_transmissionType(1);//透传消息类型
+    $template->set_transmissionContent($data['payload']);//透传内容
     
+    // APN推送
+    // 简单推送
+
+    //高级推送
+    $apn = new IGtAPNPayload();
+    $alertmsg = new DictionaryAlertMsg();
+    $alertmsg->body = $data['content'];
+    $alertmsg->actionLocKey="ActionLockey";
+    $alertmsg->locKey="LocKey";
+    $alertmsg->locArgs=array("locargs");
+    $alertmsg->launchImage="launchimage";
+    // IOS8.2支持
+    $alertmsg->title=$data['title'];
+    $alertmsg->titleLocKey="TitleLocKey";
+    $alertmsg->titleLocArgs=array("TitleLocArg");
+    $apn->alertMsg=$alertmsg;
+    // $apn->badge=7;
+    $apn->sound="default";
+    //$apn->add_customMsg("payload","payload");
+    $apn->contentAvailable=1;
+    $apn->category="ACTIONABLE";
+    $template->set_apnInfo($apn);
+    
+    //个推信息体
+    //基于应用消息体
+    $message = new IGtAppMessage();
+    $message->set_isOffline(true);
+    $message->set_offlineExpireTime(10 * 60 * 1000);//离线时间单位为毫秒，例，两个小时离线为3600*1000*2
+    $message->set_data($template);
+
+    $appIdList=array($this->APPID);
+
+    $message->set_appIdList($appIdList);
+    return $this->igt->pushMessageToApp($message,"系统公告");
   }
   /**
    * 指定用户发送消息
