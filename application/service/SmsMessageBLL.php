@@ -93,6 +93,16 @@ class SmsMessageBLL extends BLL {
         $this->update(['status'=>'fail'], ['id'=>$message['id']]);
         thrower('sms', 'smsSendFail', $result['errmsg']);
       }
+      $kv = [
+        'zhuche' => ''
+      ];
+      if($data['cid']!="" && isset($kv[$place['place']])) {
+        return (new GeTui())->sendOne(
+          $data['phone'],
+          $data['cid'],
+          ['title'=>'[商务之星]', 'content'=> $content, 'payload'=> $content]
+        );
+      }
       return $message;
     }
   }
