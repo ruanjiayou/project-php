@@ -11,12 +11,28 @@ function IGtNotificationTemplateDemo($APPID, $APPKEY){
   $template->set_transmissionContent("测试离线");//透传内容
   $template->set_title("请填写通知标题");      //通知栏标题
   $template->set_text("请填写通知内容");     //通知栏内容
-  $template->set_logo("");                       //通知栏logo
-  $template->set_logoURL("");                    //通知栏logo链接
+  $template->set_logo("logo.png");                       //通知栏logo
+  $template->set_logoURL("http://wwww.igetui.com/logo.png");                    //通知栏logo链接
   $template->set_isRing(true);                   //是否响铃
   $template->set_isVibrate(true);                //是否震动
   $template->set_isClearable(true);              //通知栏是否可清除
 
+  return $template;
+}
+function IGtTransmissionTemplateDemo($APPID, $APPKEY){
+  $template =  new IGtTransmissionTemplate();
+  //应用appid
+  $template->set_appId($APPID);
+  //应用appkey
+  $template->set_appkey($APPKEY);
+  //透传消息类型
+  $template->set_transmissionType(1);
+  //透传内容
+  $template->set_transmissionContent("测试离线");
+  //$template->set_duration(BEGINTIME,ENDTIME); //设置ANDROID客户端在此时间区间内展示消息
+  //这是老方法，新方法参见iOS模板说明(PHP)*/
+  //$template->set_pushInfo("actionLocKey","badge","message",
+  //"sound","payload","locKey","locArgs","launchImage");
   return $template;
 }
 
@@ -330,14 +346,15 @@ return [
 
     // $HOST = 'http://118.24.248.160:9001';
     $HOST = 'http://sdk.open.api.igexin.com/apiex.htm';
-    $APPID = '97El3h2UeD8BODhvS1OH7A';
-    $APPKEY = 'OCfGyJKYxX54QCIUr5WX94';
-    $MASTERSECRET = 'RwRIayE4C58LeyrIG2JN9A';
+    $APPID = '4EU4KO3wS16V0AAiBLoqe5';// secret:xLq0YRx8Sb5VrksjXcFk97
+    $APPKEY = 'aA9AVlRWMF6YLK0W7DwJ89';
+    $MASTERSECRET = 'X275tWu7zwAbII4mTIByy9';
 
     $igt = new IGeTui($HOST,$APPKEY,$MASTERSECRET);
     //定义透传模板，设置透传内容，和收到消息是否立即启动启用
     $template = IGtNotificationTemplateDemo($APPID, $APPKEY);
     //$template = IGtLinkTemplateDemo();
+    // $template = IGtTransmissionTemplateDemo($APPID, $APPKEY);
     // 定义"AppMessage"类型消息对象，设置消息内容模板、发送的目标App列表、是否支持离线发送、以及离线消息有效期(单位毫秒)
     $message = new IGtAppMessage();
     $message->set_isOffline(true);
@@ -364,6 +381,37 @@ return [
     $rep = $igt->pushMessageToApp($message,"任务组名");
 
     return $rep;
+  },
+  /**
+   * @api {post} /test/getui-single 单个推送
+   * @apiGroup test-getui
+   * @apiParam {string} phone 手机号(作为别名)
+   * @apiParam {string } cid 设备id
+   */
+  'post /test/getui-single' => function($req, $res) {
+    $data = input('post.');
+    return (new GeTui())->sendOne($data['phone'],$data['cid'],['title'=>'通知栏标题', 'content'=> '通知栏内容', 'payload'=> '透传内容']);
+  },
+  'post /test/getui-result' => function( $req, $res) {
+    
+  },
+  /**
+   * @api {post} /test/getui-badge 设置badge
+   * @apiGroup test-getui
+   * @apiParam {string} n 数值
+   * @apiParam {string } cid 设备id
+   */
+  'post /test/getui-badge' => function($req, $res) {
+    $data = input('post.');
+    return (new GeTui())->setBadge($data['cid'], $data['n']);
+  },
+  /**
+   * @api {get} /test/getui-result 获取个推结果
+   * @apiGroup test-getui
+   * @apiParam {string} taskId 任务唯一识别号(格式OSL-yyMM_XXXXXX)
+   */
+  'get /test/getui-result' => function($req, $res) {
+    return (new GeTui())->getPushResult($_GET['taskId']);
   }
 ]
 ?>
