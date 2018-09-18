@@ -9,6 +9,7 @@ return [
    */
   'post /v1/user/invitation/:invitationId/complaint' => function($req, $res) {
     $userBLL = new UserBLL();
+    $smsMesageBLL = new SmsMessageBLL();
     $user = $userBLL::auth($req);
     $invitationBLL = new InvitationBLL();
 

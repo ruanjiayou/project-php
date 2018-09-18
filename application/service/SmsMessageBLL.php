@@ -32,7 +32,7 @@ class SmsMessageBLL extends BLL {
       'params' => 'required|array|default:array',
       'title' => 'empty|string|default:""',
       'content' => 'empty|string|default:""',
-      'cid' => 'string|default:""'
+      'cid' => 'empty|string|default:""'
     ]);
     $data = $validation->validate($input);
     $one = model('user')->where(['phone'=>$data['phone']])->count();

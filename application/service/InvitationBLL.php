@@ -353,31 +353,31 @@ class InvitationBLL extends BLL {
     if(null === $invitation || $invitation['isComplaint'] == 1) {
       thrower('common', 'notFound');
     }
-    $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
-    $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
-    if($type === 'seller') {
-      $smsMesageBLL->sendMessage([
-        'phone' => $sellerAgency['phone'],
-        'type' => 'complaintA2AB',
-        'params' => [$sellerAgency['nickName'], $invitation['sellerName'], $invitation['startAt']]
-      ]);
-      $smsMesageBLL->sendMessage([
-        'phone' => $buyerAgency['phone'],
-        'type' => 'complaintA2CB',
-        'params' => [$buyerAgency['nickName'], $invitation['buyerName'], $invitation['startAt']]
-      ]);
-    } else {
-      $smsMesageBLL->sendMessage([
-        'phone' => $sellerAgency['phone'],
-        'type' => 'complaintC2AB',
-        'params' => [$buyerAgency['nickName'], $invitation['buyerName'], $invitation['startAt']]
-      ]);
-      $smsMesageBLL->sendMessage([
-        'phone' => $buyerAgency['phone'],
-        'type' => 'complaintC2CB',
-        'params' => [$sellerAgency['nickName'], $invitation['sellerName'], $invitation['startAt']]
-      ]);
-    }
+    // $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
+    // $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
+    // if($type === 'seller') {
+    //   $smsMesageBLL->sendMessage([
+    //     'phone' => $sellerAgency['phone'],
+    //     'type' => 'complaintA2AB',
+    //     'params' => [$sellerAgency['nickName'], $invitation['sellerName'], $invitation['startAt']]
+    //   ]);
+    //   $smsMesageBLL->sendMessage([
+    //     'phone' => $buyerAgency['phone'],
+    //     'type' => 'complaintA2CB',
+    //     'params' => [$buyerAgency['nickName'], $invitation['buyerName'], $invitation['startAt']]
+    //   ]);
+    // } else {
+    //   $smsMesageBLL->sendMessage([
+    //     'phone' => $sellerAgency['phone'],
+    //     'type' => 'complaintC2AB',
+    //     'params' => [$buyerAgency['nickName'], $invitation['buyerName'], $invitation['startAt']]
+    //   ]);
+    //   $smsMesageBLL->sendMessage([
+    //     'phone' => $buyerAgency['phone'],
+    //     'type' => 'complaintC2CB',
+    //     'params' => [$sellerAgency['nickName'], $invitation['sellerName'], $invitation['startAt']]
+    //   ]);
+    // }
     return self::update(['isComplaint'=> 1, 'complaint' => $complaint, 'complaintType'=>$type], $invitationId);
   }
 
