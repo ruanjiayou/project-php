@@ -23,14 +23,14 @@ return [
         'phone' => $sellerAgency['phone'],
         'type' => 'complaintA2AB',
         'cid' => $sellerAgency['cid'],
-        'params' => [$sellerAgency['nickName'], $result['startAt']]
+        'params' => [$sellerAgency['nickName'], $result['sellerName'], $result['startAt']]
       ]);
       // 发送给C的上级
       $smsMesageBLL->sendMessage([
         'phone' => $buyerAgency['phone'],
         'type' => 'complaintA2CB',
         'cid' => $buyerAgency['cid'],
-        'params' => [$buyerAgency['nickName'], $invitation['startAt']]
+        'params' => [$buyerAgency['nickName'], $result['buyerName'], $invitation['startAt']]
       ]);
     } else {
       // C投诉
@@ -39,14 +39,14 @@ return [
         'phone' => $sellerAgency['phone'],
         'type' => 'complaintC2AB',
         'cid' => $sellerAgency['cid'],
-        'params' => [$sellerAgency['nickName'], $result['startAt']]
+        'params' => [$sellerAgency['nickName'], $result['sellerName'], $result['startAt']]
       ]);
       // 发送给C的上级
       $smsMesageBLL->sendMessage([
         'phone' => $buyerAgency['phone'],
         'type' => 'complaintC2CB',
         'cid' => $buyerAgency['cid'],
-        'params' => [$buyerAgency['nickName'], $invitation['startAt']]
+        'params' => [$buyerAgency['nickName'], $result['buyerName'], $invitation['startAt']]
       ]);
     }
     $res->return($result);
