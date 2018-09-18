@@ -139,6 +139,7 @@ class InvitationBLL extends BLL {
         $smsMesageBLL->sendMessage([
           'phone' => $buyer['phone'],
           'type' => 'refused',
+          'cid' => $buyer['cid'],
           'params' => [$buyer['nickName']]
         ]);
       }
@@ -166,12 +167,14 @@ class InvitationBLL extends BLL {
       $smsMesageBLL->sendMessage([
         'phone' => $seller['phone'],
         'type' => 'accepted2A',
+        'cid' => $seller['cid'],
         'params' => [$seller['nickName'], $invitation['startAt']]
       ]);
       // 接受邀请订单, 给C发送
       $smsMesageBLL->sendMessage([
         'phone' => $buyer['phone'],
         'type' => 'accepted2C',
+        'cid' => $buyer['cid'],
         'params' => [$buyer['nickName']]
       ]);
     } elseif('canceling' === $status) {
@@ -209,12 +212,14 @@ class InvitationBLL extends BLL {
         $smsMesageBLL->sendMessage([
           'phone' => $seller['phone'],
           'type' => 'canceling2A',
+          'cid' => $seller['cid'],
           'params' => [$seller['nickName'], $invitation['startAt']]
         ]);
         // C取消邀请订单, 发送给C
         $smsMesageBLL->sendMessage([
           'phone' => $buyer['phone'],
           'type' => 'canceling2C',
+          'cid' => $buyer['cid'],
           'params' => [$buyer['nickName'], $invitation['startAt']]
         ]);
       } elseif($progress !== 'inviting') {
@@ -233,35 +238,17 @@ class InvitationBLL extends BLL {
         $smsMesageBLL->sendMessage([
           'phone' => $seller['phone'],
           'type' => 'canceled2A',
+          'cid' => $seller['cid'],
           'params' => [$seller['nickName'], $invitation['startAt']]
         ]);
         // A取消邀请订单, 发送给C
         $smsMesageBLL->sendMessage([
           'phone' => $buyer['phone'],
           'type' => 'canceled2C',
+          'cid' => $buyer['cid'],
           'params' => [$buyer['nickName'], $invitation['startAt']]
         ]);
         // 按时间扣钱 -> 卖家不扣钱
-        // $current = time();
-        // $t = strtotime($invitation['createdAt']);
-        // $punishment_money = 0;
-        // if($current > 60*C_PUNISHMENT2_M + $t) {
-        //   $punishment_money = C_PUNISHMENT2_V;
-        // } elseif($current>60*C_PUNISHMENT1_M+$t) {
-        //   $punishment_money = C_PUNISHMENT1_V;
-        // }
-        // if($punishment_money!==0) {
-        //   $userBillBLL->balance([
-        //     'type' => 'expent',
-        //     'value' => $punishment_money,
-        //     'detail' => '取消邀请惩罚'
-        //   ], $seller);
-        // }
-        // (new SmsMessageBLL())->sendMessage([
-        //   'phone' => $buyer['phone'],
-        //   'type' => 'canceled',
-        //   'params' => [$seller['nickName']]
-        // ]);
       } else {
         thrower('invitation', 'updateFail', '只能取消已接受状态的邀请!');
       }
@@ -272,6 +259,12 @@ class InvitationBLL extends BLL {
         thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
       }
       $input['confirmedAt'] = date('Y-m-d H:i:s');
+      $smsMesageBLL->sendMessage([
+        'phone' => $buyer['phone'],
+        'type' => 'confirmed',
+        'cid' => $buyer['cid'],
+        'params' => [$buyer['nickName'], $invitation['startAt']]
+      ]);
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
     }
