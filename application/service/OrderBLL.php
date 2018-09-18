@@ -42,6 +42,13 @@ class OrderBLL extends BLL {
       ]);
       $order = model($this->table)->add($data);
       $order['prepay'] = $payInfo;
+      // 发送提现消息
+      $user = (new UserBLL())->getInfo($data['userId']);
+      (new SmsMessageBLL())->sendMessage([
+        'phone' => $data['phone'],
+        'type' => 'withdraw',
+        'params' => [$user['nickName'], $data['createdAt']]
+      ]);
       return $order;
     } else {
       $order = model($this->table)->add($data);

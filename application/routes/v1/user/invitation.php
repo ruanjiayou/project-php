@@ -12,6 +12,7 @@ return [
    * @apiParam {float} y 纬度
    * @apiParam {string} address 邀请地址
    * @apiParam {date} startAt 开始时间
+   * @apiParam {int} duration 时长
    */
   'post /v1/user/invitation' => function($req, $res) {
     $userBLL = new UserBLL();

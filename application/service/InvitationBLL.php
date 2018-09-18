@@ -38,7 +38,7 @@ class InvitationBLL extends BLL {
     return true;
   }
   /**
-   * 发出邀请 TODO: 一键休息,邀请时间段
+   * 发出邀请
    * 1.查询上级和价格数据
    * 2.卖家可以被邀请
    * 4.买家钱够
@@ -55,6 +55,7 @@ class InvitationBLL extends BLL {
       'y' => 'required|float:10,6',
       'address' => 'required|string',
       'startAt' => 'required|date',
+      'duration' => 'int',
       'createdAt' => 'required|date|default:datetime'
     ]);
     $data = $validation->validate($input);
@@ -107,6 +108,7 @@ class InvitationBLL extends BLL {
    */
   public function changeProgress($invitatoinId, $status, $user) {
     $userBillBLL = new UserBillBLL();
+    $smsMesageBLL = new SmsMessageBLL();
     if($user['type'] !== 'buyer' && $status === 'canceling' || $user['type']!=='servant' && in_array($status, ['refused','canceled','accepted','comfirmed'])) {
       throw new Exception('本用户类型没有此项权限!');
     }
@@ -134,6 +136,11 @@ class InvitationBLL extends BLL {
         thrower('invitation', 'updateFail', '只能取消邀请中状态的邀请!');
       } else {
         $input['status']='fail';
+        $smsMesageBLL->sendMessage([
+          'phone' => $buyer['phone'],
+          'type' => 'refused',
+          'params' => [$buyer['nickName']]
+        ]);
       }
     } elseif('accepted' === $status) {
       if('inviting' !== $progress) {
@@ -154,6 +161,18 @@ class InvitationBLL extends BLL {
           ], $buyer);
         }
       }
+      // 接受邀请订单, 给A发送
+      $smsMesageBLL->sendMessage([
+        'phone' => $seller['phone'],
+        'type' => 'accepted2A',
+        'params' => [$seller['nickName'], $invitation['startAt']]
+      ]);
+      // 接受邀请订单, 给C发送
+      $smsMesageBLL->sendMessage([
+        'phone' => $buyer['phone'],
+        'type' => 'accepted2C',
+        'params' => [$buyer['nickName']]
+      ]);
     } elseif('canceling' === $status) {
       $input['status']='fail';
       $input['canceledAt'] = date('Y-m-d H:i:s');
@@ -185,6 +204,18 @@ class InvitationBLL extends BLL {
             'detail' => '取消邀请'
           ], $buyer);
         }
+        // C取消邀请订单, 发送给A
+        $smsMesageBLL->sendMessage([
+          'phone' => $seller['phone'],
+          'type' => 'canceling2A',
+          'params' => [$seller['nickName'], $invitation['startAt']]
+        ]);
+        // C取消邀请订单, 发送给C
+        $smsMesageBLL->sendMessage([
+          'phone' => $buyer['phone'],
+          'type' => 'canceling2C',
+          'params' => [$buyer['nickName'], $invitation['startAt']]
+        ]);
       } elseif($progress !== 'inviting') {
         thrower('invitation', 'updateFail', '只能取消邀请中和已接受状态的邀请!');
       }
@@ -197,6 +228,18 @@ class InvitationBLL extends BLL {
           'value'=> $invitation['price'],
           'detail'=> 'canceled'
         ], $buyer);
+        // A取消邀请订单, 发送给A
+        $smsMesageBLL->sendMessage([
+          'phone' => $seller['phone'],
+          'type' => 'canceled2A',
+          'params' => [$seller['nickName'], $invitation['startAt']]
+        ]);
+        // A取消邀请订单, 发送给C
+        $smsMesageBLL->sendMessage([
+          'phone' => $buyer['phone'],
+          'type' => 'canceled2C',
+          'params' => [$buyer['nickName'], $invitation['startAt']]
+        ]);
         // 按时间扣钱 -> 卖家不扣钱
         // $current = time();
         // $t = strtotime($invitation['createdAt']);
@@ -230,21 +273,6 @@ class InvitationBLL extends BLL {
       $input['confirmedAt'] = date('Y-m-d H:i:s');
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
-    }
-    if(in_array($status, ['canceled','canceling','accepted','refused'])) {
-      if($status ==='canceling') {
-        (new SmsMessageBLL())->sendMessage([
-          'phone' => $seller['phone'],
-          'type' => $status,
-          'params' => [$buyer['nickName']]
-        ]);
-      } else {
-        (new SmsMessageBLL())->sendMessage([
-          'phone' => $buyer['phone'],
-          'type' => $status,
-          'params' => [$seller['nickName']]
-        ]);
-      }
     }
     return model($this->table)->edit($invitatoinId, $input);
   }
@@ -325,9 +353,36 @@ class InvitationBLL extends BLL {
    * 1.记录不存在/投诉过,不能进行投诉!
    */
   function complaint($invitationId, $type, $complaint) {
+    $userBLL = new UserBLL();
+    $smsMesageBLL = new SmsMessageBLL();
     $invitation = self::getInfo($invitationId);
     if(null === $invitation || $invitation['isComplaint'] == 1) {
       thrower('common', 'notFound');
+    }
+    $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
+    $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
+    if($type === 'seller') {
+      $smsMesageBLL->sendMessage([
+        'phone' => $sellerAgency['phone'],
+        'type' => 'complaintA2AB',
+        'params' => [$sellerAgency['nickName'], $invitation['sellerName'], $invitation['startAt']]
+      ]);
+      $smsMesageBLL->sendMessage([
+        'phone' => $buyerAgency['phone'],
+        'type' => 'complaintA2CB',
+        'params' => [$buyerAgency['nickName'], $invitation['buyerName'], $invitation['startAt']]
+      ]);
+    } else {
+      $smsMesageBLL->sendMessage([
+        'phone' => $sellerAgency['phone'],
+        'type' => 'complaintC2AB',
+        'params' => [$buyerAgency['nickName'], $invitation['buyerName'], $invitation['startAt']]
+      ]);
+      $smsMesageBLL->sendMessage([
+        'phone' => $buyerAgency['phone'],
+        'type' => 'complaintC2CB',
+        'params' => [$sellerAgency['nickName'], $invitation['sellerName'], $invitation['startAt']]
+      ]);
     }
     return self::update(['isComplaint'=> 1, 'complaint' => $complaint, 'complaintType'=>$type], $invitationId);
   }

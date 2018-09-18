@@ -10,7 +10,8 @@ return [
    * 
    * @apiParam {int} [page] 页码
    * @apiParam {int} [limit] 每页数量
-   * @apiParam {int} [userId] 用户id
+   * @apiParam {int} [buyerId] 用户id
+   * @apiParam {int} [sellerId] 用户id
    * @apiParam {string='pending', 'success', 'fail'} [status] 邀请订单状态
    * @apiParam {string='inviting','refused','canceling','canceled','accepted','confirmed','expired'} [progress] 邀请订单进度
    * @apiParam {string='no','refunding','yes', 'all'} isRefund 退款状态
@@ -26,15 +27,19 @@ return [
       'type' => 'string',
       'isComplaint' => 'int|ignore',
       'status' => 'enum:pending,success,fail|ignore',
-      'userId' => 'int|ignore',
+      'buyerId' => 'int|ignore',
+      'sellerId' => 'int|ignore',
       'isRefund' => 'int|ignore',
       'search' => 'string'
     ]);
     $query = $validation->validate(input('get.'));
     $invitationBLL = new InvitationBLL();
     $hql = $req->paging(function($h) use($query){
-      if(isset($query['userId'])) {
-        $h['where']['userId'] = $query['userId'];
+      if(isset($query['buyerId'])) {
+        $h['where']['buyerId'] = $query['buyerId'];
+      }
+      if(isset($query['sellerId'])) {
+        $h['where']['sellerId'] = $query['sellerId'];
       }
       if(isset($query['status'])) {
         $h['where']['status'] = $query['status'];
