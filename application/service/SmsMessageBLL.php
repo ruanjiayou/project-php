@@ -55,22 +55,7 @@ class SmsMessageBLL extends BLL {
       $data['title'] = $place['sign'];
       $data['content'] = $content;
       $result = $this->create($data);
-      $kv = [
-        'refused' => '邀请进度:邀请被拒绝',
-        'accepted2A' => '邀请进度:邀请被接受',
-        'accepted2C' => '邀请进度:邀请被接受',
-        'canceled2A' => '邀请进度:邀请被取消',
-        'canceled2C' => '邀请进度:邀请被取消',
-        'canceling2A' => '邀请进度:邀请被取消',
-        'canceling2C' => '邀请进度:邀请被取消',
-        'complaintA2AB' => '邀请进度:订单被投诉',
-        'complaintA2CB' => '邀请进度:订单被投诉',
-        'complaintC2AB' => '邀请进度:订单被投诉',
-        'complaintC2CB' => '邀请进度:订单被投诉',
-        'withdraw' => '提现通知:您发起了提现请求',
-        'confirmed' => '邀请进度:邀请被确认'
-      ];
-      if($data['cid']!="" && isset($kv[$place['place']])) {
+      if($data['cid']!="") {
         return (new GeTui())->sendOne(
           $data['phone'],
           $data['cid'],
