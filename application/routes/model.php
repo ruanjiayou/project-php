@@ -89,6 +89,7 @@
  * @apiParam {string='pending','success','fail'} status 订单状态
  * @apiParam {int=0,1} isComplaint 是否投诉了
  * @apiParam {string} complaint 投诉内容
+ * @apiParam {int=0,1} isExpired 是否过期(不能评论和投诉)
  * @apiParam {string='not','sold','bought','yes','expired'} isComment 是否评论,not:没有被评论,sold:卖家已评论,bought:卖家已评论,yes:双方都评论了,expired:已过期
  * @apiParam {string} commentOfbuyer 买家评论
  * @apiParam {string} commentOfseller 卖家评论
@@ -96,11 +97,18 @@
  * @apiParam {string} scoreOfseller 卖家评分
  * @apiParam {int=0,1} isRefund 是否退款
  * @apiParam {int} refund 退款额
+ * @apiParam {int} duration 时长
+ * @apiParam {int} rebate 佣金比例
  * @apiParam {int} x 经度
  * @apiParam {int} y 纬度
  * @apiParam {string} address 详细邀请地址
  * @apiParam {datetime} startAt 邀请开始时间
  * @apiParam {datetime} createdAt 创建时间
+ * @apiParam {datetime} acceptedAt 接受时间
+ * @apiParam {datetime} confirmedAt 确认时间
+ * @apiParam {datetime} acceptedAt 接受时间
+ * @apiParam {datetime} canceledAt 取消时间
+ * @apiParam {datetime} cancelingAt 取消时间
  */
 /**
  * @api {get} /model/order 充值与提现:order

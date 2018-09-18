@@ -161,6 +161,7 @@ class InvitationBLL extends BLL {
           ], $buyer);
         }
       }
+      $input['acceptedAt'] = date('Y-m-d H:i:s');
       // 接受邀请订单, 给A发送
       $smsMesageBLL->sendMessage([
         'phone' => $seller['phone'],

@@ -6,7 +6,10 @@ use think\Response;
 return [
   /**
    * @api {get} /v1/admin/stat 统计信息
+   * @apiGroup admin-stat
    * @apiHeader {string} token
+   * @apiSuccess
+   * recharge: 累计充值数额
    */
   'get /v1/admin/stat' => function($req, $res) {
     $recharge = model('order')->where(['type'=>'recharge', 'status'=>'success'])->sum('price');
@@ -16,6 +19,7 @@ return [
   },
   /**
    * @api {get} /v1/admin/search 查询
+   * @apiGroup admin-search
    * @apiHeader {string} token
    * @apiParam {string} date,如: 2018-09-19
    */
