@@ -224,6 +224,22 @@ class InvitationBLL extends BLL {
         ]);
       } elseif($progress !== 'inviting') {
         thrower('invitation', 'updateFail', '只能取消邀请中和已接受状态的邀请!');
+      } else {
+        // inviting
+        // C取消邀请订单, 发送给A
+        $smsMesageBLL->sendMessage([
+          'phone' => $seller['phone'],
+          'type' => 'canceling2A',
+          'cid' => $seller['cid'],
+          'params' => [$seller['nickName'], $invitation['startAt']]
+        ]);
+        // C取消邀请订单, 发送给C
+        $smsMesageBLL->sendMessage([
+          'phone' => $buyer['phone'],
+          'type' => 'canceling2C',
+          'cid' => $buyer['cid'],
+          'params' => [$buyer['nickName'], $invitation['startAt']]
+        ]);
       }
     } elseif('canceled' === $status) {
       $input['status']='fail';
