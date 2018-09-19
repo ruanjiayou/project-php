@@ -245,7 +245,7 @@ class InvitationBLL extends BLL {
       $input['status']='fail';
       $input['canceledAt'] = date('Y-m-d H:i:s');
       if($progress === 'accepted') {
-        $user->balance([
+        $userBillBLL->balance([
           'type' => 'income',
           'value'=> $invitation['price'],
           'detail'=> 'canceled'
