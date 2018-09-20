@@ -12,7 +12,7 @@ return [
     } else {
       $user = (new UserBLL())->getInfo($order['userId']);
       $orderBLL->update(['trade_no'=>$data['trade_no'],'status'=>'success'], ['id'=>$order['id']]);
-      $userBillBLL->balance(['type'=>'income','value'=>intval($order['price']/100),'detail'=>'recharge'], $user);
+      $userBillBLL->balance(['type'=>'income','value'=>intval($order['price']),'detail'=>'recharge'], $user);
       return 'success';
     }
     //return $flag ? 'success' : 'fail';
