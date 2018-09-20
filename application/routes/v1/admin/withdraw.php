@@ -50,7 +50,7 @@ return [
    * @apiGroup admin-wallet
    * 
    * @apiHeader {string} token 鉴权
-   * 
+   * @apiParam {string='success','fail'} [type='success']
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
    * {
@@ -65,8 +65,12 @@ return [
    */
   'put /v1/admin/withdraw/:orderId' => function($req, $res) {
     $admin = AdminBLL::auth($req);
+    $type = 'success';
+    if(isset($_GET['type']) && $_GET['type']==='fail') {
+      $type = 'fail';
+    }
     $orderBLL = new OrderBLL();
-    $orderBLL->withdraw($req->param('orderId'));
+    $orderBLL->withdraw($req->param('orderId'), $type);
     $res->success();
   }
 ];

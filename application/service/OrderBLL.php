@@ -20,6 +20,7 @@ class OrderBLL extends BLL {
       'createdAt' => 'required|string|default:datetime'
     ]);
     $data = $validation->validate($input);
+    $user = (new UserBLL())->getInfo($data['userId']);
     // 支付宝乘100 微信呢?
     $realMoney = $data['price'] * 100;
     // if($data['price'] === 0 || fmod($data['price'],100)!=0) {
@@ -43,7 +44,6 @@ class OrderBLL extends BLL {
       $order = model($this->table)->add($data);
       $order['prepay'] = $payInfo;
       // 发送提现消息
-      $user = (new UserBLL())->getInfo($data['userId']);
       (new SmsMessageBLL())->sendMessage([
         'phone' => $data['phone'],
         'type' => 'withdraw',
@@ -51,20 +51,30 @@ class OrderBLL extends BLL {
       ]);
       return $order;
     } else {
+      // 提现就扣,失败再返还
       $order = model($this->table)->add($data);
+      (new UserBillBLL())->balance([
+        'type' => 'expent',
+        'value' => $data['price'],
+        'detail' => 'withdraw'
+      ], $user);
       return $order;
     }
   }
 
-  function withdraw($condition) {
+  function withdraw($condition, $type = 'success') {
     $order = $this->getInfo($condition);
-    $this->update(['status'=>'success'], $condition);
-    $user = (new UserBLL())->getInfo($order['userId']);
-    (new UserBillBLL())->balance([
-      'type' => 'expent',
-      'value' => $order['price'],
-      'detail' => 'withdraw'
-    ], $user);
+    if($type === 'success') {
+      $this->update(['status'=>'success'], $condition);
+    } else {
+      $user = (new UserBLL())->getInfo($order['userId']);
+      $this->update(['status'=>'fail'], $condition);
+      (new UserBillBLL())->balance([
+        'type' => 'income',
+        'value' => $order['price'],
+        'detail' => 'withdraw-fail-back'
+      ], $user);
+    }
     return true;
   }
 }
