@@ -329,8 +329,9 @@ class InvitationBLL extends BLL {
     $invitation = $this->update($data, $invitation['id']);
     
     if($type === 'buyer') {
-      $sellerAgency = $user->getInfo($invitation['sellerAgencyId']);
-      $buyerAgency = $user->getInfo($invitation['buyerAgencyId']);
+      $seller = $userBLL->getInfo($invitation['sellerId']);
+      $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
+      $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
       // 中介返利
       $userBillBLL->balance([
         'type' => 'income',
@@ -347,7 +348,7 @@ class InvitationBLL extends BLL {
         'type' => 'income',
         'value' => $invitation['rebate'],
         'detail' => 'invitation'
-      ], $user);
+      ], $seller);
       // 平台收入
       $userBillBLL->balance([
         'type' => 'income',
