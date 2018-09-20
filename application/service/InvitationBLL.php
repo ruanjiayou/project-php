@@ -23,7 +23,7 @@ class InvitationBLL extends BLL {
     }
     $lastInvitation = $this->getInfo(['sellerId'=>$sellerId],['order'=> 'id DESC']);
     // 最后一单: 成功但没success(confirmed) 表示在工作中
-    if(!empty($lastInvitation) && $lastInvitation['status'] === 'success' && $lastInvitation['progress'] === 'confirmed') {
+    if(!empty($lastInvitation) && $lastInvitation['status'] === 'pending' && $lastInvitation['progress'] !== 'inviting') {
       return false;
     }
     $now = time();
@@ -62,6 +62,12 @@ class InvitationBLL extends BLL {
     $canWork = $this->canInvited($data['sellerId'], $data['startAt']);
     if($canWork === false) {
       thrower('invitation', 'userDontWork');
+    }
+    $start = strtotime(date('Y-m-d').' 00:00:00');
+    $end = $start + 86400;
+    $chongfu = $this->getInfo(['sellerId'=>$data['sellerId'],'buyerId'=>$user['id'],'status'=>'pending', 'startAt'=>['between',[date('Y-m-d').' 00:00:00',date('Y-m-d H:i:s', $end)]]]);
+    if(!empty($chongfu)) {
+      thrower('invitation', 'repeated');
     }
     $sellerrccode = (new RccodeBLL())->getInfo(['userId'=>$data['sellerId']]);
     $buyerrccode = (new RccodeBLL())->getInfo(['userId'=>$user['id']]);

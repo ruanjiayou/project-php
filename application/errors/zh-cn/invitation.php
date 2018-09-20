@@ -34,6 +34,11 @@ return [
     'code' => 10870,
     'status' => 200,
     'message' => '用户现在有事,暂时无法接受邀请!'
+  ],
+  'repeated' => [
+    'code' => 10880,
+    'status' => 200,
+    'message' => '您已经发过邀请了!'
   ]
 ];
 ?>
