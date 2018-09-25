@@ -29,7 +29,7 @@ class InvitationBLL extends BLL {
     $now = time();
     $yet = $now - 68400;
     $hql = ['where'=>[
-      'sellerId'=>$sellerId, 'progress'=>'canceling', 'canceledAt'=>['between',[date('Y-m-d H:i:s', $yet),date('Y-m-d H:i:s', $now)]]
+      'sellerId'=>$sellerId, 'progress'=>'canceled', 'canceledAt'=>['between',[date('Y-m-d H:i:s', $yet),date('Y-m-d H:i:s', $now)]]
     ]];
     $lastTwo = $this->getList($hql);
     if($lastTwo['count']>2) {
