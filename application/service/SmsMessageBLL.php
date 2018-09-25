@@ -85,7 +85,7 @@ class SmsMessageBLL extends BLL {
         return (new GeTui())->sendOne(
           $data['phone'],
           $data['cid'],
-          ['title'=>'[商务之星]', 'content'=> $content, 'payload'=> $content]
+          ['title'=>'['.$place['sign'].']', 'content'=> $content, 'payload'=> $content]
         );
       }
       return $message;
