@@ -43,16 +43,16 @@ class OrderBLL extends BLL {
       ]);
       $order = model($this->table)->add($data);
       $order['prepay'] = $payInfo;
+      return $order;
+    } else {
+      // 提现就扣,失败再返还
+      $order = model($this->table)->add($data);
       // 发送提现消息
       (new SmsMessageBLL())->sendMessage([
         'phone' => $data['phone'],
         'type' => 'withdraw',
         'params' => [$user['nickName'], $data['createdAt']]
       ]);
-      return $order;
-    } else {
-      // 提现就扣,失败再返还
-      $order = model($this->table)->add($data);
       (new UserBillBLL())->balance([
         'type' => 'expent',
         'value' => $data['price'],

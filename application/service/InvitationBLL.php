@@ -157,6 +157,7 @@ class InvitationBLL extends BLL {
       if('inviting' !== $progress) {
         thrower('invitation', 'updateFail', '只能接受邀请中状态的邀请!');
       } else {
+        // 有未完成订单不能,接受.
         $unfinish = $this->getInfo(['sellerId'=>$invitation['sellerId'],'status'=>'pending','progress'=>'accepted']);
         if(!empty($unfinish)) {
           thrower('invitation', 'unfinish');
