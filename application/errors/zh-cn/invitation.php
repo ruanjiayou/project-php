@@ -39,6 +39,11 @@ return [
     'code' => 10880,
     'status' => 200,
     'message' => '您已经发过邀请了!'
+  ],
+  'unfinish' => [
+    'code' => 10890,
+    'status' => 200,
+    'message' => '您有未完成的邀请!'
   ]
 ];
 ?>

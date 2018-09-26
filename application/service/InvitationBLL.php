@@ -13,19 +13,23 @@ class InvitationBLL extends BLL {
    */
   function canInvited($sellerId, $date) {
     list($d,$t) = explode(' ', $date);
+    // 今天是工作日,才能被邀请
     $isWork = (new UserWorkBLL())->isWork(['userId'=>$sellerId, 'workAt'=>$d]);
     if(false === $isWork) {
       return false;
     }
+    // 开关,暂不处理
     $user = (new UserBLL())->getInfo($sellerId);
     if($user['workWill'] == 0) {
       thrower('invitation', 'willless');
     }
-    $lastInvitation = $this->getInfo(['sellerId'=>$sellerId],['order'=> 'id DESC']);
+    // 今天有未完成的邀请(已结束或扫描),就不能被邀请
+    $lastInvitation = $this->getInfo(['sellerId'=>$sellerId, 'status'=>'pending', 'progress'=>['NEQ', 'inviting'], 'createdAt'=>['>',date('Y-m-d').' 00:00:00']],['order'=> 'id DESC']);
     // 最后一单: 成功但没success(confirmed) 表示在工作中
-    if(!empty($lastInvitation) && $lastInvitation['status'] === 'pending' && $lastInvitation['progress'] !== 'inviting') {
+    if(!empty($lastInvitation)) {
       return false;
     }
+    // 24小时内取消2次,就不能被邀请
     $now = time();
     $yet = $now - 68400;
     $hql = ['where'=>[
@@ -61,7 +65,7 @@ class InvitationBLL extends BLL {
     $data = $validation->validate($input);
     $canWork = $this->canInvited($data['sellerId'], $data['startAt']);
     if($canWork === false) {
-      thrower('invitation', 'userDontWork');
+      thrower('invitation', 'userWorking');
     }
     $start = strtotime(date('Y-m-d').' 00:00:00');
     $end = $start + 86400;
@@ -153,6 +157,10 @@ class InvitationBLL extends BLL {
       if('inviting' !== $progress) {
         thrower('invitation', 'updateFail', '只能接受邀请中状态的邀请!');
       } else {
+        $unfinish = $this->getInfo(['sellerId'=>$invitation['sellerId'],'status'=>'pending','progress'=>'accepted']);
+        if(!empty($unfinish)) {
+          thrower('invitation', 'unfinish');
+        }
         unset($input['status']);
         // 接受邀请扣钱
         if(null === $buyer) {
