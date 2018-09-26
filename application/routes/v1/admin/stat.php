@@ -26,7 +26,7 @@ return [
   'get /v1/admin/search' => function($req, $res) {
     $query = input('get.');
     $data = model('invitation')
-      ->where(['canceledAt'=>['between',[$query['date'].' 00:00:00',$query['date'].' 23:59:59']]])
+      ->where(['progress' => 'canceled','canceledAt'=>['between',[$query['date'].' 00:00:00',$query['date'].' 23:59:59']]])
       ->field('sellerPhone,sellerName,count(id) as times')
       ->group('sellerPhone')
       ->select();
