@@ -36,7 +36,7 @@ class SmsMessageBLL extends BLL {
     ]);
     $data = $validation->validate($input);
     $one = model('user')->where(['phone'=>$data['phone']])->count();
-    if($one===0) {
+    if(($data['type']==='forgot' || $data['type']==='modify') && $one===0) {
       thrower('user', 'phoneNotFound');
     }
     if($data['type'] === 'system') {
