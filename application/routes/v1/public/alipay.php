@@ -13,8 +13,9 @@ return [
     $orderBLL = new OrderBLL();
     $userBillBLL = new UserBillBLL();
     $order = $orderBLL->getInfo(['order_no'=>$data['out_trade_no']]);
+    //Log::write($data);
     //$flag = alipayHelper::appPayCb($data);
-    if(null === $order || $order['status']!=='pending') {
+    if(null === $order || $order['status']!=='pending' || !($data['trade_status']=='TRADE_SUCCESS' || $data['trade_status']=='TRADE_FINISHED')) {
       return 'fail';
     } else {
       $user = (new UserBLL())->getInfo($order['userId']);
