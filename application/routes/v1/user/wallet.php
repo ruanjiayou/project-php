@@ -87,9 +87,8 @@ return [
     $user = UserBLL::auth($req);
 
     //获取今天00:00
-    $start = strtotime(date('Y-m-d'.'00:00:00',time()-3600*24));
-    //获取今天24:00
-    $end = strtotime(date('Y-m-d'.'00:00:00',time()));
+    $end = date('Y-m-d').' 00:00:00';
+    $start = date('Y-m-d 00:00:00', strtotime($end)-68400);
     $money = model('user_bill')->where(['userId'=>$user['id'], 'type'=>'income', 'createdAt'=>['between', [$start, $end]]])->sum('value');
     $res->return(['money'=>$money]);
   }
