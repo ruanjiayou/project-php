@@ -127,6 +127,10 @@ return [
   'post /v1/auth/user/message/sign-up' => function($req, $res) {
     $smsMessageBLL = new SmsMessageBLL();
     $code = _::random(6);
+    $user = (new UserBLL())->getInfo(['phone'=>input('post.phone')]);
+    if(!empty($user)) {
+      thrower('user', 'phoneRegistered');
+    }
     $result = $smsMessageBLL->sendMessage([
       'phone' => input('post.phone'),
       'type' => 'zhuche',
