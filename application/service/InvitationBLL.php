@@ -325,7 +325,10 @@ class InvitationBLL extends BLL {
       thrower('common', 'notFound');
     }
     if($invitation['isComplaint']==1) {
-      throw而('invitation', 'complainted');
+      thrower('invitation', 'complainted');
+    }
+    if($invitation['isExpired']==1) {
+      thrower('invitation', 'expired');
     }
     // 数据处理
     $type = $user['type'] === 'buyer' ? 'buyer' : 'seller';

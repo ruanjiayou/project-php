@@ -44,6 +44,11 @@ return [
     'code' => 10890,
     'status' => 200,
     'message' => '您有未完成的邀请!'
+  ],
+  'expired' => [
+    'code' => 10891,
+    'status' => 200,
+    'message' => '时间已过期!'
   ]
 ];
 ?>
