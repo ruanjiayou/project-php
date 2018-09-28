@@ -53,15 +53,15 @@ function rebate($id) {
       'detail' => 'platformIncome',
       'createdAt' => date('Y-m-d H:i:s')
     ]);
-    Log::record('卖家当前余额:'.$seller['money']);
-    Log::record('卖家上级当前余额:'.$sellerAgency['money']);
-    Log::record('买家上级当前余额:'.$buyerAgency['money']);
-    Log::record('卖家进账:'.$invitation['rebate']);
-    Log::record('卖家上级进账:'.$invitation['rebateAgency']);
-    Log::record('买家上级进账:'.$invitation['rebateAgency']);
-    Log::record('账单明细id:');
-    Log::record([$id1,$id2,$id3,$id4]);
-    Log::record($invitation);
+    // Log::record('卖家当前余额:'.$seller['money']);
+    // Log::record('卖家上级当前余额:'.$sellerAgency['money']);
+    // Log::record('买家上级当前余额:'.$buyerAgency['money']);
+    // Log::record('卖家进账:'.$invitation['rebate']);
+    // Log::record('卖家上级进账:'.$invitation['rebateAgency']);
+    // Log::record('买家上级进账:'.$invitation['rebateAgency']);
+    // Log::record('账单明细id:');
+    // Log::record([$id1,$id2,$id3,$id4]);
+    // Log::record($invitation);
   } else {
     //logger('empty');
   }
