@@ -306,7 +306,7 @@ class InvitationBLL extends BLL {
    * 评论
    * 1.验证数据有效性
    * 2.邀请记录存在 
-   * 3.isComment状态变化处理(yes就交易成功),其他字段处理
+   * 3.isComment状态变化处理(yes就交易成功),其他字段处理.投诉的不能评论
    * 4.如果是买家评论,则交易成功,分钱
    * @param {object} $user
    * @param {object} $input
@@ -323,6 +323,9 @@ class InvitationBLL extends BLL {
     $invitation = self::getInfo($data['id']);
     if(null === $invitation) {
       thrower('common', 'notFound');
+    }
+    if($invitation['isComplaint']==1) {
+      return false;
     }
     // 数据处理
     $type = $user['type'] === 'buyer' ? 'buyer' : 'seller';
