@@ -118,6 +118,9 @@ return [
     $invitationBLL = new InvitationBLL();
 
     $invitation = $invitationBLL->getInfo($req->param('invitationId'));
+    if($invitation['isRefund']==1) {
+      return $res->fail();
+    }
     $result = $invitationBLL->update(['isRefund'=>1], $req->param('invitationId'));
 
     $seller = $userBLL->getInfo($invitation['sellerId']);
