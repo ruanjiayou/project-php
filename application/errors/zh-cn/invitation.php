@@ -23,7 +23,7 @@ return [
   'complainted' => [
     'code' => 10850,
     'status' => 200,
-    'message' => '您已投诉!'
+    'message' => '订单已被投诉!'
   ],
   'canceledTooMany' => [
     'code' => 10860,

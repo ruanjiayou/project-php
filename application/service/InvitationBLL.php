@@ -325,7 +325,7 @@ class InvitationBLL extends BLL {
       thrower('common', 'notFound');
     }
     if($invitation['isComplaint']==1) {
-      return false;
+      throw而('invitation', 'complainted');
     }
     // 数据处理
     $type = $user['type'] === 'buyer' ? 'buyer' : 'seller';
