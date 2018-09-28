@@ -102,18 +102,15 @@ class InvitationBLL extends BLL {
     $data['sellerName'] = $seller['nickName'];
     $data['sellerAvatar'] = $seller['avatar'];
     $data['sellerPhone'] = $seller['phone'];
-    (new SmsMessageBLL())->sendMessage([
-      'phone' => $data['sellerPhone'],
-      'type' => 'invite',
-      'params' => [$data['sellerName']]
-    ]);
-    return model($this->table)->add($data);
+    $invitation = model($this->table)->add($data);
+    (new SmsMessageBLL())->sendByProgress($invitation, 'inviting');
+    return $invitation;
   }
 
   /**
    * 1.判断角色的操作是否符合
    * 2.记录存在
-   * 3.进度:refused/accepted/canceling/canceled/comfirmed/success(定时器或评论中有此状态)
+   * 3.进度:refused/accepted/canceling/canceled/comfirmed/success(定时器或评论中有此状态)/expired
    * 4.取消邀请,超过指定时间则扣钱给卖家.卖家是不扣钱的,顶多限时接单
    */
   public function changeProgress($invitatoinId, $status, $user) {
@@ -141,17 +138,35 @@ class InvitationBLL extends BLL {
     // pending: inviting accepted
     // success: comfirmed
     // fail: refused canceling canceled expired 
+    /**
+     * 拒绝
+     * 1.status: pending  -> fail
+     * progress: inviting -> refused
+     * 邀请失败过期
+     * 1.status: pending  -> fail
+     * progress: inviting -> expired
+     * 接受失败过期
+     * 4.status: pending  -> pending  -> fail
+     * progress: inviting -> accepted -> expired
+     * 被取消
+     * 2.status: pending  -> pending  -> fail
+     * progress: inviting -> accepted -> canceled
+     * 取消
+     * 3.status: pending  -> pending  -> fail
+     * progress: inviting -> accepted -> canceling
+     * 接受扫码成功过期
+     * 5.status: pending  -> pending  -> success   -> expired
+     * progress: inviting -> accepted -> comfirmed -> comfirmed
+     * 评论isComment
+     * 投诉isComplaint
+     * 过期isExpired
+     */
     if('refused' === $status) {
       if($progress !== 'inviting') {
         thrower('invitation', 'updateFail', '只能取消邀请中状态的邀请!');
       } else {
         $input['status']='fail';
-        $smsMesageBLL->sendMessage([
-          'phone' => $buyer['phone'],
-          'type' => 'refused',
-          'cid' => $buyer['cid'],
-          'params' => [$buyer['nickName']]
-        ]);
+        $smsMesageBLL->sendByProgress($invitation, 'refused');
       }
     } elseif('accepted' === $status) {
       if('inviting' !== $progress) {
@@ -178,20 +193,8 @@ class InvitationBLL extends BLL {
         }
       }
       $input['acceptedAt'] = date('Y-m-d H:i:s');
-      // 接受邀请订单, 给A发送
-      $smsMesageBLL->sendMessage([
-        'phone' => $seller['phone'],
-        'type' => 'accepted2A',
-        'cid' => $seller['cid'],
-        'params' => [$seller['nickName'], $invitation['startAt']]
-      ]);
-      // 接受邀请订单, 给C发送
-      $smsMesageBLL->sendMessage([
-        'phone' => $buyer['phone'],
-        'type' => 'accepted2C',
-        'cid' => $buyer['cid'],
-        'params' => [$buyer['nickName']]
-      ]);
+      // 接受发消息
+      $smsMesageBLL->sendByProgress($invitation, 'accepted');
     } elseif('canceling' === $status) {
       $input['status']='fail';
       $input['canceledAt'] = date('Y-m-d H:i:s');
@@ -223,38 +226,13 @@ class InvitationBLL extends BLL {
             'detail' => '取消邀请'
           ], $buyer);
         }
-        // C取消邀请订单, 发送给A
-        $smsMesageBLL->sendMessage([
-          'phone' => $seller['phone'],
-          'type' => 'canceling2A',
-          'cid' => $seller['cid'],
-          'params' => [$seller['nickName'], $invitation['startAt']]
-        ]);
-        // C取消邀请订单, 发送给C
-        $smsMesageBLL->sendMessage([
-          'phone' => $buyer['phone'],
-          'type' => 'canceling2C',
-          'cid' => $buyer['cid'],
-          'params' => [$buyer['nickName'], $invitation['startAt']]
-        ]);
+        // 被接受后取消
+        $smsMesageBLL->sendByProgress($invitation, 'canceling');
       } elseif($progress !== 'inviting') {
         thrower('invitation', 'updateFail', '只能取消邀请中和已接受状态的邀请!');
       } else {
-        // inviting
-        // C取消邀请订单, 发送给A
-        $smsMesageBLL->sendMessage([
-          'phone' => $seller['phone'],
-          'type' => 'canceling2A',
-          'cid' => $seller['cid'],
-          'params' => [$seller['nickName'], $invitation['startAt']]
-        ]);
-        // C取消邀请订单, 发送给C
-        $smsMesageBLL->sendMessage([
-          'phone' => $buyer['phone'],
-          'type' => 'canceling2C',
-          'cid' => $buyer['cid'],
-          'params' => [$buyer['nickName'], $invitation['startAt']]
-        ]);
+        // 邀请后取消
+        $smsMesageBLL->sendByProgress($invitation, 'canceling');
       }
     } elseif('canceled' === $status) {
       $input['status']='fail';
@@ -265,20 +243,7 @@ class InvitationBLL extends BLL {
           'value'=> $invitation['price'],
           'detail'=> 'canceled'
         ], $buyer);
-        // A取消邀请订单, 发送给A
-        $smsMesageBLL->sendMessage([
-          'phone' => $seller['phone'],
-          'type' => 'canceled2A',
-          'cid' => $seller['cid'],
-          'params' => [$seller['nickName'], $invitation['startAt']]
-        ]);
-        // A取消邀请订单, 发送给C
-        $smsMesageBLL->sendMessage([
-          'phone' => $buyer['phone'],
-          'type' => 'canceled2C',
-          'cid' => $buyer['cid'],
-          'params' => [$buyer['nickName'], $invitation['startAt']]
-        ]);
+        $smsMesageBLL->sendByProgress($invitation, 'canceled');
         // 按时间扣钱 -> 卖家不扣钱
       } else {
         thrower('invitation', 'updateFail', '只能取消已接受状态的邀请!');
@@ -290,12 +255,7 @@ class InvitationBLL extends BLL {
         thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
       }
       $input['confirmedAt'] = date('Y-m-d H:i:s');
-      $smsMesageBLL->sendMessage([
-        'phone' => $buyer['phone'],
-        'type' => 'confirmed',
-        'cid' => $buyer['cid'],
-        'params' => [$buyer['nickName'], $invitation['startAt']]
-      ]);
+      $smsMesageBLL->sendByProgress($invitation, 'canceling');
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
     }
@@ -306,8 +266,10 @@ class InvitationBLL extends BLL {
    * 评论
    * 1.验证数据有效性
    * 2.邀请记录存在 
-   * 3.isComment状态变化处理(yes就交易成功),其他字段处理.投诉的不能评论
-   * 4.如果是买家评论,则交易成功,分钱
+   * 3.isComment状态变化处理(yes就交易成功),其他字段处理.
+   *   投诉的不能评论
+   *   已评论的不能再评论
+   * 4.如果是买家评论,且progress不为success(因为自动过期可能分钱了),则交易成功,分钱
    * @param {object} $user
    * @param {object} $input
    */
@@ -327,9 +289,6 @@ class InvitationBLL extends BLL {
     if($invitation['isComplaint']==1) {
       thrower('invitation', 'complainted');
     }
-    if($invitation['isExpired']==1) {
-      thrower('invitation', 'expired');
-    }
     // 数据处理
     $type = $user['type'] === 'buyer' ? 'buyer' : 'seller';
     if($invitation['isComment']!=='not') {
@@ -337,6 +296,9 @@ class InvitationBLL extends BLL {
       $data['status'] = 'success';
     } else {
       $data['isComment'] = $type === 'buyer' ? 'bought' : 'sold';
+    }
+    if($invitation['isComment'] == 'yes' || $invitation['isComment'] == $data['isComment']) {
+      thrower('invitation', 'commented');
     }
     //$data['scoreOf'.$type] = $data['score'];
     $data['scoreOf'.$type] = 5;
@@ -349,7 +311,7 @@ class InvitationBLL extends BLL {
     }
     $invitation = $this->update($data, $invitation['id']);
     
-    if($type === 'buyer') {
+    if($type === 'buyer' && $invitation['progress']!='success') {
       $seller = $userBLL->getInfo($invitation['sellerId']);
       $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
       $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
@@ -383,93 +345,27 @@ class InvitationBLL extends BLL {
   /**
    * 投诉
    * 1.记录不存在/投诉过,不能进行投诉!
+   * 2.发送消息
    */
   function complaint($invitationId, $type, $complaint) {
-    $userBLL = new UserBLL();
     $smsMesageBLL = new SmsMessageBLL();
     $invitation = self::getInfo($invitationId);
-    if(null === $invitation || $invitation['isComplaint'] == 1) {
+    if(null === $invitation) {
       thrower('common', 'notFound');
     }
-    // $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
-    // $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
-    // if($type === 'seller') {
-    //   $smsMesageBLL->sendMessage([
-    //     'phone' => $sellerAgency['phone'],
-    //     'type' => 'complaintA2AB',
-    //     'params' => [$sellerAgency['nickName'], $invitation['sellerName'], $invitation['startAt']]
-    //   ]);
-    //   $smsMesageBLL->sendMessage([
-    //     'phone' => $buyerAgency['phone'],
-    //     'type' => 'complaintA2CB',
-    //     'params' => [$buyerAgency['nickName'], $invitation['buyerName'], $invitation['startAt']]
-    //   ]);
-    // } else {
-    //   $smsMesageBLL->sendMessage([
-    //     'phone' => $sellerAgency['phone'],
-    //     'type' => 'complaintC2AB',
-    //     'params' => [$buyerAgency['nickName'], $invitation['buyerName'], $invitation['startAt']]
-    //   ]);
-    //   $smsMesageBLL->sendMessage([
-    //     'phone' => $buyerAgency['phone'],
-    //     'type' => 'complaintC2CB',
-    //     'params' => [$sellerAgency['nickName'], $invitation['sellerName'], $invitation['startAt']]
-    //   ]);
-    // }
+    if($invitation['isComplaint'] == 1) {
+      thrower('invitation', 'complainted');
+    }
+    if($user['type'] === 'servant') {
+      // A投诉
+      $smsMesageBLL->sendByProgress($invitation, 'Acomplaint');
+    } else {
+      // C投诉
+      $smsMesageBLL->sendByProgress($invitation, 'Ccomplaint');
+    }
     return self::update(['isComplaint'=> 1, 'complaint' => $complaint, 'complaintType'=>$type], $invitationId);
   }
 
-  /**
-   * 申请退款
-   */
-  function applyRefund($invitationId) {
-    $invitation = self::getInfo($invitationId);
-    if(null === $invitation || $invitation['isComplaint'] != 1) {
-      thrower('common', 'notFound');
-    }
-    $invitation = self::update(['isRefund'=>'refunding','progress'=>'refund'], $invitationId);
-    return $invitation;
-  }
-  /**
-   * 接受退款
-   */
-  function acceptRefund($invitationId) {
-    $invitation = self::getInfo($invitationId);
-    if(null === $invitation) {
-      thrower('common', 'notFound');
-    }
-    if($invitation['isComplaint']==1 && $invitation['isRefund'] == 'no') {
-      $invitation = self::update(['progress'=>'refunding'], $invitationId);
-    }
-    return $invitation;
-  }
-  /**
-   * (部分)退款
-   */
-  function refund($invitationId, $money) {
-    $userBLL = new UserBLL();
-    $userBillBLL = new UserBillBLL();
-    $invitation = self::getInfo($invitationId);
-    if(null === $invitation) {
-      thrower('common', 'notFound');
-    }
-    if($invitation['isComplaint'] != 1) {
-      thrower('invitation', 'refundFail', '这个邀请没有被投诉!');
-    }
-    if($invitation['price']<$money) {
-      thrower('invitation', 'refundFail', '返现金额大于单价!');
-    }
-    self::update(['refund'=>$money, 'isRefund'=>'yes'], $invitationId);
-    if($money!==0) {
-      $buyer = $userBLL->getInfo($invitation['buyerId']);
-      $userBillBLL->balance([
-        'type' => 'income',
-        'value' => $money,
-        'detail' => 'refund'
-      ], $buyer);
-      return true;
-    }
-  }
 }
 
 ?>

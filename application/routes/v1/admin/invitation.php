@@ -91,24 +91,7 @@ return [
     $res->return($result);
   },
   /**
-   * @api {put} /v1/admin/invitations/:invitationId/refund 接受退款/退款成功(api不存在)
-   * @apiGroup admin-invitation
-   * @apiParam {int} [money] 玫瑰数额,没传就是接受退款
-   */
-  // 'put /v1/admin/invitations/:invitationId/refund' => function($req, $res) {
-  //   $admin = AdminBLL::auth($req);
-  //   $data = input('put.');
-  //   if(isset($data['money'])) {
-  //     $result = (new InvitationBLL())->refund($req->param('invitationId'),input('put.money'));
-  //     $res->return($result);
-  //   } else {
-  //     $result = (new InvitationBLL())->acceptRefund($req->param('invitationId'));
-  //     $res->return($result);
-  //   }
-  // }
-  
-  /**
-   * @api {put} /v1/admin/invitations/:invitationId/refund 处理投诉邀请订单
+   * @api {put} /v1/admin/invitations/:invitationId/refund 处理投诉邀请订单,跟钱没关系
    * @apiGroup admin-invitation
    */
   'put /v1/admin/invitations/:invitationId/refund' => function($req, $res) {
@@ -122,74 +105,6 @@ return [
       return $res->fail();
     }
     $result = $invitationBLL->update(['isRefund'=>1], $req->param('invitationId'));
-
-    $seller = $userBLL->getInfo($invitation['sellerId']);
-    $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
-    $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
-    // 中介返利
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $invitation['rebateAgency'],
-      'detail' => 'seller-cashback'
-    ], $sellerAgency);
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $invitation['rebateAgency'],
-      'detail' => 'buyer-cashback'
-    ], $buyerAgency);
-    // 卖家进账
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $invitation['rebate'],
-      'detail' => 'invitation'
-    ], $seller);
-    // 平台收入
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $invitation['price']-$invitation['rebateAgency']*2-$invitation['rebate'],
-      'detail' => 'platformIncome'
-    ]);
-    $res->success();
-  },
-  /**
-   * @api {put} /v1/admin/invitations/:invitationId 处理投诉邀请订单
-   * @apiGroup admin-invitation
-   */
-  'put /v1/admin/invitations/:invitationId' => function($req, $res) {
-    $admin = AdminBLL::auth($req);
-    $userBLL = new UserBLL();
-    $userBillBLL = new UserBillBLL();
-    $invitationBLL = new InvitationBLL();
-
-    $invitation = $invitationBLL->getInfo($req->param('invitationId'));
-    $result = $invitationBLL->update(['isRefund'=>1], $req->param('invitationId'));
-
-    $seller = $userBLL->getInfo($invitation['sellerId']);
-    $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
-    $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
-    // 中介返利
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $invitation['rebateAgency'],
-      'detail' => 'seller-cashback'
-    ], $sellerAgency);
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $invitation['rebateAgency'],
-      'detail' => 'buyer-cashback'
-    ], $buyerAgency);
-    // 卖家进账
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $invitation['rebate'],
-      'detail' => 'invitation'
-    ], $seller);
-    // 平台收入
-    $userBillBLL->balance([
-      'type' => 'income',
-      'value' => $invitation['price']-$invitation['rebateAgency']*2-$invitation['rebate'],
-      'detail' => 'platformIncome'
-    ]);
     $res->success();
   }
 ];

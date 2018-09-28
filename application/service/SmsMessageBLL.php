@@ -92,6 +92,169 @@ class SmsMessageBLL extends BLL {
     }
   }
 
+  function sendByProgress($invitatoin, $progress) {
+    if(empty($invitatoin)) {
+      return;
+    }
+    $userBLL = new UserBLL();
+    $seller = $userBLL->getInfo($invitatoin['sellerId']);
+    $buyer = $userBLL->getInfo($invitatoin['sellerId']);
+    $sellerAgency = $userBLL->getInfo($invitatoin['sellerAgencyId']);
+    $buyerAgency = $userBLL->getInfo($invitatoin['buyerAgencyId']);
+    // 发送邀请消息
+    if($progress === 'inviting') {
+      $this->sendMessage([
+        'phone' => $seller['phone'],
+        'type' => 'invite',
+        'params' => [$seller['nickName']]
+      ]);
+    }
+    // 拒绝发送消息
+    if($progress === 'refused') {
+      $this->sendMessage([
+        'phone' => $buyer['phone'],
+        'type' => 'refused',
+        'cid' => $buyer['cid'],
+        'params' => [$buyer['nickName']]
+      ]);
+    }
+    // 接受邀请消息
+    if($progress == 'accepted') {
+      // 接受邀请订单, 给A发送
+      $this->sendMessage([
+        'phone' => $seller['phone'],
+        'type' => 'accepted2A',
+        'cid' => $seller['cid'],
+        'params' => [$seller['nickName'], $invitation['startAt']]
+      ]);
+      // 接受邀请订单, 给AB发送
+      $this->sendMessage([
+        'phone' => $sellerAgency['phone'],
+        'type' => 'accepted2AB',
+        'cid' => $sellerAgency['cid'],
+        'params' => [$sellerAgency['nickName'], $invitation['startAt']]
+      ]);
+      // 接受邀请订单, 给C发送
+      $this->sendMessage([
+        'phone' => $buyer['phone'],
+        'type' => 'accepted2C',
+        'cid' => $buyer['cid'],
+        'params' => [$buyer['nickName']]
+      ]);
+      // 接受邀请订单, 给CB发送
+      $this->sendMessage([
+        'phone' => $buyerAgency['phone'],
+        'type' => 'accepted2CB',
+        'cid' => $buyerAgency['cid'],
+        'params' => [$buyerAgency['nickName']]
+      ]);
+    }
+    // 扫描发送消息
+    if($progress == 'comfirmed') {
+      $this->sendMessage([
+        'phone' => $seller['phone'],
+        'type' => 'comfirmed2A',
+        'cid' => $seller['cid'],
+        'params' => [$seller['nickName'], $invitation['startAt']]
+      ]);
+      $this->sendMessage([
+        'phone' => $buyer['phone'],
+        'type' => 'comfirmed2C',
+        'cid' => $buyer['cid'],
+        'params' => [$buyer['nickName'], $invitation['startAt']]
+      ]);
+    }
+    // A取消邀请(被动canceled)
+    if($progress == 'canceled') {
+      // A取消邀请订单, 发送给A
+      $this->sendMessage([
+        'phone' => $seller['phone'],
+        'type' => 'canceled2A',
+        'cid' => $seller['cid'],
+        'params' => [$seller['nickName'], $invitation['startAt']]
+      ]);
+      // A取消邀请订单, 发送给C
+      $this->sendMessage([
+        'phone' => $buyer['phone'],
+        'type' => 'canceled2C',
+        'cid' => $buyer['cid'],
+        'params' => [$buyer['nickName'], $invitation['startAt']]
+      ]);
+      $this->sendMessage([
+        'phone' => $sellerAgency['phone'],
+        'type' => 'canceled2AB',
+        'cid' => $sellerAgency['cid'],
+        'params' => [$sellerAgency['nickName'], $invitation['startAt']]
+      ]);
+      $this->sendMessage([
+        'phone' => $buyerAgency['phone'],
+        'type' => 'canceled2CB',
+        'cid' => $buyerAgency['cid'],
+        'params' => [$buyerAgency['nickName'], $invitation['startAt']]
+      ]);
+    }
+    // C主动取消(canceling)
+    if($progress == 'canceling') {
+      $this->sendMessage([
+        'phone' => $seller['phone'],
+        'type' => 'canceling2A',
+        'cid' => $seller['cid'],
+        'params' => [$seller['nickName'], $invitation['startAt']]
+      ]);
+      $this->sendMessage([
+        'phone' => $buyer['phone'],
+        'type' => 'canceling2C',
+        'cid' => $buyer['cid'],
+        'params' => [$buyer['nickName'], $invitation['startAt']]
+      ]);
+      $this->sendMessage([
+        'phone' => $sellerAgency['phone'],
+        'type' => 'canceling2AB',
+        'cid' => $sellerAgency['cid'],
+        'params' => [$sellerAgency['nickName'], $invitation['startAt']]
+      ]);
+      $this->sendMessage([
+        'phone' => $buyerAgency['phone'],
+        'type' => 'canceling2CB',
+        'cid' => $buyerAgency['cid'],
+        'params' => [$buyerAgency['nickName'], $invitation['startAt']]
+      ]);
+    }
+    // A投诉
+    if($progress == 'Acomplaint') {
+      // 发送给A的上级
+      $this->sendMessage([
+        'phone' => $sellerAgency['phone'],
+        'type' => 'complaintA2AB',
+        'cid' => $sellerAgency['cid'],
+        'params' => [$sellerAgency['nickName'], $result['sellerName'], $result['startAt']]
+      ]);
+      // 发送给C的上级
+      $this->sendMessage([
+        'phone' => $buyerAgency['phone'],
+        'type' => 'complaintA2CB',
+        'cid' => $buyerAgency['cid'],
+        'params' => [$buyerAgency['nickName'], $result['buyerName'], $invitation['startAt']]
+      ]);
+    }
+    // C投诉
+    if($progress == 'Ccomplaint') {
+      // 发送给A的上级
+      $this->sendMessage([
+        'phone' => $sellerAgency['phone'],
+        'type' => 'complaintC2AB',
+        'cid' => $sellerAgency['cid'],
+        'params' => [$sellerAgency['nickName'], $result['sellerName'], $result['startAt']]
+      ]);
+      // 发送给C的上级
+      $this->sendMessage([
+        'phone' => $buyerAgency['phone'],
+        'type' => 'complaintC2CB',
+        'cid' => $buyerAgency['cid'],
+        'params' => [$buyerAgency['nickName'], $result['buyerName'], $invitation['startAt']]
+      ]);
+    }
+  }
   /**
    * 验证手机的验证码: zhuche/forgot/
    */
