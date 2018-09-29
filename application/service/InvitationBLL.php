@@ -19,26 +19,26 @@ class InvitationBLL extends BLL {
       return false;
     }
     // 开关,暂不处理
-    $user = (new UserBLL())->getInfo($sellerId);
-    if($user['workWill'] == 0) {
-      thrower('invitation', 'willless');
-    }
+    // $user = (new UserBLL())->getInfo($sellerId);
+    // if($user['workWill'] == 0) {
+    //   thrower('invitation', 'willless');
+    // }
     // 今天有未完成的邀请(已结束或扫描),就不能被邀请
-    $lastInvitation = $this->getInfo(['sellerId'=>$sellerId, 'status'=>'pending', 'progress'=>['NEQ', 'inviting'], 'createdAt'=>['>',date('Y-m-d').' 00:00:00']],['order'=> 'id DESC']);
-    // 最后一单: 成功但没success(confirmed) 表示在工作中
-    if(!empty($lastInvitation)) {
-      return false;
-    }
+    // $lastInvitation = $this->getInfo(['sellerId'=>$sellerId, 'status'=>'pending', 'progress'=>['NEQ', 'inviting'], 'createdAt'=>['>',date('Y-m-d').' 00:00:00']],['order'=> 'id DESC']);
+    // // 最后一单: 成功但没success(confirmed) 表示在工作中
+    // if(!empty($lastInvitation)) {
+    //   return false;
+    // }
     // 24小时内取消2次,就不能被邀请
-    $now = time();
-    $yet = $now - 68400;
-    $hql = ['where'=>[
-      'sellerId'=>$sellerId, 'progress'=>'canceled', 'canceledAt'=>['between',[date('Y-m-d H:i:s', $yet),date('Y-m-d H:i:s', $now)]]
-    ]];
-    $lastTwo = $this->getList($hql);
-    if($lastTwo['count']>2) {
-      thrower('invitation', 'canceledTooMany');
-    }
+    // $now = time();
+    // $yet = $now - 68400;
+    // $hql = ['where'=>[
+    //   'sellerId'=>$sellerId, 'progress'=>'canceled', 'canceledAt'=>['between',[date('Y-m-d H:i:s', $yet),date('Y-m-d H:i:s', $now)]]
+    // ]];
+    // $lastTwo = $this->getList($hql);
+    // if($lastTwo['count']>2) {
+    //   thrower('invitation', 'canceledTooMany');
+    // }
     return true;
   }
   /**
@@ -255,7 +255,7 @@ class InvitationBLL extends BLL {
         thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
       }
       $input['confirmedAt'] = date('Y-m-d H:i:s');
-      $smsMesageBLL->sendByProgress($invitation, 'canceling');
+      $smsMesageBLL->sendByProgress($invitation, 'comfirmed');
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
     }
