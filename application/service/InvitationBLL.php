@@ -263,7 +263,7 @@ class InvitationBLL extends BLL {
       $seller->update(['isWork'=>1], ['id'=>$invitation['sellerId']]);
     }
     if($status === 'comfirmed' || $status === 'canceled' || $status === 'canceling') {
-      $seller->update(['isWork'=>0], ['id'=>$invitation['sellerId']]);
+      model('user')->edit($invitation['sellerId'], ['isWork'=>0]);
     }
     return model($this->table)->edit($invitatoinId, $input);
   }
