@@ -136,7 +136,7 @@ class InvitationBLL extends BLL {
     $input = ['progress'=>$status];
     $progress = $invitation['progress'];
     // pending: inviting accepted
-    // success: comfirmed
+    // success: confirmed
     // fail: refused canceling canceled expired 
     /**
      * 拒绝
@@ -255,14 +255,14 @@ class InvitationBLL extends BLL {
         thrower('invitation', 'updateFail', '接受邀请后才能进行确认!');
       }
       $input['confirmedAt'] = date('Y-m-d H:i:s');
-      $smsMesageBLL->sendByProgress($invitation, 'comfirmed');
+      $smsMesageBLL->sendByProgress($invitation, 'confirmed');
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
     }
     if($status === 'accepted') {
       $seller->update(['isWork'=>1], ['id'=>$invitation['sellerId']]);
     }
-    if($status === 'comfirmed' || $status === 'canceled' || $status === 'canceling') {
+    if($status === 'confirmed' || $status === 'canceled' || $status === 'canceling') {
       model('user')->edit($invitation['sellerId'], ['isWork'=>0]);
     }
     return model($this->table)->edit($invitatoinId, $input);
