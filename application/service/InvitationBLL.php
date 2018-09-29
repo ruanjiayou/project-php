@@ -311,7 +311,7 @@ class InvitationBLL extends BLL {
     }
     $invitation = $this->update($data, $invitation['id']);
     
-    if($type === 'buyer' && $invitation['progress']!='success') {
+    if($type === 'buyer' && $invitation['isExpired']==0) {
       $seller = $userBLL->getInfo($invitation['sellerId']);
       $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
       $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);

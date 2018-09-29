@@ -128,6 +128,13 @@ return [
     } else {
       $res->fail();
     }
+  },
+  'get /v1/public/invitation/:invitationId' => function($req, $res) {
+    $invitationBLL = new InvitationBLL();
+    $smsMessageBLL = new SmsMessageBLL();
+    $invitation = $invitationBLL->getInfo($req->param('invitationId'));
+    $smsMessageBLL->sendByProgress($invitation, $_GET['type']);
+    $res->success();
   }
 ];
 ?>

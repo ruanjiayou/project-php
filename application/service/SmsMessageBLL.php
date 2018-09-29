@@ -79,10 +79,11 @@ class SmsMessageBLL extends BLL {
         thrower('sms', 'smsSendFail', $result['errmsg']);
       }
       $kv = [
-        'zhuche' => ''
+        'zhuche' => '',
+        'invite' => ''
       ];
       if($data['cid']!="" && isset($kv[$place['place']])) {
-        return (new GeTui())->sendOne(
+        (new GeTui())->sendOne(
           $data['phone'],
           $data['cid'],
           ['title'=>'['.$place['sign'].']', 'content'=> $content, 'payload'=> $content]
@@ -98,7 +99,7 @@ class SmsMessageBLL extends BLL {
     }
     $userBLL = new UserBLL();
     $seller = $userBLL->getInfo($invitatoin['sellerId']);
-    $buyer = $userBLL->getInfo($invitatoin['sellerId']);
+    $buyer = $userBLL->getInfo($invitatoin['buyerId']);
     $sellerAgency = $userBLL->getInfo($invitatoin['sellerAgencyId']);
     $buyerAgency = $userBLL->getInfo($invitatoin['buyerAgencyId']);
     // 发送邀请消息 参数: A昵称
@@ -106,6 +107,7 @@ class SmsMessageBLL extends BLL {
       $this->sendMessage([
         'phone' => $seller['phone'],
         'type' => 'invite',
+        'cid' => $seller['cid'],
         'params' => [$seller['nickName']]
       ]);
     }
