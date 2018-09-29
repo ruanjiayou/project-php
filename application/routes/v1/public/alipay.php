@@ -19,9 +19,9 @@ return [
       return 'fail';
     } else {
       $user = (new UserBLL())->getInfo($order['userId']);
-      $recharge = model('order')->where(['type'=>'recharge', 'userId' => $order['userId'], 'status'=>'success'])->sum('price');
-      $user->update(['id'=>$order['userId']], ['recharge'=>$recharge]);
       $orderBLL->update(['trade_no'=>$data['trade_no'],'status'=>'success'], ['id'=>$order['id']]);
+      $recharge = model('order')->where(['type'=>'recharge', 'userId' => $order['userId'], 'status'=>'success'])->sum('price');
+      $user->update(['recharge'=>$recharge], ['id'=>$order['userId']]);
       $userBillBLL->balance(['type'=>'income','value'=>intval($order['price']),'detail'=>'recharge'], $user);
       return 'success';
     }
