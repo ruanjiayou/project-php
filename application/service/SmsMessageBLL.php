@@ -101,7 +101,7 @@ class SmsMessageBLL extends BLL {
     $buyer = $userBLL->getInfo($invitatoin['sellerId']);
     $sellerAgency = $userBLL->getInfo($invitatoin['sellerAgencyId']);
     $buyerAgency = $userBLL->getInfo($invitatoin['buyerAgencyId']);
-    // 发送邀请消息
+    // 发送邀请消息 参数: A昵称
     if($progress === 'inviting') {
       $this->sendMessage([
         'phone' => $seller['phone'],
@@ -109,7 +109,7 @@ class SmsMessageBLL extends BLL {
         'params' => [$seller['nickName']]
       ]);
     }
-    // 拒绝发送消息
+    // 拒绝发送消息 参数: C昵称
     if($progress === 'refused') {
       $this->sendMessage([
         'phone' => $buyer['phone'],
@@ -120,43 +120,45 @@ class SmsMessageBLL extends BLL {
     }
     // 接受邀请消息
     if($progress == 'accepted') {
-      // 接受邀请订单, 给A发送
+      // 接受邀请订单, 给A发送 参数: A昵称, 邀约时间
       $this->sendMessage([
         'phone' => $seller['phone'],
         'type' => 'accepted2A',
         'cid' => $seller['cid'],
         'params' => [$seller['nickName'], $invitation['startAt']]
       ]);
-      // 接受邀请订单, 给AB发送
+      // 接受邀请订单, 给AB发送 AB昵称, 参数: A昵称, 邀约时间
       $this->sendMessage([
         'phone' => $sellerAgency['phone'],
         'type' => 'accepted2AB',
         'cid' => $sellerAgency['cid'],
-        'params' => [$sellerAgency['nickName'], $invitation['startAt']]
+        'params' => [$sellerAgency['nickName'], $seller['nickName'], $invitation['startAt']]
       ]);
-      // 接受邀请订单, 给C发送
+      // 接受邀请订单, 给C发送 参数: C昵称
       $this->sendMessage([
         'phone' => $buyer['phone'],
         'type' => 'accepted2C',
         'cid' => $buyer['cid'],
         'params' => [$buyer['nickName']]
       ]);
-      // 接受邀请订单, 给CB发送
+      // 接受邀请订单, 给CB发送 参数: CB昵称, C昵称, 邀约时间
       $this->sendMessage([
         'phone' => $buyerAgency['phone'],
         'type' => 'accepted2CB',
         'cid' => $buyerAgency['cid'],
-        'params' => [$buyerAgency['nickName']]
+        'params' => [$buyerAgency['nickName'], $buyer['nickName'], $invitation['startAt']]
       ]);
     }
     // 扫描发送消息
     if($progress == 'comfirmed') {
+      // 参数: A昵称, 邀约时间
       $this->sendMessage([
         'phone' => $seller['phone'],
         'type' => 'comfirmed2A',
         'cid' => $seller['cid'],
         'params' => [$seller['nickName'], $invitation['startAt']]
       ]);
+      // 参数: C昵称, 邀约时间
       $this->sendMessage([
         'phone' => $buyer['phone'],
         'type' => 'comfirmed2C',
@@ -166,31 +168,33 @@ class SmsMessageBLL extends BLL {
     }
     // A取消邀请(被动canceled)
     if($progress == 'canceled') {
-      // A取消邀请订单, 发送给A
+      // A取消邀请订单, 发送给A 参数: A昵称, 邀约时间
       $this->sendMessage([
         'phone' => $seller['phone'],
         'type' => 'canceled2A',
         'cid' => $seller['cid'],
         'params' => [$seller['nickName'], $invitation['startAt']]
       ]);
-      // A取消邀请订单, 发送给C
+      // A取消邀请订单, 发送给C 参数: C昵称, 邀约时间
       $this->sendMessage([
         'phone' => $buyer['phone'],
         'type' => 'canceled2C',
         'cid' => $buyer['cid'],
         'params' => [$buyer['nickName'], $invitation['startAt']]
       ]);
+      // 参数: AB昵称, A昵称, 邀约时间
       $this->sendMessage([
         'phone' => $sellerAgency['phone'],
         'type' => 'canceled2AB',
         'cid' => $sellerAgency['cid'],
-        'params' => [$sellerAgency['nickName'], $invitation['startAt']]
+        'params' => [$sellerAgency['nickName'], $seller['nickName'], $invitation['startAt']]
       ]);
+      // 参数: CB昵称, C昵称, 邀约时间
       $this->sendMessage([
         'phone' => $buyerAgency['phone'],
         'type' => 'canceled2CB',
         'cid' => $buyerAgency['cid'],
-        'params' => [$buyerAgency['nickName'], $invitation['startAt']]
+        'params' => [$buyerAgency['nickName'], $buyer['nickName'], $invitation['startAt']]
       ]);
     }
     // C主动取消(canceling)
@@ -211,13 +215,13 @@ class SmsMessageBLL extends BLL {
         'phone' => $sellerAgency['phone'],
         'type' => 'canceling2AB',
         'cid' => $sellerAgency['cid'],
-        'params' => [$sellerAgency['nickName'], $invitation['startAt']]
+        'params' => [$sellerAgency['nickName'], $seller['nickName'], $invitation['startAt']]
       ]);
       $this->sendMessage([
         'phone' => $buyerAgency['phone'],
         'type' => 'canceling2CB',
         'cid' => $buyerAgency['cid'],
-        'params' => [$buyerAgency['nickName'], $invitation['startAt']]
+        'params' => [$buyerAgency['nickName'], $buyer['nickName'], $invitation['startAt']]
       ]);
     }
     // A投诉
@@ -227,14 +231,14 @@ class SmsMessageBLL extends BLL {
         'phone' => $sellerAgency['phone'],
         'type' => 'complaintA2AB',
         'cid' => $sellerAgency['cid'],
-        'params' => [$sellerAgency['nickName'], $result['sellerName'], $result['startAt']]
+        'params' => [$sellerAgency['nickName'], $seller['nickName'], $invitation['startAt']]
       ]);
       // 发送给C的上级
       $this->sendMessage([
         'phone' => $buyerAgency['phone'],
         'type' => 'complaintA2CB',
         'cid' => $buyerAgency['cid'],
-        'params' => [$buyerAgency['nickName'], $result['buyerName'], $invitation['startAt']]
+        'params' => [$buyerAgency['nickName'], $buyer['nickName'], $invitation['startAt']]
       ]);
     }
     // C投诉
@@ -244,14 +248,14 @@ class SmsMessageBLL extends BLL {
         'phone' => $sellerAgency['phone'],
         'type' => 'complaintC2AB',
         'cid' => $sellerAgency['cid'],
-        'params' => [$sellerAgency['nickName'], $result['sellerName'], $result['startAt']]
+        'params' => [$sellerAgency['nickName'], $seller['nickName'], $invitation['startAt']]
       ]);
       // 发送给C的上级
       $this->sendMessage([
         'phone' => $buyerAgency['phone'],
         'type' => 'complaintC2CB',
         'cid' => $buyerAgency['cid'],
-        'params' => [$buyerAgency['nickName'], $result['buyerName'], $invitation['startAt']]
+        'params' => [$buyerAgency['nickName'], $buyer['nickName'], $invitation['startAt']]
       ]);
     }
   }
