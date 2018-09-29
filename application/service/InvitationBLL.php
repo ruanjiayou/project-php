@@ -259,6 +259,12 @@ class InvitationBLL extends BLL {
     } else {
       throw new Exception($status.' 修改邀请进度错误!');
     }
+    if($status === 'accepted') {
+      $seller->update(['isWork'=>1], ['id'=>$invitation['sellerId']]);
+    }
+    if($status === 'comfirmed' || $status === 'canceled' || $status === 'canceling') {
+      $seller->update(['isWork'=>0], ['id'=>$invitation['sellerId']]);
+    }
     return model($this->table)->edit($invitatoinId, $input);
   }
 

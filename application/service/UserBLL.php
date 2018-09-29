@@ -216,7 +216,8 @@ class UserBLL extends BLL {
       'rebate' => 'int|min:60|max:75',
       'cid' => 'string',
       'cidtoken' => 'string',
-      'willless' => 'boolean'
+      'willless' => 'boolean',
+      'isWork' => 'int'
     ]);
     $input = $validation->validate($data);
     if(isset($input['cid'])) {
@@ -283,7 +284,8 @@ class UserBLL extends BLL {
       'type' => 'enum:servant,buyer,agency|ignore',
       'status' => 'enum:approved,approving,forbidden,registered|ignore',
       'attr' => 'enum:hot,recommend,normal|ignore',
-      'cityId' => 'int'
+      'cityId' => 'int',
+      'isWork' => 'int'
     ]);
     $hql['field'] = '!password,token,salt';
     $where = $validation->validate($hql['where']);

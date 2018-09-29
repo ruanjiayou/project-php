@@ -62,6 +62,7 @@ return [
       $h['where'] = input('get.');
       $h['where']['type'] = 'servant';
       $h['where']['status'] = 'approved';
+      $h['where']['isWork'] = '0';
       $h['order'] = 'workWill DESC';
       if(isset($h['where']['attr']) && $h['where']['attr']==='hot') {
         $h['order'] = 'popular DESC,workWill DESC';
