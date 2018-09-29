@@ -93,15 +93,15 @@ class SmsMessageBLL extends BLL {
     }
   }
 
-  function sendByProgress($invitatoin, $progress) {
-    if(empty($invitatoin)) {
+  function sendByProgress($invitation, $progress) {
+    if(empty($invitation)) {
       return;
     }
     $userBLL = new UserBLL();
-    $seller = $userBLL->getInfo($invitatoin['sellerId']);
-    $buyer = $userBLL->getInfo($invitatoin['buyerId']);
-    $sellerAgency = $userBLL->getInfo($invitatoin['sellerAgencyId']);
-    $buyerAgency = $userBLL->getInfo($invitatoin['buyerAgencyId']);
+    $seller = $userBLL->getInfo($invitation['sellerId']);
+    $buyer = $userBLL->getInfo($invitation['buyerId']);
+    $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
+    $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
     // 发送邀请消息 参数: A昵称
     if($progress === 'inviting') {
       $this->sendMessage([

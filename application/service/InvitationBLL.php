@@ -317,34 +317,34 @@ class InvitationBLL extends BLL {
     }
     $invitation = $this->update($data, $invitation['id']);
     
-    if($type === 'buyer' && $invitation['isExpired']==0) {
-      $seller = $userBLL->getInfo($invitation['sellerId']);
-      $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
-      $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
-      // 中介返利
-      $userBillBLL->balance([
-        'type' => 'income',
-        'value' => $invitation['rebateAgency'],
-        'detail' => 'seller-cashback'
-      ], $sellerAgency);
-      $userBillBLL->balance([
-        'type' => 'income',
-        'value' => $invitation['rebateAgency'],
-        'detail' => 'buyer-cashback'
-      ], $buyerAgency);
-      // 卖家进账
-      $userBillBLL->balance([
-        'type' => 'income',
-        'value' => $invitation['rebate'],
-        'detail' => 'invitation'
-      ], $seller);
-      // 平台收入
-      $userBillBLL->balance([
-        'type' => 'income',
-        'value' => $invitation['price']-$invitation['rebateAgency']*2-$invitation['rebate'],
-        'detail' => 'platformIncome'
-      ]);
-    }
+    // if($type === 'buyer' && $invitation['isExpired']==0) {
+    //   $seller = $userBLL->getInfo($invitation['sellerId']);
+    //   $sellerAgency = $userBLL->getInfo($invitation['sellerAgencyId']);
+    //   $buyerAgency = $userBLL->getInfo($invitation['buyerAgencyId']);
+    //   // 中介返利
+    //   $userBillBLL->balance([
+    //     'type' => 'income',
+    //     'value' => $invitation['rebateAgency'],
+    //     'detail' => 'seller-cashback'
+    //   ], $sellerAgency);
+    //   $userBillBLL->balance([
+    //     'type' => 'income',
+    //     'value' => $invitation['rebateAgency'],
+    //     'detail' => 'buyer-cashback'
+    //   ], $buyerAgency);
+    //   // 卖家进账
+    //   $userBillBLL->balance([
+    //     'type' => 'income',
+    //     'value' => $invitation['rebate'],
+    //     'detail' => 'invitation'
+    //   ], $seller);
+    //   // 平台收入
+    //   $userBillBLL->balance([
+    //     'type' => 'income',
+    //     'value' => $invitation['price']-$invitation['rebateAgency']*2-$invitation['rebate'],
+    //     'detail' => 'platformIncome'
+    //   ]);
+    // }
     return true;
   }
 
