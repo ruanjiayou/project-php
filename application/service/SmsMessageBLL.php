@@ -152,18 +152,18 @@ class SmsMessageBLL extends BLL {
       ]);
     }
     // 扫描发送消息
-    if($progress == 'comfirmed') {
+    if($progress == 'confirmed') {
       // 参数: A昵称, 邀约时间
       $this->sendMessage([
         'phone' => $seller['phone'],
-        'type' => 'comfirmed2A',
+        'type' => 'confirmed2A',
         'cid' => $seller['cid'],
         'params' => [$seller['nickName'], $invitation['startAt']]
       ]);
       // 参数: C昵称, 邀约时间
       $this->sendMessage([
         'phone' => $buyer['phone'],
-        'type' => 'comfirmed2C',
+        'type' => 'confirmed2C',
         'cid' => $buyer['cid'],
         'params' => [$buyer['nickName'], $invitation['startAt']]
       ]);
