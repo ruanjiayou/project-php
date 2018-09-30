@@ -12,9 +12,13 @@ class UserWorkBLL extends BLL {
     ]);
     $input = $validation->validate($data);
     $results = [];
+    $date = date('Y-m-d');
     for($i=0;$i<count($input['works']);$i++) {
       $work = $input['works'][$i];
       $query = ['userId'=>$userId,'workAt'=>$work];
+      if($date == $work) {
+        (new UserBLL())->update(['isWorkDay'=>1], ['id'=>$userId]);
+      }
       if($this->isWork($query)) {
         $res = ['id'=>null,'workAt'=>$work];
       } else {
@@ -35,14 +39,20 @@ class UserWorkBLL extends BLL {
     return model($this->table)->add($input);
   }
   
-  public function destroy($workAt) {
-    $t = strtotime($workAt.' 00:00:00');
-    if($t < time()) {
+  public function destroy($condition) {
+    $t = strtotime($condition['workAt']);
+    $deathline = strtotime(date('Y-m-d').' 00:00:00');
+    if($t < $deathline) {
       return false;
     }
-    $work = $this->getInfo(['workAt'=>['like', $workAt.'%']]);
+    $work = $this->getInfo($condition);
     if($work !== null) {
       model($this->table)->remove($work['id']);
+      $date = date('Y-m-d');
+      list($workDate) = explode(' ', $work['workAt']);
+      if($date == $workDate) {
+        (new UserBLL())->update(['isWorkDay'=>0], $condition['userId']);
+      }
       return true;
     }
     return false;

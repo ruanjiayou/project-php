@@ -217,7 +217,8 @@ class UserBLL extends BLL {
       'cid' => 'string',
       'cidtoken' => 'string',
       'willless' => 'boolean',
-      'isWork' => 'int'
+      'isWork' => 'int',
+      'isWorkDay' => 'int'
     ]);
     $input = $validation->validate($data);
     if(isset($input['cid'])) {

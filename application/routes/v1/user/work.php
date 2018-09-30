@@ -91,7 +91,7 @@ return [
   'delete /v1/user/works/:workAt' => function($req, $res) {
     $user = UserBLL::auth($req);
     $userWorkBLL = new UserWorkBLL();
-    if($userWorkBLL->destroy($req->param('workAt'))) {
+    if($userWorkBLL->destroy(['workAt'=>$req->param('workAt').' 00:00:00','userId' => $user['id']])) {
       $res->success();
     } else {
       $res->fail();
