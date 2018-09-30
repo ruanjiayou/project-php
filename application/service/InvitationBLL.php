@@ -120,7 +120,7 @@ class InvitationBLL extends BLL {
       throw new Exception('本用户类型没有此项权限!');
     }
     $invitation = self::getInfo($invitatoinId);
-    if(null === $invitation || $invitation['sellerId'] !== $user['id']) {
+    if(null === $invitation || ($invitation['sellerId'] !== $user['id'] && $status=='confirmed')) {
       thrower('common', 'notFound');
     }
     $buyer = null;
