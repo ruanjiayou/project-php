@@ -362,7 +362,7 @@ class InvitationBLL extends BLL {
     if($invitation['isComplaint'] == 1) {
       thrower('invitation', 'complainted');
     }
-    if($user['type'] === 'servant') {
+    if($type === 'servant') {
       // A投诉
       $smsMesageBLL->sendByProgress($invitation, 'Acomplaint');
     } else {
