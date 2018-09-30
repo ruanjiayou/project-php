@@ -286,7 +286,8 @@ class UserBLL extends BLL {
       'status' => 'enum:approved,approving,forbidden,registered|ignore',
       'attr' => 'enum:hot,recommend,normal|ignore',
       'cityId' => 'int',
-      'isWork' => 'int'
+      'isWork' => 'int',
+      'isWorkDay' => 'int',
     ]);
     $hql['field'] = '!password,token,salt';
     $where = $validation->validate($hql['where']);
