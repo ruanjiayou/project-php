@@ -11,7 +11,7 @@ return [
     $user = UserBLL::auth($req);
     $invitationBLL = new InvitationBLL();
 
-    $result = $invitationBLL->complaint($req->param('invitationId'), $user['type'] === 'servant' ? 'seller' : 'buyer', input('post.complaint'));
+    $result = $invitationBLL->complaint($req->param('invitationId'), $user['type'], input('post.complaint'));
 
     $res->return($result);
   }
