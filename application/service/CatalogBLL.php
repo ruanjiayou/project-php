@@ -20,6 +20,7 @@ class CatalogBLL extends BLL {
       'name' => 'required|string'
     ]);
     $input = $validation->validate($data);
+    model('tag')->edit(['cataId'=>$id],['cataName'=>$input['name']]);
     return model($this->table)->edit(['id'=>$id], $input);
   }
 

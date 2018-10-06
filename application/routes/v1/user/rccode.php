@@ -102,12 +102,13 @@ return [
     $hql = $req->paging(function($h) use($user) {
       if($user['type']==='agency') {
         $h['where']['agencyId'] = $user['id'];
+        $h['where']['userId'] = ['NEQ','NULL'];
       } else {
         $h['where']['userId'] = $user['id'];
       }
       return $h;
     });
-    $users = $rccodeBLL->getList($hql);
+    $users = $rccodeBLL->getAll($hql);
     $res->paging($users);
   }
 ];
