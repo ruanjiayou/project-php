@@ -31,8 +31,10 @@ return [
   'delete /v1/admin/catalogs' => function($req, $res) {
     $admin = AdminBLL::auth($req);
 
+    $query = input('delete.');
     $catalogBLL =  new CatalogBLL();
-    $catalogBLL->destroy(input('delete.'));
+    $catalogBLL->destroy(['id'=>['in', $query['id']]]);
+    (new TagBLL())->destroy(['cataId'=>['in', $query['id']]]);
     $res->success();
   },
   /**
