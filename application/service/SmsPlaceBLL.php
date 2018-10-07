@@ -45,7 +45,7 @@ class SmsPlaceBLL extends BLL {
     // 3.更改占位短信的模板
     $place = $this->getInfo(['place'=>$place]);
     $oldId = $place['tplId'];
-    $this->update(['tplId'=>$tpl['logicId'],'tpl'=>$tpl['text']], ['place'=>$place['place']]);
+    $this->update(['tplId'=>$tpl['logicId'],'tpl'=>$tpl['text'],'isSms'=>1], ['place'=>$place['place']]);
     // 4.如果旧模板没有被引用,旧改为success,可以被删除
     if($oldId !== 0 && $oldId !== $tplId) {
       $one = $this->getInfo(['tplId'=>$oldId]);
