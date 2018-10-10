@@ -63,6 +63,7 @@ class OrderBLL extends BLL {
     }
   }
 
+  // 受理提现
   function withdraw($condition, $type = 'success') {
     $order = $this->getInfo($condition);
     if($type === 'success') {

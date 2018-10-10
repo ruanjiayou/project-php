@@ -57,12 +57,13 @@ return [
     }
     $smsMesageBLL = new SmsMessageBLL();
     $order = $orderBLL->create(['type'=>'withdraw', 'phone'=>$user['phone'], 'userId'=>$user['id'], 'price'=>$input['money'], 'origin'=> isset($input['type'])? $input['type']:'']);
-    $smsMesageBLL->sendMessage([
-      'phone' => $user['phone'],
-      'type' => 'withdraw',
-      'cid' => $user['cid'],
-      'params' => [$user['nickName'], date('Y-m-d H:i:s')]
-    ]);
+    // $createdAt = substr(date('Y-m-d H:i:s'),5,-3);
+    // $smsMesageBLL->sendMessage([
+    //   'phone' => $user['phone'],
+    //   'type' => 'withdraw',
+    //   'cid' => $user['cid'],
+    //   'params' => [$user['nickName'], $createdAt]
+    // ]);
     $res->return($order);
   },
   /**
