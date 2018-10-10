@@ -166,7 +166,7 @@ class SmsMessageBLL extends BLL {
         'phone' => $buyer['phone'],
         'type' => 'confirmed2C',
         'cid' => $buyer['cid'],
-        'params' => [$buyer['nickName'], $startAt]
+        'params' => [$buyer['nickName']]
       ]);
     }
     // A取消邀请(被动canceled)
