@@ -111,6 +111,7 @@ class SmsBLL extends BLL {
         'logicId' => $tpl['data']['id'],
         'text' => $input['text'],
         'type' => 'tpl',
+        'description' => $input['description'],
         'status' => 'pending',
         'createdAt' => date('Y-m-d H:i:s')
       ]);
@@ -137,6 +138,14 @@ class SmsBLL extends BLL {
       }
       return $smsModel->destroy($query);
     }
+  }
+  /**
+   * 修改模板备注
+   */
+  function putTpl($smsId, $input) {
+    $smsModel = model($this->table);
+    $tpl = $smsModel->edit(['id'=> $smsId], ['description'=>$input['description']]);
+    return $tpl;
   }
   /**
    * 获取所有目标并刷新审核状态

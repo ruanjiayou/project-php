@@ -72,13 +72,13 @@ return [
   //   $res->return($result);
   // },
   /**
-   * @api {post} /v1/admin/sms-tpl 获取模板列表
+   * @api {post} /v1/admin/sms-tpl 添加模板列表
    * @apiGroup admin-sms
    * 
    * @apiHeader {string} token 鉴权
    * 
    * @apiParam {string} text 内容
-   * @apiParam {string} [remark] 备注
+   * @apiParam {string} [description] 备注
    */
   'post /v1/admin/sms-tpl' => function($req, $res) {
     $admin = AdminBLL::auth($req);
@@ -99,6 +99,21 @@ return [
 
     $smsBLL->delTpl($req->param('smsId'));
     $res->success();
+  },
+  /**
+   * @api {put} /v1/admin/sms-tpl 修改模板列表描述
+   * @apiGroup admin-sms
+   * 
+   * @apiHeader {string} token 鉴权
+   * 
+   * @apiParam {string} description 备注
+   */
+  'put /v1/admin/sms-tpl/:smsId' => function($req, $res) {
+    $admin = AdminBLL::auth($req);
+    $smsBLL = new SmsBLL();
+
+    $result = $smsBLL->putTpl($req->param('smsId'), input('put.'));
+    $res->return($result);
   },
   /**
    * @api {get} /v1/admin/sms-tpl 获取模板列表
