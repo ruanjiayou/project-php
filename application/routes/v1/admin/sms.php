@@ -101,6 +101,18 @@ return [
     $res->success();
   },
   /**
+   * @api {delete} /v1/admin/sms-tpl-test 批量删除模板
+   * @apiGroup admin-sms
+   * 
+   * @apiHeader {string} token 鉴权
+   * @apiParam {array} ids
+   */
+  'delete /v1/admin/sms-tpl-test' => function($req, $res) {
+    $arr = input('delete.');
+    $result = wxHelper::delSmsTpl($arr['ids']);
+    $res->return($result);
+  },
+  /**
    * @api {put} /v1/admin/sms-tpl 修改模板列表描述
    * @apiGroup admin-sms
    * 
