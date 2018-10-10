@@ -47,11 +47,12 @@ class OrderBLL extends BLL {
     } else {
       // 提现就扣,失败再返还
       $order = model($this->table)->add($data);
+      $createdAt = substr($data['createdAt'],5,-3);
       // 发送提现消息
       (new SmsMessageBLL())->sendMessage([
         'phone' => $data['phone'],
         'type' => 'withdraw',
-        'params' => [$user['nickName'], $data['createdAt']]
+        'params' => [$user['nickName'], $createdAt]
       ]);
       (new UserBillBLL())->balance([
         'type' => 'expent',
