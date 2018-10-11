@@ -37,7 +37,13 @@ function rebate($id) {
       'createdAt' => date('Y-m-d H:i:s')
     ]);
     // C上级
-    db('user')->where(['id'=>$buyerAgency['id']])->update(['money'=>$buyerAgency['money']+$invitation['rebateAgency']]);
+    if($buyerAgency['id'] == $sellerAgency['id']) {
+      // 此时buyerAgency的money没有更新,所以要*2
+      db('user')->where(['id'=>$buyerAgency['id']])->update(['money'=>$buyerAgency['money']+2*$invitation['rebateAgency']]);
+    } else {
+      db('user')->where(['id'=>$buyerAgency['id']])->update(['money'=>$buyerAgency['money']+$invitation['rebateAgency']]);
+    }
+    
     $id3 = db('user_bill')->insertGetId([
       'userId' => $buyerAgency['id'],
       'type' => 'income',
