@@ -35,7 +35,7 @@ return [
       'type' => $data['place'],
       'params' => $params
     ]);
-    $res->return(['detail'=>'发送成功']);
+    $res->return(['detail'=>'发送成功'], ['detail'=>$result]);
   }
 ];
 ?>
