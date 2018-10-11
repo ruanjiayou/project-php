@@ -69,13 +69,15 @@ class SmsMessageBLL extends BLL {
     } else {
       $result = $hidden === true ? ['result'=>0] : wxHelper::sendSmsMessage($data['phone'], $place['sign'], $place['tplId'], $data['params']);
       // 不显示在我的消息列表
-      // $message = $this->create([
-      //   'type' => $place['place'],
-      //   'title' => $place['sign'],
-      //   'content' => $content,
-      //   'code' => $code,
-      //   'phone' => $data['phone'],
-      // ]);
+      if($place['place'] == 'zhuche' || $place['place'] == 'forgot') {
+        $message = $this->create([
+          'type' => $place['place'],
+          'title' => $place['sign'],
+          'content' => $content,
+          'code' => $code,
+          'phone' => $data['phone'],
+        ]);
+      }
       if($result['result']!==0) {
         // $this->update(['status'=>'fail'], ['id'=>$message['id']]);
         thrower('sms', 'smsSendFail', $result['errmsg']);
@@ -92,7 +94,7 @@ class SmsMessageBLL extends BLL {
       //     ['title'=>'['.$place['sign'].']', 'content'=> $content, 'payload'=> $content]
       //   );
       // }
-      return $message;
+      return $result;
     }
   }
 
