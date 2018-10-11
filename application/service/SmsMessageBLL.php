@@ -55,40 +55,43 @@ class SmsMessageBLL extends BLL {
       $data['title'] = $place['sign'];
       $data['content'] = $content;
       $result = $this->create($data);
-      if($data['cid']!="") {
-        return (new GeTui())->sendOne(
-          $data['phone'],
-          $data['cid'],
-          ['title'=>'['.$place['sign'].']', 'content'=> $content, 'payload'=> $content]
-        );
-      }
+      // 不发推送,现在都是短信也进不了这,公告群推也不进这
+      // if($data['cid']!="") {
+      //   return (new GeTui())->sendOne(
+      //     $data['phone'],
+      //     $data['cid'],
+      //     ['title'=>'['.$place['sign'].']', 'content'=> $content, 'payload'=> $content]
+      //   );
+      // }
       return $result;
     } else if($place['signId'] == 0 || $place['tplId'] == 0) {
       thrower('sms', 'placeNotFound');
     } else {
-      $message = $this->create([
-        'type' => $place['place'],
-        'title' => $place['sign'],
-        'content' => $content,
-        'code' => $code,
-        'phone' => $data['phone'],
-      ]);
       $result = $hidden === true ? ['result'=>0] : wxHelper::sendSmsMessage($data['phone'], $place['sign'], $place['tplId'], $data['params']);
+      // 不显示在我的消息列表
+      // $message = $this->create([
+      //   'type' => $place['place'],
+      //   'title' => $place['sign'],
+      //   'content' => $content,
+      //   'code' => $code,
+      //   'phone' => $data['phone'],
+      // ]);
       if($result['result']!==0) {
-        $this->update(['status'=>'fail'], ['id'=>$message['id']]);
+        // $this->update(['status'=>'fail'], ['id'=>$message['id']]);
         thrower('sms', 'smsSendFail', $result['errmsg']);
       }
       $kv = [
         'zhuche' => '',
         'invite' => ''
       ];
-      if($data['cid']!="" && isset($kv[$place['place']])) {
-        (new GeTui())->sendOne(
-          $data['phone'],
-          $data['cid'],
-          ['title'=>'['.$place['sign'].']', 'content'=> $content, 'payload'=> $content]
-        );
-      }
+      // 不推送
+      // if($data['cid']!="" && isset($kv[$place['place']])) {
+      //   (new GeTui())->sendOne(
+      //     $data['phone'],
+      //     $data['cid'],
+      //     ['title'=>'['.$place['sign'].']', 'content'=> $content, 'payload'=> $content]
+      //   );
+      // }
       return $message;
     }
   }
