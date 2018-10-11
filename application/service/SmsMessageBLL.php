@@ -80,7 +80,7 @@ class SmsMessageBLL extends BLL {
       }
       if($result['result']!==0) {
         // $this->update(['status'=>'fail'], ['id'=>$message['id']]);
-        thrower('sms', 'smsSendFail', $result['errmsg']);
+        // thrower('sms', 'smsSendFail', $result['errmsg']);
       }
       $kv = [
         'zhuche' => '',
