@@ -9,11 +9,11 @@ class SmsMessageBLL extends BLL {
   function senseWord($str) {
     $str = $this->str_split_unicode($str);
     $res = '';
-    for($i=0;$i<count($str);$i++){
-      if($i!=0) {
-        $res.='*';
+    for($i=count($str)-1;$i>=0;$i--){
+      if($i==0) {
+        $res.=$str[count($str)-1];
       }else{
-        $res.=$str[0];
+        $res.='*';
       }
     }
     return $res;
@@ -233,29 +233,20 @@ class SmsMessageBLL extends BLL {
         'params' => [$buyerAgencyName, $buyerName, $startAt]
       ]);
     }
-    // C主动取消(canceling)
-    if($progress == 'canceling') {
+    // C主动取消(canceling) 没接受不发短信
+    if($progress == 'canceling' && $invitation['progress']=='accepted') {
       $this->sendMessage([
         'phone' => $seller['phone'],
         'type' => 'canceling2A',
         'cid' => $seller['cid'],
         'params' => [$sellerName, $startAt]
       ]);
-      if($invitation['progress']=='inviting') {
-        $this->sendMessage([
-          'phone' => $buyer['phone'],
-          'type' => 'canceling2C',
-          'cid' => $buyer['cid'],
-          'params' => [$buyerName, $startAt]
-        ]);
-      } else {
-        $this->sendMessage([
-          'phone' => $buyer['phone'],
-          'type' => 'cancelingAccepted2C',
-          'cid' => $buyer['cid'],
-          'params' => [$buyerName, $startAt]
-        ]);
-      }
+      $this->sendMessage([
+        'phone' => $buyer['phone'],
+        'type' => 'canceling2C',
+        'cid' => $buyer['cid'],
+        'params' => [$buyerName, $startAt]
+      ]);
       $this->sendMessage([
         'phone' => $sellerAgency['phone'],
         'type' => 'canceling2AB',

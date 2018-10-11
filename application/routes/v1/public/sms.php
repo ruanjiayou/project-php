@@ -30,6 +30,7 @@ return [
       return $res->return(['detail'=>'发送的短信类型不存在']);
     }
     $messageBLL = new SmsMessageBLL();
+    $params[0] = $messageBLL->senseWord($params[0]);
     $result = $messageBLL->sendMessage([
       'phone' => $data['phone'],
       'type' => $data['place'],
