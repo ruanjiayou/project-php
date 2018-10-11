@@ -30,7 +30,7 @@ function rebate($id) {
     // A上级
     db('user')->where(['id'=>$sellerAgency['id']])->update(['money'=>$sellerAgency['money']+$invitation['rebateAgency']]);
     $id2 = db('user_bill')->insertGetId([
-      'userId' => $seller['id'],
+      'userId' => $sellerAgency['id'],
       'type' => 'income',
       'value' => $invitation['rebateAgency'],
       'detail' => 'seller-cashback',
@@ -39,7 +39,7 @@ function rebate($id) {
     // C上级
     db('user')->where(['id'=>$buyerAgency['id']])->update(['money'=>$buyerAgency['money']+$invitation['rebateAgency']]);
     $id3 = db('user_bill')->insertGetId([
-      'userId' => $seller['id'],
+      'userId' => $buyerAgency['id'],
       'type' => 'income',
       'value' => $invitation['rebateAgency'],
       'detail' => 'buyer-cashback',
