@@ -39,6 +39,11 @@ return [
     'code' => 10280,
     'status' =>  200,
     'message' => '该手机号没有注册!'
+  ],
+  'orderMoneyLess' => [
+    'code' => 10290,
+    'status' => 200,
+    'message' => '订单状态异常!'
   ]
 ];
 ?>

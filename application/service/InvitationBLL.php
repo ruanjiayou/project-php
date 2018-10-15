@@ -183,7 +183,8 @@ class InvitationBLL extends BLL {
           thrower('user', 'userNotFound');
         }
         if($buyer['money'] < $invitation['price']) {
-          thrower('user', 'moneyLess');
+          // 订单状态异常
+          thrower('user', 'orderMoneyLess');
         } else {
           $userBillBLL->balance([
             'type' => 'expent',
