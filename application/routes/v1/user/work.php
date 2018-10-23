@@ -122,7 +122,7 @@ return [
     }
     // $user->update(['workWill'=>1], $user['id']);
     model('user')->edit(['id'=>$user['id']], ['workWill'=>!$user['workWill']]);
-    $res->success();
+    $res->return(['workWill'=>!$user['workWill']]);
   }
 ];
 
