@@ -58,7 +58,7 @@ return [
   'changeWillFail' => [
     'code' => 10893,
     'status' => 200,
-    'message' => '修改失败,请确定订单是否未完成!'
+    'message' => '修改失败，请确认订单是否完成！'
   ]
 ];
 ?>
