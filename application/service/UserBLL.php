@@ -287,6 +287,7 @@ class UserBLL extends BLL {
       'attr' => 'enum:hot,recommend,normal|ignore',
       'cityId' => 'int',
       'isWork' => 'int',
+      'workWill' => 'int',
       'isWorkDay' => 'int',
     ]);
     $hql['field'] = '!password,token,salt';
