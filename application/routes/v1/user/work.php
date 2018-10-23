@@ -96,6 +96,32 @@ return [
     } else {
       $res->fail();
     }
+  },
+  /**
+   * @api {post} /v1/user/works/work-will 切换工作意愿状态按钮,无参数
+   * @apiGroup user-work
+   * @apiHeader {string} token 鉴权
+   * 
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   state: 'success',
+   *   rdata: {},
+   *   ecode: 0,
+   *   error: '',
+   *   stack: ''
+   * }
+   */
+  'post /v1/user/works/work-will' => function($req, $res) {
+    $user = UserBLL::auth($req);
+    $invitationBLL = new InvitationBLL();
+    // 如果有订单没完成就不能修改
+    $invitation = $invitationBLL->getInfo(['status'=>'pending','progress'=>'accepted']);
+    if($invitation != null) {
+      thrower('invitation', 'changeWillFail');
+    }
+    $user->update(['workWill'=>1], $user['id']);
+    $res->success();
   }
 ];
 

@@ -62,18 +62,20 @@ return [
       $h['where'] = input('get.');
       $h['where']['type'] = 'servant';
       $h['where']['status'] = 'approved';
-      $h['where']['isWork'] = '0';
-      $h['where']['isWorkDay'] = '1';
-      $h['order'] = 'workWill DESC';
-      if(isset($h['where']['attr']) && $h['where']['attr']==='hot') {
-        $h['order'] = 'popular DESC,workWill DESC';
-        unset($h['where']['attr']);
-      }
+      // $h['where']['isWork'] = '0';
+      // $h['where']['isWorkDay'] = '1';
+      $h['where']['workWill'] = '1';
+      // $h['order'] = 'workWill DESC';
+      // if(isset($h['where']['attr']) && $h['where']['attr']==='hot') {
+      //   $h['order'] = 'popular DESC,workWill DESC';
+      //   unset($h['where']['attr']);
+      // }
       return $h;
     });
     if(isset($_GET['distance']) && preg_match('/^\d+\.\d+[,]\d+.\d+$/', $_GET['distance'])) {
       $count = model('user')->count();
-      $data = model('user')->query('select *,(st_distance (point (x, y),point('.$_GET['distance'].')) / 0.0111) AS distance from user where type="servant" and isWorkDay=1 and isWork = 0 and status="approved" order by distance limit '.($hql['page']-1)*$hql['limit'].','.$hql['limit']);//.($hql['page']-1)*$hql['limit'].','.$hql['limit']
+      // $data = model('user')->query('select *,(st_distance (point (x, y),point('.$_GET['distance'].')) / 0.0111) AS distance from user where type="servant" and isWorkDay=1 and isWork = 0 and status="approved" order by distance limit '.($hql['page']-1)*$hql['limit'].','.$hql['limit']);//.($hql['page']-1)*$hql['limit'].','.$hql['limit']
+      $data = model('user')->query('select *,(st_distance (point (x, y),point('.$_GET['distance'].')) / 0.0111) AS distance from user where type="servant" and workWill = 1 and status="approved" order by distance limit '.($hql['page']-1)*$hql['limit'].','.$hql['limit']);
       $res->return($data, [
         'paginator' => [
           'total' => $count,

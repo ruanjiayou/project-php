@@ -14,15 +14,15 @@ class InvitationBLL extends BLL {
   function canInvited($sellerId, $date) {
     list($d,$t) = explode(' ', $date);
     // 今天是工作日,才能被邀请
-    $isWork = (new UserWorkBLL())->isWork(['userId'=>$sellerId, 'workAt'=>$d]);
-    if(false === $isWork) {
-      return false;
-    }
-    // 开关,暂不处理
-    // $user = (new UserBLL())->getInfo($sellerId);
-    // if($user['workWill'] == 0) {
-    //   thrower('invitation', 'willless');
+    // $isWork = (new UserWorkBLL())->isWork(['userId'=>$sellerId, 'workAt'=>$d]);
+    // if(false === $isWork) {
+    //   return false;
     // }
+    // 开关按钮 2018-10-22 18:05:20 取消工作日的逻辑改用开关按钮
+    $user = (new UserBLL())->getInfo($sellerId);
+    if($user['workWill'] == 0) {
+      thrower('invitation', 'willless');
+    }
     // 今天有未完成的邀请(已结束或扫描),就不能被邀请
     // $lastInvitation = $this->getInfo(['sellerId'=>$sellerId, 'status'=>'pending', 'progress'=>['NEQ', 'inviting'], 'createdAt'=>['>',date('Y-m-d').' 00:00:00']],['order'=> 'id DESC']);
     // // 最后一单: 成功但没success(confirmed) 表示在工作中
@@ -156,7 +156,7 @@ class InvitationBLL extends BLL {
      * progress: inviting -> accepted -> canceling
      * 接受扫码成功过期
      * 5.status: pending  -> pending  -> success   -> expired
-     * progress: inviting -> accepted -> comfirmed -> comfirmed
+     * progress: inviting -> accepted -> confirmed -> confirmed
      * 评论isComment
      * 投诉isComplaint
      * 过期isExpired
@@ -172,7 +172,7 @@ class InvitationBLL extends BLL {
       if('inviting' !== $progress) {
         thrower('invitation', 'updateFail', '只能接受邀请中状态的邀请!');
       } else {
-        // 有未完成订单不能,接受.
+        // 有未完成订单,不能接受.
         $unfinish = $this->getInfo(['sellerId'=>$invitation['sellerId'],'status'=>'pending','progress'=>'accepted']);
         if(!empty($unfinish)) {
           thrower('invitation', 'unfinish');
@@ -215,11 +215,16 @@ class InvitationBLL extends BLL {
             'value' => $invitation['price'] - $punishment_money,
             'detail' => '取消邀请,返回(已按时间扣钱惩罚)'
           ], $buyer);
+          // $userBillBLL->balance([
+          //   'type' => 'income',
+          //   'value' => $punishment_money,
+          //   'detail' => 'C取消订单,补偿给A'
+          // ], $seller);
           $userBillBLL->balance([
             'type' => 'income',
             'value' => $punishment_money,
-            'detail' => 'C取消订单,补偿给A'
-          ], $seller);
+            'detail' => 'platformIncome'
+          ]);
         } else {
           $userBillBLL->balance([
             'type' => 'income',
@@ -261,10 +266,11 @@ class InvitationBLL extends BLL {
       throw new Exception($status.' 修改邀请进度错误!');
     }
     if($status === 'accepted') {
-      $seller->update(['isWork'=>1], ['id'=>$invitation['sellerId']]);
+      // $seller->update(['isWork'=>1], ['id'=>$invitation['sellerId']]);
+      $seller->update(['workWill'=>0], ['id'=>$invitation['sellerId']]);
     }
     if($status === 'confirmed' || $status === 'canceled' || $status === 'canceling') {
-      model('user')->edit($invitation['sellerId'], ['isWork'=>0]);
+      // model('user')->edit($invitation['sellerId'], ['isWork'=>0]);
     }
     return model($this->table)->edit($invitatoinId, $input);
   }

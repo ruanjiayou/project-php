@@ -71,6 +71,11 @@ return [
       }
       if(in_array($status, ['pending', 'success', 'fail'])) {
         $hql['where']['status'] = $status;
+        if($status != 'pending') {
+          $start = date('Y-m-d H:i:s', time()-86400);
+          $end = date('Y-m-d H:i:s', time());
+          $hql['where']['createdAt'] = ['between',[$start, $end]];
+        }
       }
       $hql['where']['progress'] = ['not in', ['refused','expired']];
       return $hql;
