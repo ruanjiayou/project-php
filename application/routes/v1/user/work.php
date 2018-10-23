@@ -120,7 +120,8 @@ return [
     if($invitation != null) {
       thrower('invitation', 'changeWillFail');
     }
-    $user->update(['workWill'=>1], $user['id']);
+    // $user->update(['workWill'=>1], $user['id']);
+    model('user')->edit(['id'=>$user['id']], ['workWill'=>1]);
     $res->success();
   }
 ];
